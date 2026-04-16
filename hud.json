@@ -1,6 +1,6 @@
 {
     "name":"TacAM HUD",
-    "version":"1.0.0",
+    "version":"1.0.1",
     "author":"TacAM",
     "legacy": false,
     "radar": true,

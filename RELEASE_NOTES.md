@@ -1,3 +1,63 @@
+# 🎮 TacAM HUD v1.0.1 - Documentation Update
+
+Critical documentation fix for proper OpenHud installation.
+
+## ⚠️ IMPORTANT - Installation Change
+
+This release fixes the installation instructions. The HUD folder **must be named `build`** to work with OpenHud.
+
+### What Changed
+- ✅ **Corrected installation instructions** - folder must be renamed to `build`
+- ✅ **Updated README.md** with proper OpenHud integration steps
+- ✅ **Updated QUICKSTART.md** with 4-step installation process
+- ✅ **Enhanced troubleshooting** section with common issues
+
+## 🚀 Correct Installation (Updated)
+
+1. **Download and install OpenHud**
+2. **Open OpenHud** → Settings → **"Open Directory"**  
+   This opens the `OpenHud-Huds` folder
+3. **Copy the `TacAM-Hud` folder** into this directory
+4. **Rename it to `build`** ⚠️ (Critical!)
+5. **Restart OpenHud**
+
+### Why This Matters
+OpenHud looks for a custom HUD in a folder named exactly `build` within the `OpenHud-Huds` directory. Previous documentation suggested incorrect folder names.
+
+## 📋 What's Fixed in v1.0.1
+
+### Documentation Updates
+- Fixed installation method 1 (now uses "Open Directory" button)
+- Fixed installation method 2 (correct path structure)
+- Removed method 3 (incorrect approach)
+- Added prominent warning about folder naming requirement
+- Enhanced troubleshooting with folder name validation
+- Referenced official OpenHud Issue #49
+
+### No Code Changes
+This is a documentation-only release. All HUD functionality remains the same as v1.0.0.
+
+## 📖 Documentation
+
+- [README.md](README.md) - Updated full documentation
+- [QUICKSTART.md](QUICKSTART.md) - Updated quick installation guide
+- [CHANGELOG.md](CHANGELOG.md) - Complete version history
+
+## 🔄 Upgrading from v1.0.0
+
+If you already have v1.0.0 installed:
+1. Simply rename your HUD folder to `build`
+2. Make sure it's in the `OpenHud-Huds` directory
+3. Restart OpenHud
+
+No need to re-download if you already have v1.0.0!
+
+---
+
+**Previous Release Notes: [v1.0.0](#-tacam-hud-v100---initial-release)**
+
+---
+
 # 🎮 TacAM HUD v1.0.0 - Initial Release
 
 Professional Counter-Strike 2 HUD designed for **OpenHud** with TacAM branding.

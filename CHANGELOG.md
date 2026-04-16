@@ -2,6 +2,20 @@
 
 All notable changes to TacAM HUD will be documented in this file.
 
+## [1.0.1] - 2026-04-16
+
+### Documentation
+- ⚠️ **IMPORTANT:** Added critical installation requirement - folder must be named `build`
+- 📝 Updated README.md with correct installation instructions for OpenHud
+- 📝 Updated QUICKSTART.md with proper folder naming requirements
+- 🐛 Enhanced troubleshooting section with folder name validation
+- ✨ Added reference to OpenHud Issue #49 for custom HUD installation
+
+### Changed
+- Installation Method 1 now uses OpenHud "Open Directory" feature
+- Installation Method 2 simplified with correct path information
+- Removed incorrect installation methods that didn't work
+
 ## [1.0.0] - 2026-04-16
 
 ### Initial Release
