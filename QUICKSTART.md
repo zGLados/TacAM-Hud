@@ -2,18 +2,22 @@
 
 > **Standalone HUD** - No build process needed! Just use it directly. 🚀
 
-## ⚡ Quick Start (3 Steps)
+## ⚡ Quick Start (4 Steps)
 
 1. **Install OpenHud**
    - Download [OpenHud](https://github.com/JohnTimmermann/OpenHud/releases)
    - Install and start the app
 
 2. **Add HUD**
-   - Open OpenHud → HUD Settings
-   - Select the `TacAM-Hud` folder
-   - Done!
+   - Open OpenHud → Settings → **"Open Directory"**
+   - Copy the `TacAM-Hud` folder into the opened directory
+   - **Rename it to `build`** ⚠️ (Important!)
 
-3. **Start CS2**
+3. **Restart OpenHud**
+   - Close and restart OpenHud
+   - The HUD is now active
+
+4. **Start CS2**
    - Start CS2
    - Join as **Spectator** in a match/demo
    - The HUD will automatically display all data
@@ -68,13 +72,15 @@ Custom CSS: (leave empty!)
 ## 🆘 Problems?
 
 **HUD not showing:**
+- ⚠️ **Folder must be named `build`** in the `OpenHud-Huds` directory!
 - Restart OpenHud
-- Correct HUD folder selected?
 - Clear browser cache (Ctrl+F5)
+- Check OpenHud console for errors
 
 **No live data:**
 - Join CS2 as spectator
 - Check OpenHud console for errors
+- Verify GSI config is installed in CS2 cfg folder
 
 ## 🔗 Help & Support
 

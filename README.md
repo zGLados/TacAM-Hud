@@ -5,6 +5,9 @@ A professional custom HUD for Counter-Strike 2, built for **[OpenHud](https://gi
 > **Standalone Version** - This HUD is pre-compiled and ready to use with OpenHud.  
 > No build process or npm installation required! 🎉
 
+> ⚠️ **Important:** The folder must be renamed to `build` and placed in the `OpenHud-Huds` directory.  
+> See [Installation](#-installation) for details.
+
 ## 🎮 Features
 
 - 💪 **Health & Armor** display with effects
@@ -29,28 +32,29 @@ A professional custom HUD for Counter-Strike 2, built for **[OpenHud](https://gi
 
 ## 🚀 Installation
 
-### Method 1: Use Complete Folder (Recommended)
+### Method 1: Direct Installation (Recommended)
 
 1. **Download and install OpenHud**
-2. **Copy the entire `TacAM-Hud` folder** to any location
-3. **Open OpenHud** and go to HUD settings
-4. **Select the TacAM-Hud folder** as custom HUD
-5. **Done!** The HUD will load automatically
+2. **Open OpenHud** → Settings → **"Open Directory"**  
+   This opens the `OpenHud-Huds` folder
+3. **Copy or move the entire `TacAM-Hud` folder** into this directory
+4. **Rename the folder to `build`**  
+   ⚠️ **Important:** OpenHud expects the folder to be named exactly `build`
+5. **Restart OpenHud**
+6. **Done!** The HUD will load automatically
 
-### Method 2: Copy to OpenHud Resources
+### Method 2: Manual Path
 
-1. Copy the complete `TacAM-Hud` folder to:
-   ```
-   OpenHud/resources/huds/TacAM-Hud/
-   ```
-2. Restart OpenHud
-3. The HUD will appear in the HUD selection
+If you can't use "Open Directory", place the HUD folder here and rename it to `build`:
+```
+C:\Users\<YourUsername>\OpenHud-Huds\build\
+```
 
-### Method 3: As ZIP for Distribution
+### Method 3: Distribution as ZIP
 
 1. Pack the complete folder as ZIP
-2. Distribute the ZIP file
-3. Users can extract and use Method 1 or 2
+2. Distribute with instructions to rename to `build` after extraction
+3. Users place the `build` folder in their `OpenHud-Huds` directory
 
 ## ⚙️ Configuration
 
@@ -161,9 +165,10 @@ Delete all Custom CSS from the browser source.
 ## 🐛 Troubleshooting
 
 **Problem:** HUD is not displayed
+- ✅ **The folder MUST be named `build` in the `OpenHud-Huds` directory!**
 - ✅ Make sure OpenHud is running
-- ✅ Check if the HUD path is correct
 - ✅ Restart OpenHud
+- ✅ Clear browser cache (Ctrl+F5)
 
 **Problem:** No live data
 - ✅ CS2 must be running and you must be a spectator
