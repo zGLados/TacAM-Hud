@@ -1,10 +1,10 @@
 {
-    "name":"LHM CS2 Default HUD",
-    "version":"1.0.6",
-    "author":"Lexogrine",
+    "name":"TacAM HUD",
+    "version":"1.0.0",
+    "author":"TacAM",
     "legacy": false,
     "radar": true,
-    "killfeed": false,
+    "killfeed": true,
     "game":"cs2",
     "boltobserv":{
         "css":false,
