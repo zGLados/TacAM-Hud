@@ -2,6 +2,20 @@
 
 All notable changes to TacAM HUD will be documented in this file.
 
+## [1.0.2] - 2026-04-21
+
+### Fixed
+- 🐛 **Critical Fix:** Defuse/Plant progress bar now visible
+  - Added missing `--border-color` CSS variable
+  - Fixed defuse bar not showing during defusing/planting
+  
+### Improved
+- 🎨 Enhanced defuse/plant timer visualization
+  - Bar now fills entire container as background
+  - Team-colored backgrounds: Blue (CT defuse) / Red (T plant)
+  - Improved text readability with shadow effects
+  - Smooth animation transition (0.1s linear)
+
 ## [1.0.1] - 2026-04-16
 
 ### Documentation
