@@ -138,6 +138,7 @@ code {
   --color-new-ct: rgba(26, 58, 92, 1);
   --color-bomb: #f22222;
   --color-defuse: #2222f2;
+  --border-color: rgba(255, 255, 255, 0.2);
   --border-radius: 5px;
 }
 #cameras-container {
@@ -838,32 +839,38 @@ code {
   overflow: hidden;
 }
 .defuse_plant_container .defuse_plant_bar {
-  height: 49px;
+  height: 100%;
   background-color: var(--border-color);
   position: absolute;
   width: 0%;
+  transition: width 0.1s linear;
 }
 .defuse_plant_container .defuse_plant_caption {
-  z-index: 1;
+  z-index: 2;
   display: flex;
   text-transform: uppercase;
   font-weight: 600;
   align-items: flex-end;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 4px rgba(0, 0, 0, 0.9);
 }
 .defuse_plant_container .defuse_plant_caption svg {
   margin-right: 13px;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
 }
 .defuse_plant_container.right {
   left: calc(50% + 97px);
 }
 .defuse_plant_container.right .defuse_plant_bar {
   left: 0;
+  background-color: rgba(193, 58, 58, 0.85);
 }
 .defuse_plant_container.left {
   right: calc(50% + 97px);
 }
 .defuse_plant_container.left .defuse_plant_bar {
   right: 0;
+  background-color: rgba(26, 58, 92, 0.85);
 }
 .defuse_plant_container.hide {
   opacity: 0;
