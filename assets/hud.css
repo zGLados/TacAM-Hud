@@ -2,85 +2,85 @@
   font-family: Montserrat;
   font-style: normal;
   font-weight: 100;
-  src: url(./Montserrat-Thin-1a3767e0.ttf) format("truetype");
+  src: url(./Montserrat-Thin.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: normal;
   font-weight: 200;
-  src: url(./Montserrat-ExtraLight-cb6c1c8b.ttf) format("truetype");
+  src: url(./Montserrat-ExtraLight.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: normal;
   font-weight: 300;
-  src: url(./Montserrat-Light-e0feb97a.ttf) format("truetype");
+  src: url(./Montserrat-Light.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: normal;
   font-weight: 400;
-  src: url(./Montserrat-Regular-077cdab1.ttf) format("truetype");
+  src: url(./Montserrat-Regular.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: normal;
   font-weight: 500;
-  src: url(./Montserrat-Medium-421f26b2.ttf) format("truetype");
+  src: url(./Montserrat-Medium.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: normal;
   font-weight: 600;
-  src: url(./Montserrat-SemiBold-f227901e.ttf) format("truetype");
+  src: url(./Montserrat-SemiBold.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: normal;
   font-weight: 700;
-  src: url(./Montserrat-Bold-c8289a87.ttf) format("truetype");
+  src: url(./Montserrat-Bold.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: italic;
   font-weight: 100;
-  src: url(./Montserrat-ThinItalic-8a3c93cd.ttf) format("truetype");
+  src: url(./Montserrat-ThinItalic.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: italic;
   font-weight: 200;
-  src: url(./Montserrat-ExtraLightItalic-0114d4e5.ttf) format("truetype");
+  src: url(./Montserrat-ExtraLightItalic.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: italic;
   font-weight: 300;
-  src: url(./Montserrat-LightItalic-bb1cfd22.ttf) format("truetype");
+  src: url(./Montserrat-LightItalic.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: italic;
   font-weight: 400;
-  src: url(./Montserrat-MediumItalic-dbd2c024.ttf) format("truetype");
+  src: url(./Montserrat-MediumItalic.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: italic;
   font-weight: 500;
-  src: url(./Montserrat-MediumItalic-dbd2c024.ttf) format("truetype");
+  src: url(./Montserrat-MediumItalic.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: italic;
   font-weight: 600;
-  src: url(./Montserrat-SemiBoldItalic-e3ded3a2.ttf) format("truetype");
+  src: url(./Montserrat-SemiBoldItalic.ttf) format("truetype");
 }
 @font-face {
   font-family: Montserrat;
   font-style: italic;
   font-weight: 700;
-  src: url(./Montserrat-BoldItalic-0115a1db.ttf) format("truetype");
+  src: url(./Montserrat-BoldItalic.ttf) format("truetype");
 }
 html,
 body,
@@ -98,13 +98,13 @@ body {
   font-family: Louis George Cafe;
   src:
     local("Louis George Cafe"),
-    url("./Louis George Cafe-22bfccd9.ttf") format("truetype");
+    url("./Louis_George_Cafe.ttf") format("truetype");
 }
 @font-face {
   font-family: Rounded_Elegance;
   src:
     local("Rounded_Elegance"),
-    url(./Rounded_Elegance-b53d9f13.ttf) format("truetype");
+    url(./Rounded_Elegance.ttf) format("truetype");
 }
 code {
   font-family:
@@ -575,7 +575,7 @@ code {
 .sponsor_logo_rotating {
   width: 160px;
   height: 100px;
-  background-color: rgba(47, 51, 56, 0.42);
+  background-color: var(--sub-panel-color);
   border-radius: var(--border-radius);
   display: flex;
   align-items: center;
@@ -1979,7 +1979,7 @@ body,
   justify-content: center;
 }
 .map_series_container .veto_container .active_container .active {
-  background: var(--border-color);
+  background: transparent;
   color: var(--primary-light);
   width: 117px;
   height: 25px;
