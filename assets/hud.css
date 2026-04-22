@@ -132,8 +132,8 @@ code {
   --color-gray: rgba(191, 191, 191, 1);
   --color-moneys: #4cf100;
   --dev-purple: rgba(200, 0, 255, 1);
-  --color-t: rgba(193, 58, 58, 1);
-  --color-ct: rgba(26, 58, 92, 1);
+  --color-t: rgb(193, 58, 58);
+  --color-ct: rgb(26, 58, 92);
   --color-new-t: rgba(193, 58, 58, 1);
   --color-new-ct: rgba(26, 58, 92, 1);
   --color-bomb: #f22222;
@@ -851,8 +851,11 @@ code {
   text-transform: uppercase;
   font-weight: 600;
   align-items: flex-end;
-  color: #fff;
+  color: #ffffff !important;
   text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 4px rgba(0, 0, 0, 0.9);
+}
+.defuse_plant_container .defuse_plant_caption * {
+  color: #ffffff !important;
 }
 .defuse_plant_container .defuse_plant_caption svg {
   margin-right: 13px;
