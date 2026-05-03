@@ -15,17 +15,84 @@
             },
             {
                 "type": "action",
-                "name": "triviaState",
+                "name": "updateTrivia",
                 "values": [
                     {
-                        "name": "show",
-                        "label": "Show trivia"
-                    },
+                        "name": "update",
+                        "label": "Update & Show trivia"
+                    }
+                ]
+            },
+            {
+                "type": "action",
+                "name": "triviaState",
+                "values": [
                     {
                         "name": "hide",
                         "label": "Hide trivia"
                     }
                 ]
+            }
+        ]
+    },
+    {
+        "label": "Player Preview",
+        "name":"player_preview_settings",
+        "inputs": [
+            {
+                "type": "player",
+                "name": "player_preview",
+                "label": "Pick a player to preview"
+            },
+            {
+                "type": "checkbox",
+                "name": "player_preview_toggle",
+                "label": "Show player preview"
+            },
+            {
+                "type": "checkbox",
+                "name": "show_mvp_preview",
+                "label": "Show MVP preview (auto)"
+            }
+        ]
+    },
+    {
+        "label": "Match & Tournament",
+        "name":"match_preview_settings",
+        "inputs": [
+            {
+                "type": "text",
+                "name": "tournament_name",
+                "label": "Tournament name"
+            },
+            {
+                "type": "text",
+                "name": "tournament_stage",
+                "label": "Tournament stage (e.g. Semifinals, Grand Final)"
+            },
+            {
+                "type": "action",
+                "name": "showTournament",
+                "values": [
+                    {
+                        "name": "show",
+                        "label": "Show tournament"
+                    },
+                    {
+                        "name": "hide",
+                        "label": "Hide tournament"
+                    }
+                ]
+            },
+            {
+                "type": "match",
+                "name": "match_preview",
+                "label": "Pick an upcoming match"
+            },
+            {
+                "type": "checkbox",
+                "name": "match_preview_toggle",
+                "label": "Show upcoming match"
             }
         ]
     },
@@ -102,62 +169,6 @@
                     }
                 ]
             }
-        ]
-    },
-    {
-        "label": "Player & Match overview",
-        "name":"preview_settings",
-        "inputs": [
-            {
-                "type": "match",
-                "name": "match_preview",
-                "label": "Pick an upcoming match"
-            },
-            {
-                "type": "select",
-                "name": "select_preview",
-                "label": "Mood indicator",
-                "values": [
-                    {
-                        "name": "show",
-                        "label": ":)"
-                    },
-                    {
-                        "name": "hide",
-                        "label": ":("
-                    }
-                ]
-            },
-            {
-                "type": "player",
-                "name": "player_preview",
-                "label": "Pick a player to preview"
-            },
-            {
-                "type": "checkbox",
-                "name": "player_preview_toggle",
-                "label": "Show player preview"
-            },
-            {
-                "type": "checkbox",
-                "name": "match_preview_toggle",
-                "label": "Show upcoming match"
-            },
-            {
-                "type": "action",
-                "name": "showTournament",
-                "values": [
-                    {
-                        "name": "show",
-                        "label": "Show tournament"
-                    },
-                    {
-                        "name": "hide",
-                        "label": "Hide tournament"
-                    }
-                ]
-            }
-
         ]
     }
 ]

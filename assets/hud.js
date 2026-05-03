@@ -18710,17 +18710,37 @@ const RadarComponent = ({ size: e = 300, mapName: t, bomb: n, player: r, players
   },
   ah = ({ match: e, map: t }) => {
     if (!e || !e.vetos.length) return '';
-    const n = e.vetos.filter((r) => r.type !== 'ban' && r.mapName);
+    const [showTournament, setShowTournament] = g.useState(false);
+    const n = e.vetos.filter((r) => r.type !== 'ban' && r.mapName),
+      tournamentSettings = Bn('match_preview_settings'),
+      tournamentName = (tournamentSettings && tournamentSettings.tournament_name) || '',
+      tournamentStage = (tournamentSettings && tournamentSettings.tournament_stage) || '';
+    o0('showTournament', (action) => {
+      setShowTournament(action === 'show');
+    });
+    const bestOfDisplay = showTournament && (tournamentName || tournamentStage)
+      ? d.jsxs('div', {
+          className: 'bestof tournament_info_map',
+          children: [
+            tournamentName
+              ? d.jsx('div', { className: 'tournament_name_map', children: tournamentName })
+              : null,
+            tournamentStage
+              ? d.jsx('div', { className: 'tournament_stage_map', children: tournamentStage })
+              : null,
+          ],
+        })
+      : d.jsxs('div', {
+          className: 'bestof',
+          children: ['Best of ', e.matchType.replace('bo', '')],
+        });
     if (n.length > 3) {
       const r = n.find((i) => t.name.includes(i.mapName));
       return r
         ? d.jsxs('div', {
             id: 'maps_container',
             children: [
-              d.jsxs('div', {
-                className: 'bestof',
-                children: ['Best of ', e.matchType.replace('bo', '')],
-              }),
+              bestOfDisplay,
               d.jsx(Jr, {
                 veto: r,
                 map: t,
@@ -18734,10 +18754,7 @@ const RadarComponent = ({ size: e = 300, mapName: t, bomb: n, player: r, players
     return d.jsxs('div', {
       id: 'maps_container',
       children: [
-        d.jsxs('div', {
-          className: 'bestof',
-          children: ['Best of ', e.matchType.replace('bo', '')],
-        }),
+        bestOfDisplay,
         e.vetos
           .filter((r) => r.type !== 'ban')
           .filter((r) => r.teamId || r.type === 'decider')
@@ -18766,8 +18783,15 @@ const RadarComponent = ({ size: e = 300, mapName: t, bomb: n, player: r, players
     });
 const uh = () => {
     const [e, t] = g.useState(!1),
+      [displayData, setDisplayData] = g.useState({ title: '', content: '' }),
       n = Bn('trivia');
     return (
+      o0('updateTrivia', () => {
+        if (n) {
+          setDisplayData({ title: n.title, content: n.content });
+          t(true);
+        }
+      }),
       o0('triviaState', (r) => {
         t(r === 'show');
       }),
@@ -18777,8 +18801,8 @@ const uh = () => {
       d.jsxs('div', {
         className: `trivia_container ${e ? 'show' : 'hide'}`,
         children: [
-          d.jsx('div', { className: 'title', children: n == null ? void 0 : n.title }),
-          d.jsx('div', { className: 'content', children: n == null ? void 0 : n.content }),
+          d.jsx('div', { className: 'title', children: displayData.title }),
+          d.jsx('div', { className: 'content', children: displayData.content }),
         ],
       })
     );
@@ -18792,8 +18816,12 @@ const Zr = ({ side: e, hide: t }) => {
         'display_settings',
         (s) => {
           if (s && `${e}_image` in s) {
-            const o = `${apiAddress}api/huds/${a2.name || 'dev'}/display_settings/${e}_image?isDev=${a2.isDev}&cache=${new Date().getTime()}`;
-            r(o);
+            if (s[`${e}_image`].startsWith('data:') || s[`${e}_image`].startsWith('http')) {
+              r(s[`${e}_image`]);
+            } else {
+              const o = `${apiAddress}api/huds/${a2.name || 'dev'}/display_settings/${e}_image?isDev=${a2.isDev}&cache=${new Date().getTime()}`;
+              r(o);
+            }
           }
         },
         []
@@ -18812,7 +18840,7 @@ const Zr = ({ side: e, hide: t }) => {
               }),
               d.jsx('div', {
                 className: 'image_container',
-                children: n ? d.jsx('img', { src: n, id: 'image_left', alt: 'Left' }) : null,
+                children: n ? d.jsx('img', { src: n, id: `image_${e}`, alt: e }) : null,
               }),
             ],
           })
@@ -19306,6 +19334,12 @@ const gh = ({ veto: e, teams: t, active: n }) =>
     XK: 'Kosovo',
   },
   wh = (e) => yh[e.toUpperCase()];
+const getCountryEmoji = (countryCode) => {
+    const code = countryCode.toUpperCase();
+    if (code.length !== 2) return null;
+    const codePoints = [...code].map(char => 127397 + char.charCodeAt());
+    return String.fromCodePoint(...codePoints);
+  };
 const L4 = (e) => e.reduce((t, n) => t + n, 0),
   s5 = (e, t) => {
     const n = Number(e);
@@ -19313,10 +19347,28 @@ const L4 = (e) => e.reduce((t, n) => t + n, 0),
     let r = t;
     return (r || (r = Math.ceil(n / 100) * 100), n > r ? 100 : (100 * n) / r);
   },
-  _h = ({ player: e, show: t, veto: n, players: r, round: i }) => {
-    if (!e || !n || !n.rounds) return null;
+  _h = ({ player: e, show: t, veto: n, players: r, round: i, isMVP: mvpMode }) => {
+    if (!e) return null;
+    const livePlayer = r ? r.find((y) => y.steamid === e.steamid) : null;
     const o = (() => {
-      if (!n.rounds) return null;
+      if (livePlayer && livePlayer.state) {
+        return {
+          adr: livePlayer.state.adr || 0,
+          kills: livePlayer.state.kills || 0,
+          killshs: livePlayer.state.killshs || 0,
+          kpr: 0,
+          hsp: livePlayer.state.kills > 0 ? ((100 * (livePlayer.state.killshs || 0)) / livePlayer.state.kills).toFixed(0) : '0',
+        };
+      }
+      if (!n || !n.rounds) {
+        return {
+          adr: '0',
+          kills: 0,
+          killshs: 0,
+          kpr: 0,
+          hsp: '0',
+        };
+      }
       const y = n.rounds
           .map((E) => (E ? E.players[e.steamid] : { kills: 0, killshs: 0, damage: 0 }))
           .filter((E) => !!E),
@@ -19328,39 +19380,47 @@ const L4 = (e) => e.reduce((t, n) => t + n, 0),
       return {
         adr: y.length !== 0 ? (w.damage / (i - 1)).toFixed(0) : '0',
         kills: w.kills,
-        killshs: w.kills,
+        killshs: w.killshs,
         kpr: y.length !== 0 ? (w.kills / y.length).toFixed(2) : 0,
         hsp: w.kills !== 0 ? ((100 * w.killshs) / w.kills).toFixed(0) : '0',
       };
     })();
-    if (!o) return null;
-    const l = e.avatar,
-      c = e.country ? wh(e.country) : null;
+    const l = e.avatar;
+    const hasRealPlayerData = e.realName || e.country;
+    const countryEmoji = e.country ? getCountryEmoji(e.country) : null;
     let f = '';
-    const p = r.find((y) => y.steamid === e.steamid);
+    const p = r ? r.find((y) => y.steamid === e.steamid) : null;
+    if (p) f = p.team.side;
+    const defaultAvatar = f === 'CT' ? playerCTDefaultImage : playerTDefaultImage;
+    const mvpReason = e.mvpReason || null;
+    const displayName = e.realName || e.username;
     return (
-      p && (f = p.team.side),
       d.jsxs('div', {
-        className: `player-overview ${t ? 'show' : ''} ${f}`,
+        className: `player-overview ${t ? 'show' : ''} ${f} ${mvpMode ? 'mvp-mode' : ''}`,
         children: [
           d.jsx('div', {
             className: 'player-overview-picture',
-            children: l ? d.jsx('img', { src: l, alt: `${e.username}'s avatar` }) : null,
+            children: d.jsx('img', { src: l || defaultAvatar, alt: `${displayName}'s avatar` }),
           }),
           d.jsxs('div', {
             className: 'player-overview-username',
             children: [
-              l && c
-                ? d.jsx('img', {
-                    src: `${apiAddress}files/img/flags/${c.replace(/ /g, '-')}.png`,
-                    className: 'flag',
-                    alt: c,
+              hasRealPlayerData && countryEmoji
+                ? d.jsx('span', {
+                    className: 'flag-emoji',
+                    children: countryEmoji,
                   })
                 : null,
-              e.username.toUpperCase(),
+              displayName,
             ],
           }),
-          d.jsxs('div', {
+          mvpReason
+            ? d.jsx('div', {
+                className: 'player-overview-mvp-reason',
+                children: mvpReason,
+              })
+            : null,
+          !mvpMode ? d.jsxs('div', {
             className: 'player-overview-stats',
             children: [
               d.jsxs('div', {
@@ -19416,7 +19476,7 @@ const L4 = (e) => e.reduce((t, n) => t + n, 0),
                 ],
               }),
             ],
-          }),
+          }) : null,
         ],
       })
     );
@@ -19442,7 +19502,7 @@ const Eh = ({ match: e, teams: t, show: n }) => {
                     }),
                     d.jsx('div', {
                       className: 'match-overview-team-name',
-                      children: (r.shortName || r.name).substring(0, 4),
+                      children: r.name || r.shortName,
                     }),
                   ],
                 }),
@@ -19456,7 +19516,7 @@ const Eh = ({ match: e, teams: t, show: n }) => {
                     }),
                     d.jsx('div', {
                       className: 'match-overview-team-name',
-                      children: (i.shortName || i.name).substring(0, 4),
+                      children: i.name || i.shortName,
                     }),
                   ],
                 }),
@@ -19466,34 +19526,36 @@ const Eh = ({ match: e, teams: t, show: n }) => {
         });
   },
   xh = ({ match: e, map: t, players: n }) => {
-    var p, y;
+    var p, y, w;
     const [r, i] = g.useState([]),
       s = t.name.substring(t.name.lastIndexOf('/') + 1),
-      o = Bn('preview_settings');
+      playerSettings = Bn('player_preview_settings'),
+      matchSettings = Bn('match_preview_settings'),
+      o = { ...matchSettings, ...playerSettings };
     gi(
-      'preview_settings',
-      async (w) => {
-        var E, x, M, C, m, _, k, N;
+      'match_preview_settings',
+      async (E) => {
+        var x, M, C, m, _, k, N;
         if (
-          (console.log(w),
+          (console.log(E),
           !(
-            (x = (E = w == null ? void 0 : w.match_preview) == null ? void 0 : E.match) != null &&
-            x.left.id
+            (M = (x = E == null ? void 0 : E.match_preview) == null ? void 0 : x.match) != null &&
+            M.left.id
           ) ||
             !(
-              (C = (M = w == null ? void 0 : w.match_preview) == null ? void 0 : M.match) != null &&
-              C.right.id
+              (m = (C = E == null ? void 0 : E.match_preview) == null ? void 0 : C.match) != null &&
+              m.right.id
             ))
         )
           return;
         const L = await Promise.all([
           api.teams.getOne(
-            (_ = (m = w == null ? void 0 : w.match_preview) == null ? void 0 : m.match) == null
+            (k = (_ = E == null ? void 0 : E.match_preview) == null ? void 0 : _.match) == null
               ? void 0
-              : _.left.id
+              : k.left.id
           ),
           api.teams.getOne(
-            (N = (k = w == null ? void 0 : w.match_preview) == null ? void 0 : k.match) == null
+            (N = (N = E == null ? void 0 : E.match_preview) == null ? void 0 : N.match) == null
               ? void 0
               : N.right.id
           ),
@@ -19504,20 +19566,37 @@ const Eh = ({ match: e, teams: t, show: n }) => {
     );
     const l = (p = o == null ? void 0 : o.player_preview) == null ? void 0 : p.player,
       c = (y = o == null ? void 0 : o.match_preview) == null ? void 0 : y.match,
-      f = (e == null ? void 0 : e.vetos.find((w) => w.mapName === s)) || null;
+      f = (e == null ? void 0 : e.vetos.find((E) => E.mapName === s)) || null;
+    const isRoundOver = t.round && t.round.phase === 'over';
+    const shouldShowMVP = o && o.show_mvp_preview && isRoundOver;
+    let mvpPlayer = null;
+    let mvpReason = '';
+    if (shouldShowMVP && n && n.length > 0) {
+      mvpPlayer = n.reduce((a, b) => {
+        const aKills = (a.state && a.state.kills) || 0;
+        const bKills = (b.state && b.state.kills) || 0;
+        return aKills > bKills ? a : b;
+      });
+      if (mvpPlayer && mvpPlayer.state) {
+        const kills = mvpPlayer.state.kills || 0;
+        mvpReason = `MVP for most kills (${kills}x)`;
+      }
+    }
+    const displayPlayer = shouldShowMVP && mvpPlayer ? { ...mvpPlayer, mvpReason } : (o && o.player_preview_toggle ? l : null);
     return d.jsxs(d.Fragment, {
       children: [
-        l
+        displayPlayer
           ? d.jsx(_h, {
               round: t.round + 1,
-              player: l,
+              player: displayPlayer,
               players: n,
-              show: !!o.player_preview_toggle,
+              show: !!(o && (o.player_preview_toggle || shouldShowMVP)),
               veto: f,
+              isMVP: shouldShowMVP && mvpPlayer,
             })
           : null,
         c && r[0] && r[1]
-          ? d.jsx(Eh, { match: c, veto: f, teams: r, show: !!o.match_preview_toggle })
+          ? d.jsx(Eh, { match: c, veto: f, teams: r, show: !!(o && o.match_preview_toggle) })
           : null,
       ],
     });
