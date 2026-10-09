@@ -1,0 +1,263 @@
+/*
+ * Side columns above the team panels (freezetime): utility count, info box
+ * (casters etc.), team money and the economy box next to it.
+ */
+
+.side-column {
+  position: fixed;
+  bottom: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.side-column[data-align='left'] {
+  left: 10px;
+}
+.side-column[data-align='right'] {
+  right: 10px;
+}
+
+.utility-box,
+.money-box,
+.info-box {
+  width: 260px;
+  height: 70px;
+  display: flex;
+  flex-direction: row;
+  opacity: 1;
+  transition: all 0.75s;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.utility-box:not(.is-visible),
+.money-box:not(.is-visible),
+.info-box:not(.is-visible) {
+  height: 0;
+  opacity: 0;
+}
+
+/* --- grenades left in the team --------------------------------------------- */
+
+.utility-box {
+  flex-direction: column;
+}
+.utility-box__list {
+  display: flex;
+  flex: 1;
+  height: 46px;
+}
+.utility-box__item {
+  display: flex;
+  flex: 1;
+  color: #fff;
+  align-items: center;
+  font-weight: 600;
+  font-size: 18px;
+  justify-content: center;
+  gap: 4px;
+}
+.utility-box__item svg {
+  height: 30px;
+  width: auto;
+}
+.utility-box[data-side='T'] .utility-box__item svg {
+  fill: var(--color-t);
+}
+.utility-box[data-side='CT'] .utility-box__item svg {
+  fill: var(--color-ct);
+}
+
+/* --- info box (title, subtitle, logo), configured in the control panel ----- */
+
+.info-box {
+  align-items: center;
+}
+.info-box[data-align='right'] {
+  flex-direction: row-reverse;
+}
+.info-box__text {
+  color: var(--color-text);
+  height: 60px;
+  width: 100%;
+  font-size: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+.info-box__title,
+.info-box__subtitle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  line-height: 1.2;
+}
+.info-box__title {
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.info-box__subtitle {
+  font-weight: 400;
+  font-size: 14px;
+  opacity: 0.85;
+}
+.info-box[data-align='left'] .info-box__title,
+.info-box[data-align='left'] .info-box__subtitle {
+  text-align: left;
+  padding-left: 10px;
+}
+.info-box[data-align='right'] .info-box__title,
+.info-box[data-align='right'] .info-box__subtitle {
+  flex-direction: row-reverse;
+  text-align: right;
+  padding-right: 10px;
+}
+.info-box__image {
+  width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.info-box__image img {
+  max-width: 70px;
+  max-height: 70px;
+}
+
+/* --- team money and loss bonus ---------------------------------------------- */
+
+.money-box {
+  font-weight: 600;
+}
+.money-box[data-align='right'] {
+  flex-direction: row-reverse;
+}
+.money-box__figure {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  color: #fff;
+}
+.money-box__label {
+  display: flex;
+  align-items: flex-end;
+  font-size: 14px;
+  justify-content: center;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.money-box[data-side='CT'] .money-box__label {
+  color: var(--color-ct);
+}
+.money-box[data-side='T'] .money-box__label {
+  color: var(--color-t);
+}
+.money-box__value {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  justify-content: center;
+}
+/* one dot per consecutive round loss */
+.money-box__losses {
+  width: 12%;
+  gap: 4px;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: center;
+}
+.money-box__loss {
+  height: 10px;
+  width: 10px;
+  border-radius: 10px;
+  background-color: #515254;
+}
+.money-box[data-side='CT'] .money-box__loss.is-active {
+  background-color: var(--color-ct);
+}
+.money-box[data-side='T'] .money-box__loss.is-active {
+  background-color: var(--color-t);
+}
+
+/* --- economy box: next to the money box, towards the screen center --------- */
+
+.economy-box {
+  position: absolute;
+  bottom: 0;
+  width: 150px;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  overflow: hidden;
+  transition: opacity 0.5s;
+}
+.economy-box:not(.is-visible) {
+  opacity: 0;
+}
+.side-column[data-align='left'] .economy-box {
+  left: calc(100% + 8px);
+}
+.side-column[data-align='right'] .economy-box {
+  right: calc(100% + 8px);
+  align-items: flex-end;
+}
+.economy-box__figure {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.side-column[data-align='right'] .economy-box__figure {
+  align-items: flex-end;
+}
+.economy-box__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.economy-box__value {
+  font-size: 18px;
+  font-weight: 700;
+}
+.buy-badge {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.side-column[data-align='right'] .buy-badge {
+  align-self: flex-end;
+}
+.buy-badge[data-buy='full'] {
+  background-color: var(--color-money);
+  color: #000;
+}
+.buy-badge[data-buy='force'] {
+  background-color: #ffc600;
+  color: #000;
+}
+.buy-badge[data-buy='semi'] {
+  background-color: rgba(255, 198, 0, 0.35);
+}
+.buy-badge[data-buy='eco'] {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: var(--color-text-muted);
+}
+.buy-badge[data-buy='pistol'] {
+  background-color: var(--color-primary);
+}

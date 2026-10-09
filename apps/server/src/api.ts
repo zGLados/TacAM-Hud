@@ -1,0 +1,386 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { randomUUID } from 'node:crypto';
+import express, { type Request, type Response, type NextFunction } from 'express';
+import multer from 'multer';
+import { z } from 'zod';
+import { SCENE_IDS, THEME_COLOR_KEYS, type HudBootstrap } from '@tacam/shared';
+import type { Store } from './store.js';
+import type { LiveHub } from './live.js';
+import type { HudServer } from './io.js';
+import { DemoMatch, seedDemoData } from './demo.js';
+import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from './gsiInstall.js';
+import { loginHandler, statusHandler } from './auth.js';
+
+const str = z.string().trim();
+const nullableStr = z.string().trim().nullable();
+
+const playerSchema = z.object({
+  steamid: str.regex(/^\d{17}$/, 'SteamID64 muss 17 Ziffern haben'),
+  username: str.min(1),
+  firstName: str.default(''),
+  lastName: str.default(''),
+  country: nullableStr.default(null),
+  avatar: nullableStr.default(null),
+  teamId: nullableStr.default(null),
+  isCoach: z.boolean().default(false),
+  extra: z.record(z.string()).default({}),
+});
+
+const teamSchema = z.object({
+  name: str.min(1),
+  shortName: str.default(''),
+  country: nullableStr.default(null),
+  logo: nullableStr.default(null),
+  extra: z.record(z.string()).default({}),
+});
+
+const side = z.enum(['CT', 'T']);
+const vetoSchema = z.object({
+  type: z.enum(['ban', 'pick', 'decider']),
+  mapName: str.min(1),
+  teamId: nullableStr.default(null),
+  side: z.union([side, z.literal('NO')]).default('NO'),
+  reverseSide: z.boolean().default(false),
+  score: z.record(z.number().int().min(0)).default({}),
+  winner: nullableStr.default(null),
+  mapEnd: z.boolean().default(false),
+});
+
+const matchSchema = z.object({
+  left: z.object({ id: nullableStr, wins: z.number().int().min(0).default(0) }),
+  right: z.object({ id: nullableStr, wins: z.number().int().min(0).default(0) }),
+  matchType: z.enum(['bo1', 'bo2', 'bo3', 'bo5']),
+  current: z.boolean().default(false),
+  vetos: z.array(vetoSchema).default([]),
+  title: str.default(''),
+  startTime: nullableStr.default(null),
+});
+
+const sideBox = z.object({ title: z.string(), subtitle: z.string(), image: nullableStr });
+const hudConfigSchema = z.object({
+  trivia: z.object({ title: z.string(), content: z.string(), visible: z.boolean() }),
+  sideBoxes: z.object({ left: sideBox, right: sideBox, hidden: z.boolean() }),
+  playerPreview: z.object({ steamid: nullableStr, visible: z.boolean() }),
+  matchPreview: z.object({ matchId: nullableStr, visible: z.boolean() }),
+  swapTeams: z.boolean(),
+  radar: z.object({ size: z.number().min(150).max(900), enlarged: z.boolean() }),
+  visibility: z.object({
+    hud: z.boolean(),
+    radar: z.boolean(),
+    killfeed: z.boolean(),
+    roundHistory: z.boolean(),
+    economy: z.boolean(),
+    sponsors: z.boolean(),
+  }),
+  replaceAvatars: z.enum(['never', 'if_missing', 'always']),
+});
+
+// Colors end up in CSS custom properties: allow only color syntax, nothing that could break out.
+const cssColor = z.string().regex(/^(#[0-9a-fA-F]{3,8}|rgba?\([\d\s.,%]+\)|hsla?\([\d\s.,%deg]+\))$/, 'Ungültige Farbe');
+const themeSchema = z.object({
+  colors: z.object(Object.fromEntries(THEME_COLOR_KEYS.map((k) => [k, cssColor])) as Record<(typeof THEME_COLOR_KEYS)[number], typeof cssColor>),
+  borderRadius: z.number().min(0).max(30),
+  fontFamily: z.string().regex(/^[\w\s-]{1,40}$/),
+  sponsors: z.array(z.object({ id: z.string(), file: z.string(), label: z.string() })),
+  sponsorInterval: z.number().min(2).max(120),
+  showSponsors: z.boolean(),
+  brandLogo: nullableStr,
+  tournamentName: z.string().max(80),
+  tournamentLogo: nullableStr,
+});
+
+const sceneSchema = z.object({
+  active: z.enum(SCENE_IDS),
+  auto: z.boolean(),
+  message: z.string().max(200),
+  countdownTo: z.number().nullable(),
+});
+
+const settingsSchema = z.object({
+  steamPath: nullableStr,
+  lanAccess: z.boolean(),
+  accessPin: z.string().regex(/^(\d{4,12})?$/, 'PIN muss 4–12 Ziffern haben'),
+  telnet: z.object({ host: str.min(1), port: z.number().int().min(1).max(65535) }),
+});
+
+const hudActionSchema = z.object({
+  type: z.enum(['radarBigger', 'radarSmaller', 'toggleRadarView', 'toggleHud']),
+});
+
+type Handler = (req: Request, res: Response) => unknown;
+/** Wraps handlers so zod/other errors become proper 400/500 responses. */
+const h = (fn: Handler) => async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await fn(req, res);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ') });
+    } else next(error);
+  }
+};
+
+const IMAGE_TYPES: Record<string, string> = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+  'image/svg+xml': '.svg',
+};
+
+export interface ApiOptions {
+  store: Store;
+  live: LiveHub;
+  io: HudServer;
+  uploadsDir: string;
+  gsiPort: number;
+  demo: DemoMatch;
+}
+
+export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOptions) {
+  const api = express.Router();
+  api.use(express.json({ limit: '1mb' }));
+
+  api.post('/auth/login', loginHandler(store));
+  api.get('/auth/status', statusHandler(store));
+
+  api.get(
+    '/bootstrap',
+    h((_req, res) => {
+      const data: HudBootstrap = {
+        config: store.doc('hudConfig'),
+        theme: store.doc('theme'),
+        scene: store.doc('scene'),
+        match: live.currentMatch(),
+        teams: store.list('teams'),
+        players: live.playerExtensions(),
+        stats: live.tracker.snapshot(),
+        killfeed: live.killfeed,
+      };
+      res.json(data);
+    })
+  );
+
+  // --- players / teams ---------------------------------------------------
+
+  for (const [name, schema] of [
+    ['players', playerSchema],
+    ['teams', teamSchema],
+  ] as const) {
+    api.get(`/${name}`, (_req, res) => res.json(store.list(name)));
+    api.post(
+      `/${name}`,
+      h((req, res) => {
+        const body = schema.parse(req.body);
+        if (name === 'players' && store.list('players').some((p) => p.steamid === (body as z.infer<typeof playerSchema>).steamid)) {
+          return res.status(409).json({ error: 'Spieler mit dieser SteamID existiert bereits' });
+        }
+        res.status(201).json(store.insert(name, body as never));
+      })
+    );
+    api.put(
+      `/${name}/:id`,
+      h((req, res) => {
+        const updated = store.update(name, req.params.id, schema.parse(req.body) as never);
+        if (!updated) return res.status(404).json({ error: 'not found' });
+        res.json(updated);
+      })
+    );
+    api.delete(`/${name}/:id`, (req, res) => {
+      if (name === 'teams') {
+        for (const p of store.list('players').filter((p) => p.teamId === req.params.id)) {
+          store.update('players', p.id, { teamId: null });
+        }
+      }
+      res.status(store.remove(name, req.params.id) ? 204 : 404).end();
+    });
+  }
+
+  api.post(
+    '/players/import',
+    h((req, res) => {
+      const rows = z.array(playerSchema).parse(req.body);
+      let created = 0;
+      let updated = 0;
+      for (const row of rows) {
+        const existing = store.list('players').find((p) => p.steamid === row.steamid);
+        if (existing) {
+          store.update('players', existing.id, row);
+          updated++;
+        } else {
+          store.insert('players', row);
+          created++;
+        }
+      }
+      res.json({ created, updated });
+    })
+  );
+
+  // --- matches -----------------------------------------------------------
+
+  const setCurrent = (id: string | null) => {
+    store.replaceAll(
+      'matches',
+      store.list('matches').map((m) => ({ ...m, current: m.id === id }))
+    );
+  };
+
+  api.get('/matches', (_req, res) => res.json(store.list('matches')));
+  api.get('/matches/current', (_req, res) => res.json(live.currentMatch()));
+  api.post(
+    '/matches',
+    h((req, res) => {
+      const body = matchSchema.parse(req.body);
+      const created = store.insert('matches', body);
+      if (body.current) setCurrent(created.id);
+      res.status(201).json(created);
+    })
+  );
+  api.put(
+    '/matches/:id',
+    h((req, res) => {
+      const body = matchSchema.parse(req.body);
+      const updated = store.update('matches', req.params.id, body);
+      if (!updated) return res.status(404).json({ error: 'not found' });
+      if (body.current) setCurrent(updated.id);
+      res.json(store.get('matches', updated.id));
+    })
+  );
+  api.post('/matches/:id/current', (req, res) => {
+    const match = store.get('matches', req.params.id);
+    if (!match) return res.status(404).json({ error: 'not found' });
+    setCurrent(match.current ? null : match.id);
+    res.json(store.get('matches', match.id));
+  });
+  api.post('/matches/:id/reverse-current-map', (req, res) => {
+    const match = store.get('matches', req.params.id);
+    const mapName = live.last?.map.name;
+    if (!match || !mapName) return res.status(404).json({ error: 'Kein laufendes Match/Map' });
+    const vetos = match.vetos.map((v) => (mapName.endsWith(v.mapName) ? { ...v, reverseSide: !v.reverseSide } : v));
+    res.json(store.update('matches', match.id, { vetos }));
+  });
+  api.delete('/matches/:id', (req, res) => res.status(store.remove('matches', req.params.id) ? 204 : 404).end());
+
+  // --- uploads -----------------------------------------------------------
+
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: uploadsDir,
+      filename: (_req, file, cb) => cb(null, `${randomUUID()}${IMAGE_TYPES[file.mimetype] ?? ''}`),
+    }),
+    limits: { fileSize: 8 * 1024 * 1024 },
+    fileFilter: (_req, file, cb) => cb(null, file.mimetype in IMAGE_TYPES),
+  });
+  api.post('/uploads', upload.single('file'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Nur Bilder (png, jpg, webp, gif, svg) bis 8 MB' });
+    res.status(201).json({ file: req.file.filename, url: `/uploads/${req.file.filename}` });
+  });
+  api.delete('/uploads/:file', (req, res) => {
+    const file = path.join(uploadsDir, path.basename(req.params.file));
+    if (fs.existsSync(file)) fs.unlinkSync(file);
+    res.status(204).end();
+  });
+
+  // --- HUD config / theme / scene ----------------------------------------
+
+  api.get('/hud/config', (_req, res) => res.json(store.doc('hudConfig')));
+  api.put(
+    '/hud/config',
+    h((req, res) => res.json(store.setDoc('hudConfig', hudConfigSchema.parse(req.body))))
+  );
+  api.post(
+    '/hud/action',
+    h((req, res) => {
+      const action = hudActionSchema.parse(req.body);
+      io.emit('action', action);
+      res.json({ ok: true });
+    })
+  );
+  api.post('/hud/refresh', (_req, res) => {
+    io.emit('refresh');
+    res.json({ ok: true });
+  });
+
+  api.get('/theme', (_req, res) => res.json(store.doc('theme')));
+  api.put(
+    '/theme',
+    h((req, res) => res.json(store.setDoc('theme', themeSchema.parse(req.body))))
+  );
+
+  api.get('/scene', (_req, res) => res.json(store.doc('scene')));
+  api.put(
+    '/scene',
+    h((req, res) => res.json(store.setDoc('scene', sceneSchema.parse(req.body))))
+  );
+
+  // --- live data / stats -------------------------------------------------
+
+  api.get('/live', (_req, res) => res.json({ status: live.status, summary: live.summary() }));
+  // Raw GSI payload of the last update, for debugging and recording test fixtures.
+  api.get('/live/raw', (_req, res) => res.json(live.lastRaw));
+  api.get('/stats', (_req, res) => res.json(live.tracker.snapshot()));
+  api.post('/stats/reset', (_req, res) => {
+    live.resetStats();
+    res.json(live.tracker.snapshot());
+  });
+  api.get('/killfeed', (_req, res) => res.json(live.killfeed));
+
+  // --- settings / GSI ----------------------------------------------------
+
+  api.get('/settings', (_req, res) => {
+    const settings = store.doc('settings');
+    res.json({
+      ...settings,
+      gsiPort,
+      cs2CfgDir: findCs2CfgDir(settings.steamPath),
+      gsiInstalled: gsiConfigInstalled(settings.steamPath),
+      // IPv4 addresses for "open on another device" links
+      addresses: Object.values(os.networkInterfaces())
+        .flat()
+        .filter((i) => i && i.family === 'IPv4' && !i.internal)
+        .map((i) => i!.address),
+    });
+  });
+  api.put(
+    '/settings',
+    h((req, res) => {
+      const body = settingsSchema.parse(req.body);
+      if (body.lanAccess && !body.accessPin) {
+        return res.status(400).json({ error: 'Für LAN-Zugriff muss eine PIN gesetzt sein' });
+      }
+      res.json(store.setDoc('settings', { ...store.doc('settings'), ...body }));
+    })
+  );
+  api.post(
+    '/settings/install-gsi',
+    h((_req, res) => {
+      const { steamPath, gsiToken } = store.doc('settings');
+      try {
+        res.json({ file: installGsiConfig(steamPath, gsiPort, gsiToken) });
+      } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+      }
+    })
+  );
+  api.get('/settings/gsi-config', (_req, res) => {
+    res.type('text/plain').attachment('gamestate_integration_tacam.cfg');
+    res.send(gsiConfig(gsiPort, store.doc('settings').gsiToken));
+  });
+
+  // --- demo mode ---------------------------------------------------------
+
+  api.get('/demo', (_req, res) => res.json({ running: demo.running }));
+  api.post('/demo/start', (_req, res) => {
+    demo.start();
+    res.json({ running: true });
+  });
+  api.post('/demo/stop', (_req, res) => {
+    demo.stop();
+    res.json({ running: false });
+  });
+  api.post('/demo/seed', (_req, res) => res.json(seedDemoData(store)));
+
+  api.use((_req, res) => res.status(404).json({ error: 'not found' }));
+  return api;
+}

@@ -1,0 +1,340 @@
+/* Radar (top left) with the map strip of the series above it. */
+
+.radar-box {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  border: none;
+  transition: all 1s;
+}
+.radar-box.is-hidden {
+  opacity: 0;
+}
+/* enlarged, tilted view in the screen center */
+.radar-box.is-enlarged {
+  transform: rotateX(14deg) translate(-50%);
+  transform-style: preserve-3d;
+  left: 50%;
+  top: 100px;
+}
+.radar-box.is-enlarged .radar__map {
+  perspective: 500px;
+}
+
+/* --- map strip: "BEST OF 3 · MIRAGE INFERNO ANUBIS" ------------------------- */
+
+.map-strip {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  color: #fff;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.map-strip__series {
+  width: 121px;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+.map-strip__map {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+}
+.map-strip__map.is-current {
+  opacity: 1;
+}
+
+/* --- radar map ---------------------------------------------------------------- */
+
+.radar {
+  width: 100%;
+  height: 100%;
+  margin: 35px 0 0;
+  position: relative;
+  transition: all 1s;
+}
+.radar__map {
+  width: 1024px;
+  height: 1024px;
+  position: relative;
+  transform: scale(1.15);
+  transition: all 0.5s;
+}
+
+.radar__player,
+.radar__grenade,
+.radar__bomb {
+  position: absolute;
+  height: 0px;
+  width: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease;
+}
+.radar__marker {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.radar__sprite,
+.radar__label {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.radar__blast {
+  position: absolute;
+  width: 2px;
+  top: calc(50% - 1px);
+  left: calc(50% - 1px);
+  height: 2px;
+  border-radius: 0.08px;
+}
+.radar__map .is-hidden {
+  opacity: 0 !important;
+}
+
+/* --- players ---------------------------------------------------------------- */
+
+.radar__player {
+  transition:
+    transform 0.1s ease,
+    opacity 1s;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+.radar__player:not(.is-dead) {
+  z-index: 2;
+}
+.radar__player.is-focused {
+  z-index: 3;
+}
+.radar__player.is-focused .radar__marker {
+  width: 48px;
+  height: 48px;
+}
+/* view direction arrow */
+.radar__player .radar__sprite {
+  background-image: url(../assets/radar-sprites/player-arrow.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: transform 0.2s linear;
+}
+.radar__player.is-focused .radar__sprite {
+  width: 120%;
+  height: 120%;
+}
+@keyframes radar-muzzle-blink {
+  0% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.radar__muzzle {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+.radar__muzzle-flash {
+  width: 100%;
+  height: 100%;
+  background-image: url(../assets/radar-sprites/muzzle-flash.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: relative;
+  left: 50%;
+  animation: radar-muzzle-blink 0.25s infinite;
+}
+.radar__label {
+  color: #fff;
+  font-weight: 600;
+  border-radius: 50%;
+  transition: background-color 0.5s;
+  font-size: 37px;
+  text-shadow: 4px 4px 0 black;
+}
+.radar__player[data-side='CT'] .radar__label {
+  background: rgb(26, 58, 92);
+}
+.radar__player[data-side='T'] .radar__label {
+  background: rgb(193, 58, 58);
+}
+.radar__player[data-side='T'].has-bomb .radar__label {
+  background: red;
+}
+.radar__player[data-side='CT'].is-flashed:not(.is-dead) .radar__label {
+  background: rgb(159, 197, 255);
+}
+.radar__player[data-side='T'].is-flashed:not(.is-dead) .radar__label {
+  background: rgb(255, 219, 165);
+}
+.radar__player.is-dead {
+  opacity: 0.2;
+  z-index: 1;
+}
+.radar__player.is-dead .radar__sprite {
+  display: none;
+}
+.radar__player.is-dead .radar__label {
+  background: transparent;
+}
+.radar__player.is-dead[data-side='CT'] .radar__label {
+  color: var(--color-ct);
+}
+.radar__player.is-dead[data-side='T'] .radar__label {
+  color: var(--color-t);
+}
+
+/* --- grenades ------------------------------------------------------------ */
+
+@keyframes radar-flash-or-frag {
+  0% {
+    box-shadow: 0 0 #000c;
+    opacity: 1;
+  }
+  to {
+    box-shadow: 0 0 0 50px #000c;
+    opacity: 0;
+  }
+}
+.radar__grenade .radar__sprite {
+  border-radius: 50%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 1;
+  transition: opacity 0.25s;
+}
+.radar__grenade[data-type='smoke'] .radar__sprite {
+  background-color: #ffffff80;
+  opacity: 1;
+  transition: opacity 1s;
+}
+.radar__grenade[data-type='smoke'][data-state='inair'] .radar__sprite {
+  background-color: transparent !important;
+  border: none !important;
+  background-image: url(../assets/radar-sprites/smoke-in-air.png);
+  filter: invert(1);
+}
+.radar__grenade[data-type='smoke'][data-side='CT'] .radar__sprite {
+  border: 5px solid var(--color-ct);
+}
+.radar__grenade[data-type='smoke'][data-side='T'] .radar__sprite {
+  border: 5px solid var(--color-t);
+}
+.radar__grenade[data-type='smoke'][data-state='landed'] .radar__sprite,
+.radar__grenade[data-type='smoke'][data-state='exploded'] .radar__sprite {
+  display: flex;
+  flex-wrap: wrap;
+}
+.radar__grenade[data-type='flashbang'],
+.radar__grenade[data-type='frag'] {
+  filter: invert(1);
+}
+.radar__grenade[data-type='flashbang'] .radar__sprite {
+  background-image: url(../assets/radar-sprites/flashbang.png);
+  background-color: transparent;
+}
+.radar__grenade[data-type='frag'] .radar__sprite {
+  background-image: url(../assets/radar-sprites/frag.png);
+  background-color: transparent;
+}
+.radar__grenade[data-type='flashbang'][data-state='exploded'] .radar__blast,
+.radar__grenade[data-type='frag'][data-state='exploded'] .radar__blast {
+  animation: radar-flash-or-frag 0.25s 1 forwards;
+}
+.radar__grenade[data-type='flashbang'][data-state='exploded'] .radar__sprite,
+.radar__grenade[data-type='frag'][data-state='exploded'] .radar__sprite {
+  opacity: 0;
+}
+.radar__grenade[data-type='firebomb'] .radar__sprite {
+  background-color: transparent;
+  background-image: url(../assets/radar-sprites/firebomb.png);
+  filter: invert(1);
+}
+/* each burning flame of a molotov/incendiary */
+.radar__grenade[data-type='inferno'] {
+  width: 12px;
+  height: 12px;
+}
+.radar__grenade[data-type='inferno'] .radar__sprite {
+  background-color: red;
+  opacity: 0.5;
+  border: 2px solid orange;
+}
+
+/* --- bomb ---------------------------------------------------------------- */
+
+@keyframes radar-bomb-planted {
+  0% {
+    box-shadow: 0 0 #b90505cc;
+  }
+  to {
+    box-shadow: 0 0 0 50px #b9050500;
+  }
+}
+@keyframes radar-bomb-exploded {
+  0% {
+    box-shadow: 0 0 #b90505cc;
+  }
+  to {
+    box-shadow: 0 0 0 150px #b9050500;
+  }
+}
+@keyframes radar-bomb-defused {
+  0% {
+    box-shadow: 0 0 #05b905cc;
+  }
+  to {
+    box-shadow: 0 0 0 150px #05b90500;
+  }
+}
+.radar__bomb {
+  transition: transform 0.1s ease;
+}
+.radar__bomb .radar__sprite {
+  background-image: url(../assets/images/bomb.png);
+  background-size: 66%;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+}
+.radar__bomb[data-state='planted'] .radar__blast,
+.radar__bomb[data-state='defusing'] .radar__blast {
+  animation: radar-bomb-planted 2s infinite;
+}
+.radar__bomb[data-state='exploded'] .radar__blast {
+  animation: radar-bomb-exploded 2s 1 forwards;
+}
+.radar__bomb[data-state='defused'] .radar__blast {
+  animation: radar-bomb-defused 2s 1 forwards;
+}

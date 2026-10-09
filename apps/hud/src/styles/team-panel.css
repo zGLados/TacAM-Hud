@@ -1,0 +1,342 @@
+/* Team panels: one player card per player, bottom left / bottom right. */
+
+.team-panel {
+  position: fixed;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transition: opacity 0.75s;
+}
+.team-panel[data-align='left'] {
+  left: 10px;
+}
+.team-panel[data-align='right'] {
+  align-items: end;
+  right: 10px;
+}
+
+.player-card {
+  width: 260px;
+  height: 75px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  transition:
+    width 0.5s,
+    opacity 0.5s;
+}
+.player-card.is-focused {
+  border-color: #fff;
+}
+.player-card__body {
+  background-color: var(--color-panel);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  border-radius: var(--radius);
+}
+
+/* observer slot number on the outer edge */
+.player-card__slot {
+  position: absolute;
+  display: flex;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius);
+  color: #fff;
+  font-weight: 700;
+  bottom: 45%;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+/* --- top row: avatar, name, K/D, money ------------------------------------ */
+
+.player-card__top {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 65%;
+}
+.player-card__avatar {
+  width: 90px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+}
+.player-card__avatar img {
+  width: 65px;
+  height: 65px;
+}
+.player-card__equipment {
+  position: absolute;
+  top: 0;
+}
+.player-card__equipment svg {
+  width: 20px;
+  height: 20px;
+}
+.equipment-icon--bomb {
+  fill: #fd5e73;
+}
+.equipment-icon--kit {
+  fill: var(--color-ct);
+}
+.player-card__info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: calc(100% - 90px);
+  position: relative;
+}
+.player-card__name-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.player-card__name {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 18px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.player-card__round-kills {
+  position: absolute;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 16px;
+  font-weight: 600;
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  color: #000;
+  align-items: center;
+}
+.player-card__stats {
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+  display: flex;
+  gap: 8px;
+}
+.player-card__stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.player-card__stat svg {
+  width: 14px;
+  height: 14px;
+}
+.team-panel[data-side='CT'] .player-card__stat svg {
+  fill: var(--color-ct);
+}
+.team-panel[data-side='T'] .player-card__stat svg {
+  fill: var(--color-t);
+}
+.player-card__money {
+  color: var(--color-money);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+}
+
+/* --- bottom row: health bar, armor, weapons -------------------------------- */
+
+.player-card__bottom {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 35%;
+  border-bottom-right-radius: var(--radius);
+  border-bottom-left-radius: var(--radius);
+  overflow: hidden;
+}
+.player-card__round-damage {
+  width: 100%;
+  height: 100%;
+  display: none;
+  color: var(--color-dead);
+  font-size: 14px;
+  font-weight: 700;
+  justify-content: center;
+}
+.player-card__health-bar {
+  position: absolute;
+  height: 100%;
+  transition: width 0.75s;
+}
+/* red trail that follows the health bar with a delay after taking damage */
+.player-card__health-trail {
+  position: absolute;
+  height: 100%;
+  background-color: #ac2f2f;
+  transition: width 2s 0.75s;
+}
+.team-panel[data-side='CT'] .player-card__health-bar,
+.team-panel[data-side='CT'] .player-card__slot {
+  background-color: var(--color-ct);
+}
+.team-panel[data-side='T'] .player-card__health-bar,
+.team-panel[data-side='T'] .player-card__slot {
+  background-color: var(--color-t);
+}
+.player-card__vitals {
+  width: 25%;
+  height: 100%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.player-card__health {
+  display: flex;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  justify-content: center;
+  align-items: center;
+}
+.player-card__armor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.player-card__armor svg {
+  width: 20px;
+  height: 20px;
+  fill: #fff;
+}
+.player-card__loadout {
+  z-index: 1;
+  width: 75%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+.player-card__grenades {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.player-card__grenades svg.weapon-icon--grenade {
+  width: 20px;
+  height: 20px;
+}
+.player-card__loadout svg.weapon-icon {
+  max-height: 30px;
+  width: auto;
+  margin-left: 5px;
+  margin-right: 5px;
+  max-width: 100px;
+  height: 30px;
+}
+
+/* --- mirrored layout for the right team ------------------------------------ */
+
+.team-panel[data-align='left'] .player-card__slot {
+  left: -10px;
+}
+.team-panel[data-align='left'] .player-card__equipment {
+  left: 4px;
+}
+.team-panel[data-align='left'] .player-card__round-kills {
+  right: 4px;
+}
+.team-panel[data-align='left'] .player-card__loadout {
+  justify-content: end;
+}
+.team-panel[data-align='left'] .player-card__vitals {
+  padding-left: 8px;
+}
+.team-panel[data-align='right'] .player-card {
+  flex-direction: row-reverse;
+}
+.team-panel[data-align='right'] .player-card__slot {
+  right: -10px;
+}
+.team-panel[data-align='right'] .player-card__top {
+  flex-direction: row-reverse;
+}
+.team-panel[data-align='right'] .player-card__equipment {
+  right: 4px;
+}
+.team-panel[data-align='right'] .player-card__round-kills {
+  left: 4px;
+}
+.team-panel[data-align='right'] .player-card__name-row {
+  align-items: end;
+  text-align: right;
+}
+.team-panel[data-align='right'] .player-card__stats,
+.team-panel[data-align='right'] .player-card__name-row,
+.team-panel[data-align='right'] .player-card__bottom {
+  flex-direction: row-reverse;
+}
+.team-panel[data-align='right'] .player-card__health-bar,
+.team-panel[data-align='right'] .player-card__health-trail {
+  align-self: flex-end;
+}
+.team-panel[data-align='right'] .player-card__vitals {
+  flex-direction: row-reverse;
+  padding-right: 8px;
+}
+.team-panel[data-align='right'] .player-card__loadout {
+  flex-direction: row-reverse;
+}
+.team-panel[data-align='right'] .player-card__loadout svg.weapon-icon {
+  transform: scaleX(-1);
+}
+
+/* --- dead players: compact card with round damage --------------------------- */
+
+.player-card.is-dead {
+  opacity: 0.7;
+  width: 200px;
+}
+.player-card.is-dead .player-card__top {
+  height: 100%;
+}
+.player-card.is-dead .player-card__info {
+  width: 100%;
+}
+.player-card.is-dead .player-card__name-row,
+.player-card.is-dead .player-card__stats {
+  justify-content: center;
+}
+.player-card.is-dead .player-card__name,
+.player-card.is-dead .player-card__money,
+.player-card.is-dead .player-card__stats {
+  color: var(--color-dead);
+}
+.player-card.is-dead .player-card__stat svg {
+  fill: var(--color-dead);
+}
+.player-card.is-dead .player-card__round-damage {
+  display: flex;
+}
+.player-card.is-dead .player-card__loadout,
+.player-card.is-dead .player-card__vitals,
+.player-card.is-dead .player-card__slot,
+.player-card.is-dead .player-card__avatar {
+  display: none;
+}
+.player-card.is-dead .player-card__health-bar,
+.player-card.is-dead .player-card__health-trail {
+  transition: width 0s;
+}

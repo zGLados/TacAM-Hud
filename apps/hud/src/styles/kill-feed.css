@@ -1,0 +1,86 @@
+/* Kill feed (top right, below the sponsors). Entries fade out after 5 s. */
+
+@keyframes kill-feed-entry {
+  0% {
+    opacity: 0;
+    height: 0;
+  }
+  5% {
+    opacity: 1;
+    height: 43px;
+  }
+  95% {
+    opacity: 1;
+    height: 43px;
+  }
+  to {
+    opacity: 0;
+    height: 0;
+  }
+}
+
+/* In the original skin the feed (top: 93px) overlapped the sponsor logos
+   (top: 5px, 140px high). It is cleared in freezetime, so it never collides
+   with the map series that uses the same area. */
+.kill-feed {
+  position: fixed;
+  right: 20px;
+  top: 155px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.kill-feed__entry {
+  animation: kill-feed-entry 5s linear 1;
+  animation-fill-mode: forwards;
+  overflow: hidden;
+}
+.kill-feed__row {
+  display: flex;
+  flex-direction: row;
+  background-color: #000000a3;
+  margin-bottom: 5px;
+  color: #fff;
+  height: 38px;
+  font-size: 14px;
+  overflow: hidden;
+  align-items: center;
+  font-family: Montserrat;
+  font-weight: 500;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.kill-feed__row div {
+  margin: 10px;
+  display: flex;
+  align-items: center;
+}
+.kill-feed__name[data-side='CT'] {
+  color: var(--color-ct);
+}
+.kill-feed__name[data-side='T'] {
+  color: var(--color-t);
+}
+/* more specific than `.kill-feed__row div` so the tighter margins win */
+.kill-feed__row .kill-feed__plus {
+  margin-left: 0;
+  font-weight: 600;
+  margin-right: 8px;
+}
+.kill-feed__row .kill-feed__name.is-assist {
+  margin-left: 0;
+}
+.kill-feed__weapon {
+  text-align: center;
+}
+.kill-feed__weapon svg.weapon-icon {
+  height: 28px;
+}
+.kill-feed__weapon svg:not(.weapon-icon) {
+  max-height: 24px;
+  max-width: 28px;
+}
+.kill-feed__weapon .kill-feed__headshot {
+  max-height: 20px;
+  margin-left: 5px;
+}

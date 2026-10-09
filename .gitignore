@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+!apps/desktop/build/
+release/
+out/
+*.log
+.env
+.data/
+coverage/
+.ref/
+*.tmp.ts

@@ -1,0 +1,65 @@
+/*
+ * Round history: one column per round. The upper marker lights up when the
+ * left team won the round, the lower one for the right team, colored by the
+ * side they played and showing how the round was won.
+ */
+
+.round-history {
+  position: fixed;
+  top: 118px;
+  left: 50%;
+  transform: translate(-50%);
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.round-history.is-visible {
+  opacity: 1;
+}
+/* inside full-screen scenes it is part of the normal flow */
+.scene .round-history {
+  position: static;
+  transform: none;
+}
+
+.round-history__round {
+  width: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+/* gap before the second half and before overtime */
+.round-history__round.is-half-start {
+  margin-left: 8px;
+}
+.round-history__number {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+.round-history__marker {
+  width: 26px;
+  height: 20px;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.round-history__marker.is-won[data-side='CT'] {
+  background-color: var(--color-ct);
+}
+.round-history__marker.is-won[data-side='T'] {
+  background-color: var(--color-t);
+}
+.round-history__marker svg {
+  width: 14px;
+  height: 14px;
+  fill: #fff;
+}

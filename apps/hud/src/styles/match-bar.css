@@ -1,0 +1,317 @@
+/* Match bar: team names, logos, score, round clock and bomb timer (top center). */
+
+.match-bar {
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  justify-content: center;
+  width: 860px;
+  height: 70px;
+  top: 15px;
+  left: 50%;
+  transform: translate(-50%);
+}
+
+.match-bar__team {
+  width: 275px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.match-bar__team[data-align='left'] {
+  flex-direction: row-reverse;
+}
+.match-bar__team[data-align='right'] {
+  flex-direction: row;
+}
+.match-bar__team-name {
+  display: flex;
+  width: 360px;
+  height: 70px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 24px;
+  color: #fff;
+  background-color: var(--color-panel);
+}
+.match-bar__logo {
+  display: flex;
+  flex-direction: row;
+  width: 105px;
+  height: 70px;
+  align-items: center;
+  overflow: hidden;
+  background-color: var(--color-panel);
+  justify-content: center;
+}
+.match-bar__logo img {
+  max-width: 90%;
+  max-height: 65%;
+}
+.match-bar__team[data-align='left'] .match-bar__logo {
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+.match-bar__team[data-align='right'] .match-bar__logo {
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.match-bar__score {
+  display: flex;
+  flex-direction: row;
+  width: 77px;
+  height: 70px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 36px;
+  background-color: var(--color-panel);
+  text-shadow:
+    0 0 3px rgba(255, 255, 255, 0.8),
+    0 0 5px rgba(255, 255, 255, 0.6);
+}
+.match-bar__score[data-side='CT'] {
+  color: var(--color-ct);
+}
+.match-bar__score[data-side='T'] {
+  color: var(--color-t);
+}
+.match-bar__score[data-align='left'] {
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.match-bar__score[data-align='right'] {
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+/* round clock in the middle; replaced by the bomb timer once planted */
+.match-bar__clock {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 126px;
+  height: 87px;
+  margin-left: 8px;
+  margin-right: 8px;
+  background-color: var(--color-panel);
+  top: -10px;
+  border-radius: var(--radius);
+}
+.match-bar__time {
+  display: flex;
+  width: 100%;
+  height: 55px;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: 700;
+  z-index: 1;
+  color: var(--color-text);
+  align-items: flex-end;
+}
+.match-bar__round {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 27px;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 1;
+  color: var(--color-text);
+}
+.match-bar__time.is-hidden,
+.match-bar__round.is-hidden {
+  display: none;
+}
+
+.bomb-timer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.bomb-timer__fill {
+  width: 100%;
+  top: 0;
+  height: 0;
+  background-color: var(--color-bomb);
+}
+.bomb-timer__icon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.bomb-timer__icon svg {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
+  top: 6px;
+  max-height: 80%;
+  max-width: 80%;
+}
+.bomb-timer__fill:not(.is-visible),
+.bomb-timer__icon:not(.is-visible) {
+  display: none;
+}
+
+/* "WINS THE ROUND!" banner below the winning team */
+@keyframes round-win-banner {
+  0% {
+    opacity: 0;
+    height: 0;
+  }
+  5% {
+    opacity: 1;
+    height: 50px;
+  }
+  95% {
+    opacity: 1;
+    height: 50px;
+  }
+  to {
+    opacity: 0;
+    height: 0;
+  }
+}
+.round-win-banner {
+  position: fixed;
+  display: none;
+  opacity: 1;
+  width: 300px;
+  height: 50px;
+  top: 82px;
+  align-items: center;
+  color: #fff;
+  justify-content: center;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  font-size: 20px;
+  font-weight: 600;
+}
+.round-win-banner.is-visible {
+  display: flex;
+  animation: round-win-banner 5s linear 1;
+  animation-fill-mode: forwards;
+}
+
+/* plant / defuse progress below the acting team */
+.bomb-action {
+  position: fixed;
+  display: flex;
+  opacity: 1;
+  width: 300px;
+  height: 50px;
+  top: 82px;
+  align-items: center;
+  color: #fff;
+  justify-content: center;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.bomb-action__progress {
+  height: 100%;
+  background-color: var(--color-border);
+  position: absolute;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.bomb-action__caption {
+  z-index: 2;
+  display: flex;
+  text-transform: uppercase;
+  font-weight: 600;
+  align-items: flex-end;
+  color: #ffffff !important;
+  text-shadow:
+    0 0 8px rgba(0, 0, 0, 0.8),
+    0 0 4px rgba(0, 0, 0, 0.9);
+}
+.bomb-action__caption * {
+  color: #ffffff !important;
+}
+.bomb-action__caption svg {
+  margin-right: 13px;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
+}
+.round-win-banner[data-align='right'],
+.bomb-action[data-align='right'] {
+  left: calc(50% + 97px);
+}
+.round-win-banner[data-align='left'],
+.bomb-action[data-align='left'] {
+  right: calc(50% + 97px);
+}
+.bomb-action[data-align='right'] .bomb-action__progress {
+  left: 0;
+  background-color: rgba(193, 58, 58, 0.85);
+}
+.bomb-action[data-align='left'] .bomb-action__progress {
+  right: 0;
+  background-color: rgba(26, 58, 92, 0.85);
+}
+
+/* series score: one box per map needed to win, below the match bar */
+.series-bar {
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  justify-content: space-between;
+  top: 85px;
+  width: 847px;
+  height: 50px;
+  left: 50%;
+  transform: translate(-50%);
+}
+.series-bar__label {
+  display: flex;
+  flex-direction: column;
+  width: 126px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.series-bar__team {
+  display: flex;
+  flex-direction: row;
+  width: 360px;
+  height: 100%;
+  justify-content: center;
+}
+.series-bar__wins {
+  display: flex;
+  flex-direction: row;
+  height: 30px;
+  z-index: 1;
+  padding-left: 6px;
+  padding-right: 6px;
+  align-items: flex-start;
+}
+.series-bar__team[data-align='left'] .series-bar__wins {
+  flex-direction: row-reverse;
+}
+.series-bar__win {
+  width: 80px;
+  height: 8px;
+  margin-left: 2px;
+  margin-right: 2px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  box-sizing: border-box;
+  background-color: #0009;
+}
+.series-bar__win.is-won[data-side='CT'] {
+  background-color: var(--color-ct);
+}
+.series-bar__win.is-won[data-side='T'] {
+  background-color: var(--color-t);
+}

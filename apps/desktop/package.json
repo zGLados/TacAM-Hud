@@ -1,0 +1,73 @@
+{
+  "name": "@tacam/desktop",
+  "productName": "TacAM HUD",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TacAM HUD Manager – CS2 Broadcast-HUD",
+  "author": "TacAM",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "main": "dist/main.cjs",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/main.cjs --external:electron --external:bufferutil --external:utf-8-validate --log-override:empty-import-meta=silent",
+    "typecheck": "tsc --noEmit",
+    "start": "npm run build && electron .",
+    "dist": "npm run build && electron-builder"
+  },
+  "devDependencies": {
+    "@tacam/server": "0.1.0",
+    "@tacam/shared": "0.1.0",
+    "@types/node": "^18.19.130",
+    "electron": "43.7.9",
+    "electron-builder": "26.15.3",
+    "esbuild": "0.25.12"
+  },
+  "build": {
+    "appId": "de.tacam.hud",
+    "productName": "TacAM HUD",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**",
+      "build/icon.png",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../hud/dist",
+        "to": "hud"
+      },
+      {
+        "from": "../control/dist",
+        "to": "control"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Video"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.video"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

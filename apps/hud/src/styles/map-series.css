@@ -1,0 +1,107 @@
+/* Map series overview (top right, freezetime): pick, winner and score per map. */
+
+.map-series {
+  position: fixed;
+  top: 150px;
+  right: 20px;
+  width: 347px;
+  display: flex;
+  opacity: 0;
+  transition: opacity 0.5s;
+  flex-direction: column;
+  font-size: 13px;
+}
+.map-series.is-visible {
+  opacity: 1;
+}
+
+.map-series__header {
+  display: flex;
+  background-color: var(--color-panel);
+  height: 25px;
+  color: #fff;
+  border-radius: var(--radius) var(--radius) 0 0;
+  font-family: Montserrat;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-border);
+}
+.map-series__column {
+  width: 77px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-series__column:first-child {
+  margin-left: auto;
+}
+
+.map-series__map {
+  display: flex;
+  background-color: var(--color-panel);
+  color: #fff;
+  align-items: center;
+  height: 40px;
+}
+.map-series__map:last-child {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.map-series__name {
+  width: 116px;
+  text-transform: uppercase;
+  background-color: var(--color-panel-strong);
+  background-size: cover;
+  background-position: center;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+  height: 100%;
+  display: flex;
+  font-family: Montserrat;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  border-bottom-left-radius: var(--radius);
+}
+.map-series__picker,
+.map-series__winner {
+  width: 77px;
+  text-align: center;
+}
+.map-series__map .team-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-series__map img {
+  max-height: 30px;
+  max-width: 30px;
+}
+.map-series__score {
+  width: 77px;
+  text-align: center;
+  font-size: 14px;
+}
+.map-series__live {
+  width: 154px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-series__live-label {
+  background: transparent;
+  color: var(--color-primary-light);
+  width: 117px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: Montserrat;
+  text-transform: uppercase;
+}
+.map-series__map:not(.is-current) .map-series__live,
+.map-series__map.is-current .map-series__winner,
+.map-series__map.is-current .map-series__score {
+  display: none;
+}
