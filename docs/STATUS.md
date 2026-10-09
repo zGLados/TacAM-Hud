@@ -2,6 +2,19 @@
 
 Stand der Übergabe (Oktober 2026). Alles hier Gelistete ist **noch nicht erledigt**.
 
+## Nächste Aufgaben (vom Projektinhaber festgelegt)
+
+1. **Release-Build der Windows-Installer-.exe automatisieren:** GitHub-Actions-Workflow
+   (z. B. `.github/workflows/release.yml`), der bei einem Release bzw. Tag `v*` auf
+   `windows-latest` mit Node 22 `npm ci` und `npm run dist` ausführt und die
+   NSIS-Installer-.exe (`apps/desktop/release/*.exe`) an das GitHub-Release hängt.
+   Version in `apps/desktop/package.json` mit dem Tag abgleichen.
+2. **Dokumentation und Code-Kommentare komplett auf Englisch:** `README.md`,
+   `CLAUDE.md`, `THIRD_PARTY.md`, `docs/*.md` (inkl. dieser Datei) übersetzen und alle
+   deutschen Kommentare im Code umstellen. Die Oberfläche des Control-Panels und die
+   Fehlermeldungen der API bleiben vorerst deutsch, außer es wird anders entschieden.
+   Danach in `CLAUDE.md` als Konvention festhalten: Doku und Kommentare auf Englisch.
+
 ## In Arbeit: logische CSS-/HTML-Namen im HUD (Aufgabe #7)
 
 Der Umbau auf BEM-Namen (`match-bar__team`, `player-card`, `data-side`, `is-*`)
