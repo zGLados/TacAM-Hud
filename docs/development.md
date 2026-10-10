@@ -45,7 +45,7 @@ Note: `google-chrome --headless --screenshot` with `--virtual-time-budget` hangs
 
 ## Releases
 
-Publishing a GitHub release (tag `vX.Y.Z`) runs `.github/workflows/release.yml` on `windows-latest` with Node 22: `npm ci`, typecheck, tests, build, then `electron-builder --win nsis`. The version is taken from the tag, and the installer `.exe` is attached to the release. The workflow can also be started manually for an existing tag (`workflow_dispatch`).
+Publishing a GitHub release (tag `vX.Y.Z`) runs `.github/workflows/release.yml` on `windows-latest` with Node 22: `npm ci`, typecheck, tests, build, then `electron-builder --win nsis`. The version is taken from the tag, and the installer `.exe` is attached to the release together with `latest.yml` and the `.blockmap`. The desktop app (`apps/desktop/src/updater.ts`, `electron-updater`) reads `latest.yml` from the newest GitHub release on startup and offers the update; it downloads only after confirmation and installs silently on restart. The data in `userData` is never touched by the installer. Draft and pre-releases are ignored, and the portable build does not update itself. The workflow can also be started manually for an existing tag (`workflow_dispatch`).
 
 Checklist:
 

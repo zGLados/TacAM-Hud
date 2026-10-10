@@ -11,7 +11,7 @@ Evaluated together with the project owner:
 
 ## Release workflow
 
-`.github/workflows/release.yml` exists but has **not run yet**. Check the first real release (GitHub Actions log, installer attached, installer starts).
+`.github/workflows/release.yml` works (v0.1.0–v0.1.3). From v0.1.4 on the release also carries `latest.yml` + `.blockmap` for the in-app updater. **Open:** verify an actual update end to end (install v0.1.4, publish v0.1.5, accept the update prompt, check that data in `%APPDATA%\TacAM HUD` survived).
 
 ## Environment / dependencies
 

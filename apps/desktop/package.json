@@ -22,6 +22,7 @@
     "@types/node": "^18.19.130",
     "electron": "43.7.9",
     "electron-builder": "26.15.3",
+    "electron-updater": "6.8.9",
     "esbuild": "0.25.12"
   },
   "build": {
@@ -69,6 +70,11 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "artifactName": "TacAM-HUD-Setup-${version}.${ext}"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "zGLados",
+      "repo": "TacAM-Hud"
     }
   }
 }

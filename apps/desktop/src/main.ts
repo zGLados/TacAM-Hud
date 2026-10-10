@@ -2,6 +2,7 @@ import path from 'node:path';
 import { app, BrowserWindow, clipboard, dialog, globalShortcut, Menu, shell } from 'electron';
 import { createTacamServer, type TacamServer } from '@tacam/server';
 import type { HudAction } from '@tacam/shared';
+import { checkForUpdates } from './updater';
 
 /**
  * Desktop wrapper: runs the TacAM server in the main process and shows the
@@ -72,6 +73,7 @@ function buildMenu() {
           { label: 'Toggle HUD overlay window', accelerator: 'Alt+H', click: toggleOverlay },
           { type: 'separator' },
           { label: 'Open data folder', click: () => shell.openPath(app.getPath('userData')) },
+          { label: `Check for updates (current: ${app.getVersion()})`, click: () => checkForUpdates(true) },
           { type: 'separator' },
           { role: 'quit', label: 'Quit' },
         ],
@@ -126,6 +128,7 @@ async function start() {
   buildMenu();
   registerShortcuts();
   await createMainWindow();
+  void checkForUpdates();
 }
 
 if (!app.requestSingleInstanceLock()) {

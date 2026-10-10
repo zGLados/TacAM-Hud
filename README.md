@@ -72,6 +72,8 @@ The app runs the server internally, opens the control panel and registers global
 
 Publishing a GitHub release with a tag like `v1.2.3` builds the Windows installer automatically and attaches it to the release (`.github/workflows/release.yml`).
 
+The installed app checks GitHub for a newer release on startup (and via *TacAM HUD → Check for updates*) and offers to download and install it. Teams, players, matches, uploads and settings are kept, because they live in the user data folder, not in the program folder.
+
 ### Keyboard shortcuts (desktop app)
 
 | Shortcut | Action |
