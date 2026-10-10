@@ -28,6 +28,8 @@ export interface Settings {
   telnet: { host: string; port: number };
   /** Launch options for "Start CS2"; -netconport is added if missing. */
   launchOptions: string;
+  /** Add -tools when starting CS2 (Workshop Tools; on Windows needed for the console). */
+  launchTools: boolean;
   /** Secret for `/api/trigger/<action>` URLs (Stream Deck, Companion). */
   actionKey: string;
   /**
@@ -65,6 +67,7 @@ const defaults = (): Database => ({
     accessPin: '',
     telnet: { host: '127.0.0.1', port: 2020 },
     launchOptions: '-netconport 2020',
+    launchTools: process.platform === 'win32',
     actionKey: randomUUID().replace(/-/g, ''),
     keybinds: { ...DEFAULT_KEYBINDS },
     obs: { enabled: false, url: 'ws://127.0.0.1:4455', password: '', sceneMap: {} },

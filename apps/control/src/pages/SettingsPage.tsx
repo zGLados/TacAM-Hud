@@ -26,10 +26,16 @@ export function SettingsPage() {
   const origin = window.location.origin;
   const port = window.location.port || '1349';
 
+  // Shows what actually went to Steam, so a missing -tools is visible right away.
+  const launch = async () => {
+    const result = await run(api.game.launch);
+    if (result) toast(`CS2 is starting: ${result.args.slice(2).join(' ')}`);
+  };
+
   const save = async () => {
     const restartNeeded = draft.lanAccess !== settings.lanAccess;
     const ok = await run(
-      () => api.settings.save({ steamPath: draft.steamPath || null, lanAccess: draft.lanAccess, accessPin: draft.accessPin, telnet: draft.telnet, launchOptions: draft.launchOptions }),
+      () => api.settings.save({ steamPath: draft.steamPath || null, lanAccess: draft.lanAccess, accessPin: draft.accessPin, telnet: draft.telnet, launchOptions: draft.launchOptions, launchTools: draft.launchTools }),
       restartNeeded ? 'Saved – LAN access takes effect after restarting the app' : 'Saved'
     );
     if (ok) reload();
@@ -71,8 +77,13 @@ export function SettingsPage() {
           <Field label="CS2 launch options" hint={`For “Start CS2”. -netconport ${draft.telnet.port} (console for camera control) is added if missing. On Windows the console also needs -tools (Workshop Tools DLC). TacAM sets engine_no_focus_sleep 0 on connect, so CS2 keeps running when unfocused.`}>
             <input value={draft.launchOptions} onChange={(e) => set({ launchOptions: e.target.value })} placeholder="-novid -netconport 2020" />
           </Field>
+          <Toggle
+            checked={draft.launchTools}
+            onChange={(launchTools) => set({ launchTools })}
+            label="Workshop Tools mode (-tools) – on Windows needed for the console; requires the free “Counter-Strike 2 Workshop Tools” DLC"
+          />
           <div className="row">
-            <button className="button" onClick={() => run(api.game.launch, 'CS2 is starting (via Steam)')}>
+            <button className="button" onClick={launch}>
               Start CS2
             </button>
             <span className="muted small">Starts CS2 on the computer running TacAM HUD. Save changed options first.</span>

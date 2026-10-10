@@ -18,9 +18,11 @@ export function parseLaunchOptions(options: string): string[] {
   return args;
 }
 
-/** Launch options with `-netconport <port>` guaranteed, so the console bridge can connect. */
-export function withNetconPort(options: string, port: number) {
-  return /(^|\s)-netconport(\s|$)/.test(options) ? options.trim() : `${options.trim()} -netconport ${port}`.trim();
+/** Launch options with `-netconport <port>` (and `-tools` if wanted) guaranteed, so the console bridge can connect. */
+export function withNetconPort(options: string, port: number, tools = false) {
+  let out = /(^|\s)-netconport(\s|$)/.test(options) ? options.trim() : `${options.trim()} -netconport ${port}`.trim();
+  if (tools && !/(^|\s)-tools(\s|$)/.test(out)) out = `-tools ${out}`;
+  return out;
 }
 
 function steamExecutable(steamPath: string | null) {

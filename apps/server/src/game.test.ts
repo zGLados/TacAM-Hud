@@ -39,6 +39,8 @@ describe('CS2 launch options', () => {
     expect(withNetconPort('-novid', 2020)).toBe('-novid -netconport 2020');
     expect(withNetconPort('', 2121)).toBe('-netconport 2121');
     expect(withNetconPort('-netconport 2121 -novid', 2020)).toBe('-netconport 2121 -novid');
+    expect(withNetconPort('-novid', 2020, true)).toBe('-tools -novid -netconport 2020');
+    expect(withNetconPort('-tools -netconport 2020', 2020, true)).toBe('-tools -netconport 2020');
   });
 });
 

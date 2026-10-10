@@ -121,6 +121,7 @@ const settingsSchema = z.object({
   accessPin: z.string().regex(/^(\d{4,12})?$/, 'PIN must have 4–12 digits'),
   telnet: z.object({ host: str.min(1), port: z.number().int().min(1).max(65535) }),
   launchOptions: z.string().max(500).regex(/^[^\r\n]*$/, 'Launch options must be one line'),
+  launchTools: z.boolean(),
 });
 
 const hudActionSchema = z.object({
@@ -441,9 +442,9 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
   api.post(
     '/game/launch',
     h(async (_req, res) => {
-      const { steamPath, launchOptions, telnet } = store.doc('settings');
+      const { steamPath, launchOptions, launchTools, telnet } = store.doc('settings');
       try {
-        const args = await launchCs2(steamPath, withNetconPort(launchOptions, telnet.port));
+        const args = await launchCs2(steamPath, withNetconPort(launchOptions, telnet.port, launchTools));
         res.json({ ok: true, args });
       } catch (error) {
         if (error instanceof GameLaunchError) return res.status(400).json({ error: error.message });
