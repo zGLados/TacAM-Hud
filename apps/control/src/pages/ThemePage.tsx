@@ -17,6 +17,59 @@ const COLOR_LABELS: Record<ThemeColorKey, string> = {
   'text-muted': 'Text gedämpft',
 };
 
+/** Upload and manage the background videos for the starting soon / BRB / upcoming scenes. */
+function BackgroundVideos({ videos, onChange }: { videos: Theme['backgroundVideos']; onChange: (videos: Theme['backgroundVideos']) => void }) {
+  const run = useRun();
+  const input = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  return (
+    <Card title="Hintergrundvideos">
+      <p className="muted">
+        Laufen in zufälliger Reihenfolge hinter Starting Soon, Be Right Back und Kommende Matches (ohne Ton). MP4 oder WebM bis 500 MB,
+        am besten 1920×1080 und wenige MBit/s, damit OBS flüssig bleibt.
+      </p>
+      <div className="stack">
+        {videos.map((video, i) => (
+          <div key={video.id} className="row">
+            <video className="video_thumb" src={uploadUrl(video.file)!} muted preload="metadata" />
+            <input
+              value={video.label}
+              placeholder="Name"
+              onChange={(e) => onChange(videos.map((v, j) => (j === i ? { ...v, label: e.target.value } : v)))}
+            />
+            <button className="icon_button" onClick={() => onChange(videos.filter((_, j) => j !== i))} aria-label="Entfernen">
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+      <div className="row">
+        <button className="button" disabled={uploading} onClick={() => input.current?.click()}>
+          {uploading ? 'Wird hochgeladen…' : 'Video hochladen'}
+        </button>
+      </div>
+      <input
+        ref={input}
+        type="file"
+        accept="video/mp4,video/webm"
+        hidden
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = '';
+          if (!file) return;
+          setUploading(true);
+          const result = await run(() => api.uploadVideo(file), 'Video hochgeladen – Speichern nicht vergessen');
+          setUploading(false);
+          if (result) {
+            const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            onChange([...videos, { id, file: result.file, label: file.name.replace(/\.[^.]+$/, '') }]);
+          }
+        }}
+      />
+    </Card>
+  );
+}
+
 /** Renders the 1920×1080 HUD scaled down to the card width. */
 function HudPreview({ reloadKey, theme }: { reloadKey: number; theme: Theme }) {
   const box = useRef<HTMLDivElement>(null);
@@ -120,6 +173,8 @@ export function ThemePage() {
               <ImageUpload value={theme.brandLogo} onChange={(brandLogo) => set({ brandLogo })} label="Logo" />
             </Field>
           </Card>
+
+          <BackgroundVideos videos={theme.backgroundVideos} onChange={(backgroundVideos) => set({ backgroundVideos })} />
         </div>
 
         <Card title="Vorschau" className="preview_card">

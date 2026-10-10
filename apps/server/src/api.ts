@@ -75,6 +75,7 @@ const hudConfigSchema = z.object({
     sponsors: z.boolean(),
   }),
   replaceAvatars: z.enum(['never', 'if_missing', 'always']),
+  playerToWatch: z.string().regex(/^\d{17}$/).nullable(),
 });
 
 // Colors end up in CSS custom properties: allow only color syntax, nothing that could break out.
@@ -89,6 +90,7 @@ const themeSchema = z.object({
   brandLogo: nullableStr,
   tournamentName: z.string().max(80),
   tournamentLogo: nullableStr,
+  backgroundVideos: z.array(z.object({ id: z.string(), file: z.string(), label: z.string() })),
 });
 
 const sceneSchema = z.object({
@@ -119,6 +121,11 @@ const h = (fn: Handler) => async (req: Request, res: Response, next: NextFunctio
       res.status(400).json({ error: error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ') });
     } else next(error);
   }
+};
+
+const VIDEO_TYPES: Record<string, string> = {
+  'video/mp4': '.mp4',
+  'video/webm': '.webm',
 };
 
 const IMAGE_TYPES: Record<string, string> = {
@@ -264,18 +271,25 @@ export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOpt
 
   // --- uploads -----------------------------------------------------------
 
-  const upload = multer({
-    storage: multer.diskStorage({
-      destination: uploadsDir,
-      filename: (_req, file, cb) => cb(null, `${randomUUID()}${IMAGE_TYPES[file.mimetype] ?? ''}`),
-    }),
-    limits: { fileSize: 8 * 1024 * 1024 },
-    fileFilter: (_req, file, cb) => cb(null, file.mimetype in IMAGE_TYPES),
-  });
-  api.post('/uploads', upload.single('file'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'Nur Bilder (png, jpg, webp, gif, svg) bis 8 MB' });
-    res.status(201).json({ file: req.file.filename, url: `/uploads/${req.file.filename}` });
-  });
+  /** Disk upload limited to the given MIME types and size; errors become a 400 with `message`. */
+  const uploader = (types: Record<string, string>, maxBytes: number, message: string) => {
+    const handle = multer({
+      storage: multer.diskStorage({
+        destination: uploadsDir,
+        filename: (_req, file, cb) => cb(null, `${randomUUID()}${types[file.mimetype] ?? ''}`),
+      }),
+      limits: { fileSize: maxBytes },
+      fileFilter: (_req, file, cb) => cb(null, file.mimetype in types),
+    }).single('file');
+    return (req: Request, res: Response) =>
+      handle(req, res, (error: unknown) => {
+        if (error || !req.file) return res.status(400).json({ error: message });
+        res.status(201).json({ file: req.file.filename, url: `/uploads/${req.file.filename}` });
+      });
+  };
+  api.post('/uploads', uploader(IMAGE_TYPES, 8 * 1024 * 1024, 'Nur Bilder (png, jpg, webp, gif, svg) bis 8 MB'));
+  // Background videos for scenes; large on purpose, they are only read locally by the HUD.
+  api.post('/uploads/video', uploader(VIDEO_TYPES, 500 * 1024 * 1024, 'Nur Videos (mp4, webm) bis 500 MB'));
   api.delete('/uploads/:file', (req, res) => {
     const file = path.join(uploadsDir, path.basename(req.params.file));
     if (fs.existsSync(file)) fs.unlinkSync(file);

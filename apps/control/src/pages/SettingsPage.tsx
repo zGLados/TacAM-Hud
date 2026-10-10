@@ -11,6 +11,8 @@ const OBS_SCENES: [string, string][] = [
   ['veto', 'Map-Veto'],
   ['scoreboard', 'Scoreboard'],
   ['matchEnd', 'Match-Ende'],
+  ['upcoming', 'Kommende Matches'],
+  ['playerToWatch', 'Player to Watch'],
 ];
 
 /** navigator.clipboard only exists in secure contexts (not on http://<lan-ip>). */

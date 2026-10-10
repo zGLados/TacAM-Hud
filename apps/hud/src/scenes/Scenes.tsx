@@ -2,6 +2,9 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { formatClock, prettyMapName, type PlayerMatchStats, type Side } from '@tacam/shared';
 import { useHud } from '../state/store';
 import { useActiveScene, useSides } from '../state/hooks';
+import { BackgroundVideo } from './BackgroundVideo';
+import { UpcomingMatches } from './UpcomingMatches';
+import { PlayerToWatch } from './PlayerToWatch';
 import { defaultTeamLogo, mapBanner } from '../lib/assets';
 import { RoundHistory } from '../components/RoundHistory';
 import { seriesWins } from '../components/MatchBar';
@@ -47,12 +50,14 @@ function Logo({ team, size = 120 }: { team: SceneTeam; size?: number }) {
   return <img className="score-header__logo" style={{ width: size, height: size }} src={team.logo || defaultTeamLogo(team.side ?? 'CT')} alt={team.name} />;
 }
 
-function SceneFrame({ title, subtitle, children, className = '' }: { title: string; subtitle?: string; children?: ReactNode; className?: string }) {
+function SceneFrame({ title, subtitle, children, className = '', video = false }: { title: string; subtitle?: string; children?: ReactNode; className?: string; video?: boolean }) {
   const theme = useHud((s) => s.theme);
   const match = useHud((s) => s.match);
   const tournamentLogo = uploadUrl(theme.tournamentLogo);
+  const withVideo = video && theme.backgroundVideos.length > 0;
   return (
-    <div className={`scene ${className}`}>
+    <div className={`scene ${className} ${withVideo ? 'scene--with-video' : ''}`}>
+      {withVideo && <BackgroundVideo />}
       <div className="scene__header">
         {tournamentLogo && <img className="scene__tournament-logo" src={tournamentLogo} alt="" />}
         <div className="scene__titles">
@@ -257,7 +262,7 @@ export function SceneOverlay() {
       return null;
     case 'starting':
       return (
-        <SceneFrame title={scene.message || 'Starting Soon'} className="scene--starting">
+        <SceneFrame title={scene.message || 'Starting Soon'} className="scene--starting" video>
           {scene.countdownTo && <Countdown to={scene.countdownTo} />}
           <ScoreHeader />
           <VetoList />
@@ -265,7 +270,7 @@ export function SceneOverlay() {
       );
     case 'brb':
       return (
-        <SceneFrame title="We'll be right back" subtitle={scene.message} className="scene--brb">
+        <SceneFrame title="We'll be right back" subtitle={scene.message} className="scene--brb" video>
           <ScoreHeader />
         </SceneFrame>
       );
@@ -295,6 +300,18 @@ export function SceneOverlay() {
         <SceneFrame title={scene.message || 'Scoreboard'} className="scene--scoreboard">
           <ScoreHeader />
           <BothStatsTables />
+        </SceneFrame>
+      );
+    case 'upcoming':
+      return (
+        <SceneFrame title={scene.message || 'Upcoming Matches'} className="scene--upcoming" video>
+          <UpcomingMatches />
+        </SceneFrame>
+      );
+    case 'playerToWatch':
+      return (
+        <SceneFrame title={scene.message || 'Player to Watch'} className="scene--player-to-watch">
+          <PlayerToWatch />
         </SceneFrame>
       );
     case 'matchEnd': {

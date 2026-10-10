@@ -21,7 +21,11 @@ At map end (csgogsi event `matchEnd`) the server writes score and winner into th
 
 ## Scenes
 
-`SceneState { active, auto, message, countdownTo }`. Scenes: `live`, `starting`, `brb`, `pause`, `halftime`, `veto`, `scoreboard`, `matchEnd`. With `auto`, the server switches between `live` ↔ `pause` (game phase `paused`), `halftime` (map phase `intermission`) and `matchEnd` (`gameover`), but only while one of these scenes is active; scenes picked by the producer stay. Full-screen scenes hide the in-game HUD.
+`SceneState { active, auto, message, countdownTo }`. Scenes: `live`, `starting`, `brb`, `pause`, `halftime`, `veto`, `scoreboard`, `matchEnd`, `upcoming`, `playerToWatch`. With `auto`, the server switches between `live` ↔ `pause` (game phase `paused`), `halftime` (map phase `intermission`) and `matchEnd` (`gameover`), but only while one of these scenes is active; scenes picked by the producer stay. Full-screen scenes hide the in-game HUD.
+
+- **Upcoming matches** (`upcoming`): up to 5 matches that are neither current nor finished, sorted by `startTime` (unscheduled last), with teams, format and title. Reloads every 30 s.
+- **Player to watch** (`playerToWatch`): the player set in `HudConfig.playerToWatch` (Regie page) with avatar, real name, team and live match stats (rating, K–D, ADR, KAST, HS, opening kills).
+- **Background videos**: `Theme.backgroundVideos` play muted in random order behind starting soon, BRB and upcoming matches, with a lighter tint over them. Uploaded via `POST /api/uploads/video` (MP4/WebM, max 500 MB); OBS can play H.264, Playwright's headless shell cannot.
 
 **Fixed OBS URL per scene:** `/hud/?scene=<id>` always shows that scene and ignores the scene chosen in the control panel, so every OBS scene can have its own browser source and scenes are switched in OBS. `/hud/?scene=live` shows only the in-game HUD and never a full-screen scene. The URLs are listed in the control panel under Einstellungen → OBS.
 

@@ -25,7 +25,7 @@ The HUD keeps the values and layout of the TacAM skin, but with its own descript
 | `map-series.css` | `map-series` | `MapSeries.tsx` |
 | `overlays.css` | `center-stack`, `trivia`, `phase-banner`, `player-spotlight`, `match-teaser` | `Overlays.tsx` |
 | `sponsors.css` | `sponsors` | `Sponsors.tsx` |
-| `scenes.css` | `scene`, `score-header`, `stats-table(s)`, `veto-list`, `veto-card`, `mvp-card` | `scenes/Scenes.tsx` |
+| `scenes.css` | `scene`, `score-header`, `stats-table(s)`, `veto-list`, `veto-card`, `mvp-card`, `upcoming`, `player-to-watch` | `scenes/*.tsx` |
 
 `index.css` imports everything in this order. Radar sprites are PNG files in `assets/radar-sprites/` (in the skin they were Base64 inside the CSS).
 

@@ -84,6 +84,11 @@ export const api = {
     form.append('file', file);
     return request<{ file: string; url: string }>('POST', '/uploads', form);
   },
+  uploadVideo: async (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return request<{ file: string; url: string }>('POST', '/uploads/video', form);
+  },
   hud: {
     config: () => request<HudConfig>('GET', '/hud/config'),
     saveConfig: (c: HudConfig) => request<HudConfig>('PUT', '/hud/config', c),

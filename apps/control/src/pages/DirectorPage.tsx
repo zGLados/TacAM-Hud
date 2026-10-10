@@ -12,11 +12,15 @@ const SCENES: { id: SceneId; label: string; hint: string }[] = [
   { id: 'veto', label: 'Map-Veto', hint: 'Bans, Picks, Decider' },
   { id: 'scoreboard', label: 'Scoreboard', hint: 'Detaillierte Stats beider Teams' },
   { id: 'matchEnd', label: 'Match-Ende', hint: 'Sieger, MVP & Stats' },
+  { id: 'upcoming', label: 'Kommende Matches', hint: 'Nächste Matches mit Startzeit' },
+  { id: 'playerToWatch', label: 'Player to Watch', hint: 'Spieler-Karte mit Match-Stats' },
 ];
 
 function ScenePanel() {
   const run = useRun();
   const scene = useLive((s) => s.scene);
+  const { config, save: saveConfig } = useConfigEditor();
+  const { data: players } = useData(api.players.list, []);
   const [message, setMessage] = useState('');
   const [minutes, setMinutes] = useState(10);
   useEffect(() => setMessage(scene?.message ?? ''), [scene?.message]);
@@ -45,6 +49,20 @@ function ScenePanel() {
           </button>
         ))}
       </div>
+      {config && (
+        <Field label="Player to Watch" hint="Spieler für die Szene „Player to Watch“">
+          <select value={config.playerToWatch ?? ''} onChange={(e) => saveConfig({ playerToWatch: e.target.value || null })}>
+            <option value="">—</option>
+            {[...players]
+              .sort((a, b) => a.username.localeCompare(b.username))
+              .map((p) => (
+                <option key={p.id} value={p.steamid}>
+                  {p.username}
+                </option>
+              ))}
+          </select>
+        </Field>
+      )}
       <div className="row wrap">
         <Field label="Text / Überschrift" hint="Ersetzt den Standardtitel der Szene">
           <input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="z. B. Technische Probleme bei Team A" />

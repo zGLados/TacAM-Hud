@@ -2,15 +2,12 @@
 
 Everything listed here is **not done yet**.
 
-## To evaluate: ideas from zGLados/wartescreen
+## Ideas from zGLados/wartescreen (decided)
 
-No full integration (separate server, duplicates the scenes). Worth adopting:
+Evaluated together with the project owner:
 
-1. ~~A fixed OBS URL per scene~~ – done: `/hud/?scene=<id>` (see docs/features.md).
-2. FACEIT import (teams, rosters, veto by match ID).
-3. Background videos for starting soon / BRB.
-4. "Upcoming matches" and "player to watch" scenes based on player profiles + stats.
-5. Veto animation (bans/picks revealed one after another).
+- Done: fixed OBS URL per scene (`/hud/?scene=<id>`), background videos, scenes "upcoming matches" and "player to watch".
+- Not planned: FACEIT import (tournaments rarely run on FACEIT), veto animation.
 
 ## Release workflow
 

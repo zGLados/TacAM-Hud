@@ -89,12 +89,15 @@ export const THEME_COLOR_KEYS = [
 
 export type ThemeColorKey = (typeof THEME_COLOR_KEYS)[number];
 
-export interface Sponsor {
+/** An uploaded image or video with a display label. */
+export interface MediaItem {
   id: string;
   /** File name inside the uploads directory. */
   file: string;
   label: string;
 }
+
+export type Sponsor = MediaItem;
 
 export interface Theme {
   colors: Record<ThemeColorKey, string>;
@@ -108,6 +111,8 @@ export interface Theme {
   brandLogo: string | null;
   tournamentName: string;
   tournamentLogo: string | null;
+  /** Videos played in random order behind the "starting soon" and BRB scenes. */
+  backgroundVideos: MediaItem[];
 }
 
 export const DEFAULT_THEME: Theme = {
@@ -132,6 +137,7 @@ export const DEFAULT_THEME: Theme = {
   brandLogo: null,
   tournamentName: '',
   tournamentLogo: null,
+  backgroundVideos: [],
 };
 
 // ---------------------------------------------------------------------------
@@ -147,6 +153,8 @@ export const SCENE_IDS = [
   'veto',
   'scoreboard',
   'matchEnd',
+  'upcoming',
+  'playerToWatch',
 ] as const;
 
 export type SceneId = (typeof SCENE_IDS)[number];
@@ -196,6 +204,8 @@ export interface HudConfig {
     sponsors: boolean;
   };
   replaceAvatars: 'never' | 'if_missing' | 'always';
+  /** SteamID64 of the player shown in the "player to watch" scene. */
+  playerToWatch: string | null;
 }
 
 export const DEFAULT_HUD_CONFIG: HudConfig = {
@@ -218,6 +228,7 @@ export const DEFAULT_HUD_CONFIG: HudConfig = {
     sponsors: true,
   },
   replaceAvatars: 'never',
+  playerToWatch: null,
 };
 
 // ---------------------------------------------------------------------------
@@ -294,6 +305,8 @@ export interface HudPlayerExtension {
   realName: string | null;
   country: string | null;
   avatar: string | null;
+  /** Database team, so scenes can show it without a running game. */
+  teamId: string | null;
   extra: Record<string, string>;
 }
 

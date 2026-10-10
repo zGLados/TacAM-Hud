@@ -68,6 +68,7 @@ export class LiveHub {
         realName: `${p.firstName} ${p.lastName}`.trim() || null,
         country: p.country,
         avatar: uploadUrl(p.avatar),
+        teamId: p.teamId,
         extra: p.extra,
       }));
   }

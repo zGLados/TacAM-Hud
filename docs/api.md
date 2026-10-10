@@ -14,7 +14,8 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 | `GET /matches/current` | Current match |
 | `POST /matches/:id/current` | Set/unset as current |
 | `POST /matches/:id/reverse-current-map` | Toggle `reverseSide` of the running map |
-| `POST /uploads` (multipart `file`) | Upload an image → `{ file, url }`; `DELETE /uploads/:file` |
+| `POST /uploads` (multipart `file`) | Upload an image (max 8 MB) → `{ file, url }`; `DELETE /uploads/:file` |
+| `POST /uploads/video` (multipart `file`) | Upload a background video (MP4/WebM, max 500 MB) → `{ file, url }` |
 | `GET/PUT /hud/config` | HUD configuration |
 | `POST /hud/action` | `{ type: 'radarBigger' \| 'radarSmaller' \| 'toggleRadarView' \| 'toggleHud' }` |
 | `POST /hud/refresh` | Reload all HUDs |

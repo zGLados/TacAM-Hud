@@ -65,6 +65,19 @@ describe('API', () => {
     expect(a.id).not.toBe(b.id);
   });
 
+  it('accepts videos only on the video upload endpoint', async () => {
+    const form = (type: string, name: string) => {
+      const body = new FormData();
+      body.append('file', new Blob(['fake'], { type }), name);
+      return { method: 'POST', body };
+    };
+    const video = await fetch(`${base}/uploads/video`, form('video/mp4', 'clip.mp4'));
+    expect(video.status).toBe(201);
+    expect((await video.json()).file).toMatch(/\.mp4$/);
+    expect((await fetch(`${base}/uploads/video`, form('text/plain', 'x.txt'))).status).toBe(400);
+    expect((await fetch(`${base}/uploads`, form('video/mp4', 'clip.mp4'))).status).toBe(400);
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

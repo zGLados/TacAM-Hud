@@ -351,3 +351,192 @@
   color: var(--color-text);
 }
 
+
+/* --- background video (starting soon, BRB, upcoming) ------------------------ */
+
+/* The video sits behind the content; a lighter tint keeps text readable. */
+.scene--with-video {
+  isolation: isolate;
+  background: transparent;
+}
+.scene--with-video::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at top, rgba(193, 58, 58, 0.18), transparent 60%),
+    rgba(12, 14, 17, 0.55);
+}
+.scene__video {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scene__empty {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* --- upcoming matches ---------------------------------------------------------- */
+
+.upcoming {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 1300px;
+}
+.upcoming__match {
+  display: grid;
+  grid-template-columns: 170px 1fr 120px 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 24px;
+  padding: 18px 28px;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  border-left: 5px solid var(--color-primary);
+}
+.upcoming__time {
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+}
+.upcoming__day {
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+.upcoming__clock {
+  font-size: 36px;
+  font-weight: 700;
+}
+.upcoming__team {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.upcoming__team[data-align='left'] {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+.upcoming__logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+.upcoming__team-name {
+  font-size: 28px;
+  font-weight: 700;
+}
+.upcoming__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.upcoming__vs {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.upcoming__format {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--color-text-muted);
+}
+.upcoming__title {
+  grid-column: 2 / -1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-text-muted);
+}
+.upcoming__title:empty {
+  display: none;
+}
+
+/* --- player to watch ----------------------------------------------------------- */
+
+.player-to-watch {
+  display: flex;
+  gap: 48px;
+  align-items: center;
+  padding: 40px 56px;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  border-top: 6px solid var(--color-primary);
+}
+.player-to-watch[data-side='CT'] {
+  border-top-color: var(--color-ct);
+}
+.player-to-watch[data-side='T'] {
+  border-top-color: var(--color-t);
+}
+.player-to-watch__avatar {
+  width: 320px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+.player-to-watch__info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 620px;
+}
+.player-to-watch__name {
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+}
+.player-to-watch__real-name {
+  font-size: 24px;
+  color: var(--color-text-muted);
+}
+.player-to-watch__team {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 22px;
+  font-weight: 600;
+}
+.player-to-watch__team img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+.player-to-watch__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px 32px;
+  margin-top: 20px;
+}
+.player-to-watch__stat {
+  display: flex;
+  flex-direction: column;
+}
+.player-to-watch__stat b {
+  font-size: 40px;
+}
+.player-to-watch__stat span {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+.player-to-watch__no-stats {
+  margin-top: 20px;
+  font-size: 18px;
+  color: var(--color-text-muted);
+}

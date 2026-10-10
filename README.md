@@ -6,7 +6,7 @@ CS2 broadcast HUD and HUD manager in the TacAM design. Inspired by [JTs-Hud](htt
 | --- | --- |
 | **HUD** (OBS browser source) | Match bar, team panels, spectated player, radar (10 maps incl. the updated Cache), kill feed, bomb/defuse timers, utility/money, map series, trivia, player/match preview, sponsors |
 | **New: stats** | ADR, KAST (incl. trades), HS %, KPR, opening kills/deaths, clutches, multi-kills, HLTV 1.0 rating, round history, economy (buy classification) |
-| **New: scenes** | Starting soon (countdown), BRB, technical pause, halftime, map veto, scoreboard, match end with MVP, switched automatically or by click |
+| **New: scenes** | Starting soon (countdown), BRB, technical pause, halftime, map veto, scoreboard, match end with MVP, upcoming matches, player to watch; background videos; switched automatically, by click or via a fixed OBS URL per scene |
 | **New: web control** | Control panel in the browser, also on a tablet or second PC (LAN with PIN) |
 | **New: theme editor** | Colors, corner radius, font, sponsors, tournament logo, with live preview |
 | **Manager** | Players (incl. CSV import and creating them from the live game), teams, matches with veto editor, automatic map results, GSI installation, demo match |
@@ -28,6 +28,8 @@ CS2 broadcast HUD and HUD manager in the TacAM design. Inspired by [JTs-Hud](htt
 | ![Halftime scene](docs/images/scene-halftime.webp) | ![Match end scene](docs/images/scene-matchEnd.webp) |
 | **Starting soon** | **Map veto** |
 | ![Starting soon scene](docs/images/scene-starting.webp) | ![Map veto scene](docs/images/scene-veto.webp) |
+| **Upcoming matches** | **Player to watch** |
+| ![Upcoming matches scene](docs/images/scene-upcoming.webp) | ![Player to watch scene](docs/images/scene-playerToWatch.webp) |
 
 **Control panel** (runs in the browser, also on a second device):
 

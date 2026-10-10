@@ -49,7 +49,7 @@ export const DEMO_TEAMS = [
 ];
 
 export const DEMO_PLAYERS = [
-  ['zGLados', 'Fritz'],
+  ['zGLados', 'Finn'],
   ['nexo', 'Nico'],
   ['kRypt', 'Kai'],
   ['vandal', 'Vince'],

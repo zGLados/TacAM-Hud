@@ -836,3 +836,11 @@ input[type='range'] {
 .login_card {
   width: min(360px, 100%);
 }
+.video_thumb {
+  width: 96px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--bg);
+  flex-shrink: 0;
+}
