@@ -1,6 +1,6 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.1.5** (Windows installer with in-app updater).
+Hand-over state for the next session. Latest release: **v0.1.6** (first build with Node 22, npm 11, Vite 8) (Windows installer with in-app updater).
 
 ## Open tasks
 
@@ -12,8 +12,8 @@ None at the moment.
 
 ## Releases
 
-- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.5).
-- Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The update 0.1.4 → 0.1.5 was verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.6).
+- Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies
 
