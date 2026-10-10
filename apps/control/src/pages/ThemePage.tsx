@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_THEME, THEME_COLOR_KEYS, type Theme, type ThemeColorKey } from '@tacam/shared';
 import { api, uploadUrl, useData } from '../api';
+import { HudMonitor } from '../components/HudMonitor';
 import { Card, ColorInput, ConfirmButton, Field, ImageUpload, PageHeader, Toggle, useRun } from '../components/ui';
 
 const COLOR_LABELS: Record<ThemeColorKey, string> = {
@@ -123,25 +124,13 @@ function BackgroundVideos({ videos, onChange }: { videos: Theme['backgroundVideo
   );
 }
 
-/** Renders the 1920×1080 HUD scaled down to the card width. */
-function HudPreview({ reloadKey, theme }: { reloadKey: number; theme: Theme }) {
-  const box = useRef<HTMLDivElement>(null);
+/** HUD monitor that also receives the unsaved theme. */
+function ThemePreview({ reloadKey, theme }: { reloadKey: number; theme: Theme }) {
   const frame = useRef<HTMLIFrameElement>(null);
   // Push the unsaved theme into the preview; only the iframe sees it, not OBS.
   const post = () => frame.current?.contentWindow?.postMessage({ type: 'tacam:theme-preview', theme }, window.location.origin);
   useEffect(post, [theme]);
-  const [scale, setScale] = useState(0.3);
-  useEffect(() => {
-    if (!box.current) return;
-    const observer = new ResizeObserver(([entry]) => setScale(entry.contentRect.width / 1920));
-    observer.observe(box.current);
-    return () => observer.disconnect();
-  }, []);
-  return (
-    <div className="hud_preview" ref={box}>
-      <iframe ref={frame} key={reloadKey} src="/hud/" title="HUD-Vorschau" style={{ transform: `scale(${scale})` }} onLoad={() => setTimeout(post, 500)} />
-    </div>
-  );
+  return <HudMonitor key={reloadKey} src="/hud/" title="HUD-Vorschau" iframeRef={frame} onLoad={() => setTimeout(post, 500)} />;
 }
 
 export function ThemePage() {
@@ -240,7 +229,7 @@ export function ThemePage() {
         </div>
 
         <Card title="Vorschau" className="preview_card">
-          <HudPreview reloadKey={previewKey} theme={theme} />
+          <ThemePreview reloadKey={previewKey} theme={theme} />
           <p className="muted small">Die Vorschau zeigt Änderungen sofort, OBS erst nach dem Speichern. Für Live-Daten das Demo-Match im Live-Tab starten.</p>
         </Card>
       </div>

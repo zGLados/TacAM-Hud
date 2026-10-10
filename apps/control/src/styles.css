@@ -850,3 +850,69 @@ input[type='range'] {
 .sponsor_item .row {
   gap: 4px;
 }
+
+/* --- preview/program scene switching (Regie) ----------------------------- */
+
+.scene_button {
+  position: relative;
+}
+.scene_button.queued {
+  border-color: var(--ok);
+  background: rgba(76, 191, 106, 0.14);
+}
+.scene_badge {
+  /* sits on the top border so it never covers the label */
+  position: absolute;
+  top: -9px;
+  right: 10px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.scene_badge.live {
+  background: var(--primary);
+}
+.scene_badge.queued {
+  background: var(--ok);
+  color: #000;
+}
+.take_bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.take_bar.has_preview {
+  border-color: var(--ok);
+  color: var(--text);
+}
+.take_button {
+  min-width: 140px;
+}
+.monitors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+.monitor_label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.monitor_label.queued {
+  color: var(--ok);
+}
+.monitor_label.live {
+  color: var(--primary-hover);
+}

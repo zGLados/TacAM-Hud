@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { HudConfig, SceneId, SceneState } from '@tacam/shared';
 import { api, useData, useLive } from '../api';
 import { Card, Field, ImageUpload, PageHeader, Toggle, useRun } from '../components/ui';
+import { HudMonitor } from '../components/HudMonitor';
 
 const SCENES: { id: SceneId; label: string; hint: string }[] = [
   { id: 'live', label: 'Live-HUD', hint: 'Normales In-Game-HUD' },
@@ -16,6 +17,30 @@ const SCENES: { id: SceneId; label: string; hint: string }[] = [
   { id: 'playerToWatch', label: 'Player to Watch', hint: 'Spieler-Karte mit Match-Stats' },
 ];
 
+const CONFIRM_KEY = 'tacam.confirmSceneChanges';
+
+/** Per-device preference, stored in localStorage (may be unavailable, e.g. private mode). */
+function useConfirmSceneChanges() {
+  const [confirm, setConfirm] = useState(() => {
+    try {
+      return localStorage.getItem(CONFIRM_KEY) !== 'false';
+    } catch {
+      return true;
+    }
+  });
+  const update = (value: boolean) => {
+    setConfirm(value);
+    try {
+      localStorage.setItem(CONFIRM_KEY, String(value));
+    } catch {
+      // preference just isn't remembered
+    }
+  };
+  return [confirm, update] as const;
+}
+
+const sceneLabel = (id: SceneId) => SCENES.find((s) => s.id === id)?.label ?? id;
+
 function ScenePanel() {
   const run = useRun();
   const scene = useLive((s) => s.scene);
@@ -23,32 +48,83 @@ function ScenePanel() {
   const { data: players } = useData(api.players.list, []);
   const [message, setMessage] = useState('');
   const [minutes, setMinutes] = useState(10);
+  const [confirm, setConfirm] = useConfirmSceneChanges();
+  // Scene queued for the next "Übernehmen" (preview/program like a vision mixer).
+  const [preview, setPreview] = useState<SceneId | null>(null);
   useEffect(() => setMessage(scene?.message ?? ''), [scene?.message]);
+  // Drop the queued scene once it is on air (also when the automation switched to it).
+  useEffect(() => {
+    if (preview && preview === scene?.active) setPreview(null);
+  }, [preview, scene?.active]);
   if (!scene) return null;
   const save = (patch: Partial<SceneState>) => run(() => api.scene.save({ ...scene, ...patch }));
+  const take = (id: SceneId) =>
+    save({
+      active: id,
+      countdownTo: id === 'starting' && !scene.countdownTo ? Date.now() + minutes * 60_000 : scene.countdownTo,
+    });
+  const select = (id: SceneId) => {
+    if (!confirm) return take(id);
+    setPreview(id === scene.active ? null : id);
+  };
 
   return (
     <Card
       title="Szenen"
-      actions={<Toggle checked={scene.auto} onChange={(auto) => save({ auto })} label="Automatisch (Pause / Halbzeit / Match-Ende)" />}
+      actions={
+        <>
+          <Toggle checked={confirm} onChange={setConfirm} label="Szenenwechsel bestätigen" />
+          <Toggle checked={scene.auto} onChange={(auto) => save({ auto })} label="Automatisch (Pause / Halbzeit / Match-Ende)" />
+        </>
+      }
     >
       <div className="scene_grid">
         {SCENES.map((s) => (
           <button
             key={s.id}
-            className={`scene_button ${scene.active === s.id ? 'active' : ''}`}
-            onClick={() =>
-              save({
-                active: s.id,
-                countdownTo: s.id === 'starting' && !scene.countdownTo ? Date.now() + minutes * 60_000 : scene.countdownTo,
-              })
-            }
+            className={`scene_button ${scene.active === s.id ? 'active' : ''} ${preview === s.id ? 'queued' : ''}`}
+            onClick={() => select(s.id)}
           >
+            {scene.active === s.id && <span className="scene_badge live">Live</span>}
+            {preview === s.id && <span className="scene_badge queued">Vorschau</span>}
             <span className="scene_label">{s.label}</span>
             <span className="scene_hint">{s.hint}</span>
           </button>
         ))}
       </div>
+      {confirm && (
+        <>
+          <div className={`take_bar ${preview ? 'has_preview' : ''}`}>
+            <span>
+              {preview ? (
+                <>
+                  <b>{sceneLabel(scene.active)}</b> → <b>{sceneLabel(preview)}</b>
+                </>
+              ) : (
+                'Szene anklicken, um sie vorzumerken. Live geht sie erst mit „Übernehmen“.'
+              )}
+            </span>
+            <div className="row">
+              <button className="button ghost" disabled={!preview} onClick={() => setPreview(null)}>
+                Verwerfen
+              </button>
+              <button className="button primary take_button" disabled={!preview} onClick={() => preview && take(preview)}>
+                Übernehmen
+              </button>
+            </div>
+          </div>
+          <div className="monitors">
+            <div className="monitor">
+              <div className="monitor_label queued">Vorschau{preview ? `: ${sceneLabel(preview)}` : ''}</div>
+              <HudMonitor src={`/hud/?scene=${preview ?? scene.active}`} title="Vorschau" />
+            </div>
+            <div className="monitor">
+              <div className="monitor_label live">Live: {sceneLabel(scene.active)}</div>
+              <HudMonitor src="/hud/" title="Live" />
+            </div>
+          </div>
+        </>
+      )}
       {config && (
         <Field label="Player to Watch" hint="Spieler für die Szene „Player to Watch“">
           <select value={config.playerToWatch ?? ''} onChange={(e) => saveConfig({ playerToWatch: e.target.value || null })}>

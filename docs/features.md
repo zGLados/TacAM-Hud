@@ -27,6 +27,8 @@ At map end (csgogsi event `matchEnd`) the server writes score and winner into th
 - **Player to watch** (`playerToWatch`): the player set in `HudConfig.playerToWatch` (Regie page) with avatar, real name, team and live match stats (rating, K–D, ADR, KAST, HS, opening kills).
 - **Background videos**: `Theme.backgroundVideos` play muted in random order behind starting soon, BRB and upcoming matches, with a lighter tint over them. Uploaded via `POST /api/uploads/video` (MP4/WebM, max 500 MB); OBS can play H.264, Playwright's headless shell cannot.
 
+**Preview/program on the Regie page:** with "Szenenwechsel bestätigen" (default on, stored per device), clicking a scene only queues it. The queued scene is shown in a preview monitor (`/hud/?scene=<id>`) next to the live output, and goes on air with "Übernehmen" ("Verwerfen" drops it). With the switch off, a click switches immediately.
+
 **Fixed OBS URL per scene:** `/hud/?scene=<id>` always shows that scene and ignores the scene chosen in the control panel, so every OBS scene can have its own browser source and scenes are switched in OBS. `/hud/?scene=live` shows only the in-game HUD and never a full-screen scene. The URLs are listed in the control panel under Einstellungen → OBS.
 
 ## Kill feed
