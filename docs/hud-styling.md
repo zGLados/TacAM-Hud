@@ -35,7 +35,7 @@ The HUD keeps the values and layout of the TacAM skin, but with its own descript
 - The radar starts directly below the map strip: `Radar.tsx` sets `margin-top` per map from the transparent padding of each radar image (`RADAR_CONTENT_TOP` in `radar/maps.ts`) instead of the skin's fixed 35 px.
 - The economy box sits next to the money box (there is no room in the column above it).
 - Removed because they had no effect or were unused in the skin: scout prediction bar, camera container, `round-thingy`, `.no-bo`, zeus/secondary weapon rules.
-- Trivia and player spotlight are stacked in one center column (`.center-stack`) instead of overlapping; alone they keep the skin's positions (130 px / 220 px).
+- Trivia and player spotlight are stacked in one center column (`.center-stack`) instead of overlapping. The column and the pause/timeout/warmup banners start at 190 px, below the round history (118–179 px), because timeouts happen in freezetime when the history is shown. The player spotlight alone stays at the skin's 220 px.
 - The match teaser sits next to the focus player (bottom, left of center) instead of on top of the right side column.
 
 ## Checking changes

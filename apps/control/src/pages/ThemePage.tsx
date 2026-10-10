@@ -135,14 +135,18 @@ function ThemePreview({ reloadKey, theme }: { reloadKey: number; theme: Theme })
 
 export function ThemePage() {
   const run = useRun();
-  const { data: saved } = useData(api.theme.get, DEFAULT_THEME);
+  const { data: saved, setData: setSaved } = useData(api.theme.get, DEFAULT_THEME);
   const [theme, setTheme] = useState<Theme>(saved);
   const [previewKey, setPreviewKey] = useState(0);
   useEffect(() => setTheme(saved), [saved]);
   const set = (patch: Partial<Theme>) => setTheme((t) => ({ ...t, ...patch }));
   const dirty = JSON.stringify(theme) !== JSON.stringify(saved);
   const save = async () => {
-    if (await run(() => api.theme.save(theme), 'Theme gespeichert – HUD aktualisiert')) setPreviewKey((k) => k + 1);
+    const stored = await run(() => api.theme.save(theme), 'Theme gespeichert – HUD aktualisiert');
+    if (!stored) return;
+    // The saved state is the new baseline for "dirty", otherwise the button compares against the old one.
+    setSaved(stored);
+    setPreviewKey((k) => k + 1);
   };
 
   return (

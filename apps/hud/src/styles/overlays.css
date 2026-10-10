@@ -7,7 +7,8 @@
  */
 .center-stack {
   position: fixed;
-  top: 130px;
+  /* below the round history (118–179px in freezetime) */
+  top: 190px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -61,7 +62,8 @@
   position: absolute;
   left: 50%;
   transform: translate(-50%);
-  top: 150px;
+  /* below the round history, timeouts and pauses happen in freezetime */
+  top: 190px;
   background-color: var(--color-panel);
   border-radius: var(--radius);
   width: 600px;
@@ -110,9 +112,9 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   font-family: Montserrat, sans-serif;
 }
-/* alone it keeps the skin's original position (top: 220px) */
+/* alone it keeps the skin's original position (190 + 30 = 220px) */
 .center-stack > .player-spotlight:first-child {
-  margin-top: 90px;
+  margin-top: 30px;
 }
 .player-spotlight__picture {
   display: flex;
