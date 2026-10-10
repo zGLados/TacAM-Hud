@@ -29,6 +29,9 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+}
+/* the TacAM look: muted gray brand logo; can be turned off for colored logos */
+.sponsors__brand.is-grayscale img {
   filter: grayscale(100%);
   opacity: 0.5;
 }

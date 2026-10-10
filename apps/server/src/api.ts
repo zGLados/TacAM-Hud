@@ -88,6 +88,8 @@ const themeSchema = z.object({
   sponsorInterval: z.number().min(2).max(120),
   showSponsors: z.boolean(),
   brandLogo: nullableStr,
+  showBrandLogo: z.boolean(),
+  brandLogoGrayscale: z.boolean(),
   tournamentName: z.string().max(80),
   tournamentLogo: nullableStr,
   backgroundVideos: z.array(z.object({ id: z.string(), file: z.string(), label: z.string() })),

@@ -22,6 +22,8 @@ export interface Settings {
   /** PIN required for non-local access. Empty = no LAN access allowed. */
   accessPin: string;
   telnet: { host: string; port: number };
+  /** Default sponsors/brand logo were copied into uploads (see defaultMedia.ts). */
+  defaultMediaSeeded: boolean;
 }
 
 interface Database {
@@ -44,6 +46,7 @@ const defaults = (): Database => ({
     lanAccess: false,
     accessPin: '',
     telnet: { host: '127.0.0.1', port: 2020 },
+    defaultMediaSeeded: false,
   },
   hudConfig: DEFAULT_HUD_CONFIG,
   theme: DEFAULT_THEME,

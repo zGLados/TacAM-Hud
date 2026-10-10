@@ -107,8 +107,11 @@ export interface Theme {
   /** Seconds each rotating sponsor is visible. */
   sponsorInterval: number;
   showSponsors: boolean;
-  /** Static brand logo next to the rotating sponsors (upload file name). */
+  /** Static brand logo in the top right corner (upload file name). */
   brandLogo: string | null;
+  showBrandLogo: boolean;
+  /** Show the brand logo in grayscale (the TacAM look); off for colored logos. */
+  brandLogoGrayscale: boolean;
   tournamentName: string;
   tournamentLogo: string | null;
   /** Videos played in random order behind the "starting soon" and BRB scenes. */
@@ -135,6 +138,8 @@ export const DEFAULT_THEME: Theme = {
   sponsorInterval: 10,
   showSponsors: true,
   brandLogo: null,
+  showBrandLogo: true,
+  brandLogoGrayscale: true,
   tournamentName: '',
   tournamentLogo: null,
   backgroundVideos: [],

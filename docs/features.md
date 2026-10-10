@@ -41,7 +41,7 @@ With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnoti
 
 ## Theme editor
 
-`Theme.colors` → CSS variables `--color-<key>` (`primary`, `panel`, `panel-strong`, `ct`, `t`, `money`, `bomb`, `defuse`, `border`, `text`, `text-muted`), plus `--radius`, `--hud-font`, sponsors (rotation, interval; each logo can be replaced, renamed and reordered), brand and tournament logo. The preview in the editor receives unsaved changes via `postMessage` (`tacam:theme-preview`, same origin only); OBS only sees saved themes.
+`Theme.colors` → CSS variables `--color-<key>` (`primary`, `panel`, `panel-strong`, `ct`, `t`, `money`, `bomb`, `defuse`, `border`, `text`, `text-muted`), plus `--radius`, `--hud-font`, sponsors (rotation, interval; each logo can be replaced, renamed and reordered), the brand logo in the top right corner (own toggle, optional grayscale) and the tournament logo. On the first start the default sponsors and the TacAM logo are copied into the uploads (`apps/server/src/defaultMedia.ts`), so they are regular entries that can be replaced or removed; removed defaults do not come back. The preview in the editor receives unsaved changes via `postMessage` (`tacam:theme-preview`, same origin only); OBS only sees saved themes.
 
 ## Production control from a second device
 

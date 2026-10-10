@@ -192,8 +192,8 @@ export function ThemePage() {
 
           <Card title="Sponsoren" actions={<Toggle checked={theme.showSponsors} onChange={(showSponsors) => set({ showSponsors })} label="Anzeigen" />}>
             <p className="muted">
-              Ohne eigene Sponsoren werden die TacAM-Standardlogos verwendet. Logo anklicken oder „Ersetzen“ tauscht es aus, die Pfeile
-              ändern die Reihenfolge der Rotation. Danach speichern.
+              Rotieren oben rechts neben dem Logo. Logo anklicken oder „Ersetzen“ tauscht es aus, die Pfeile ändern die Reihenfolge, ×
+              entfernt es. Danach speichern.
             </p>
             <div className="sponsor_list">
               {theme.sponsors.map((s, i) => (
@@ -220,9 +220,21 @@ export function ThemePage() {
             <Field label={`Wechsel alle ${theme.sponsorInterval} Sekunden`}>
               <input type="range" min={3} max={60} value={theme.sponsorInterval} onChange={(e) => set({ sponsorInterval: Number(e.target.value) })} />
             </Field>
-            <Field label="Statisches Marken-Logo (rechts, graustufig)">
+          </Card>
+
+          <Card
+            title="Logo oben rechts"
+            actions={<Toggle checked={theme.showBrandLogo} onChange={(showBrandLogo) => set({ showBrandLogo })} label="Anzeigen" />}
+          >
+            <p className="muted">Steht ganz rechts oben im HUD, unabhängig von den Sponsoren. Standard ist das TacAM-Logo.</p>
+            <div className="form_with_image">
               <ImageUpload value={theme.brandLogo} onChange={(brandLogo) => set({ brandLogo })} label="Logo" />
-            </Field>
+              <Toggle
+                checked={theme.brandLogoGrayscale}
+                onChange={(brandLogoGrayscale) => set({ brandLogoGrayscale })}
+                label="Graustufig und gedämpft (TacAM-Stil)"
+              />
+            </div>
           </Card>
 
           <BackgroundVideos videos={theme.backgroundVideos} onChange={(backgroundVideos) => set({ backgroundVideos })} />

@@ -6,9 +6,6 @@ import logoT from '../assets/images/logo_T_default.png';
 import playerCT from '../assets/images/player_CT_default.png';
 import playerT from '../assets/images/player_T_default.png';
 import flashAssist from '../assets/images/flash_assist.png';
-import sponsor1 from '../assets/sponsors/sponsor1.png';
-import sponsor2 from '../assets/sponsors/sponsor2.png';
-import brandLogo from '../assets/sponsors/tacam_logo.png';
 
 export { default as ArmorHalf } from '../assets/icons/icon_armor_half_default.svg?react';
 export { default as ArmorHelmet } from '../assets/icons/icon_armor_half_helmet_default.svg?react';
@@ -30,8 +27,6 @@ export { default as KillsIcon } from '../assets/icons/kills.svg?react';
 export { default as Hourglass } from '../assets/icons/icon_hourglass_default.svg?react';
 
 export const images = { flashAssist };
-export const defaultSponsors = [sponsor1, sponsor2];
-export const defaultBrandLogo = brandLogo;
 
 export const defaultTeamLogo = (side: Side) => (side === 'CT' ? logoCT : logoT);
 export const defaultAvatar = (side: Side | undefined) => (side === 'CT' ? playerCT : playerT);

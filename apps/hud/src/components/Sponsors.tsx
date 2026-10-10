@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useHud } from '../state/store';
-import { defaultBrandLogo, defaultSponsors } from '../lib/assets';
 
-const uploadUrl = (file: string | null) => (file ? `/uploads/${encodeURIComponent(file)}` : null);
+const uploadUrl = (file: string) => `/uploads/${encodeURIComponent(file)}`;
 
-/** Rotating sponsor logos plus the static brand logo (top right). */
+/**
+ * Top right corner: rotating sponsor logos and the brand logo. Both are managed
+ * in the theme editor and can be hidden independently.
+ */
 export function Sponsors() {
   const theme = useHud((s) => s.theme);
   const visible = useHud((s) => s.config.visibility.sponsors);
-  const logos = theme.sponsors.length ? theme.sponsors.map((s) => uploadUrl(s.file)!) : defaultSponsors;
-  const brand = uploadUrl(theme.brandLogo) ?? defaultBrandLogo;
+  const logos = theme.sponsors.map((s) => uploadUrl(s.file));
+  const showRotation = visible && theme.showSponsors && logos.length > 0;
+  const showBrand = theme.showBrandLogo && !!theme.brandLogo;
   const [index, setIndex] = useState(0);
   useEffect(() => {
     if (logos.length <= 1) return;
@@ -18,15 +21,19 @@ export function Sponsors() {
   }, [logos.length, theme.sponsorInterval]);
 
   return (
-    <div className={`sponsors ${theme.showSponsors && visible ? '' : 'is-hidden'}`}>
-      <div className="sponsors__rotation">
-        {logos.map((logo, i) => (
-          <img key={logo} src={logo} alt={`Sponsor ${i + 1}`} className={i === index % logos.length ? 'is-active' : ''} />
-        ))}
-      </div>
-      <div className="sponsors__brand">
-        <img src={brand} alt="Brand" />
-      </div>
+    <div className={`sponsors ${showRotation || showBrand ? '' : 'is-hidden'}`}>
+      {showRotation && (
+        <div className="sponsors__rotation">
+          {logos.map((logo, i) => (
+            <img key={logo} src={logo} alt={`Sponsor ${i + 1}`} className={i === index % logos.length ? 'is-active' : ''} />
+          ))}
+        </div>
+      )}
+      {showBrand && (
+        <div className={`sponsors__brand ${theme.brandLogoGrayscale ? 'is-grayscale' : ''}`}>
+          <img src={uploadUrl(theme.brandLogo!)} alt="Brand" />
+        </div>
+      )}
     </div>
   );
 }

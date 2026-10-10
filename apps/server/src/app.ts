@@ -8,6 +8,7 @@ import { Store } from './store.js';
 import { LiveHub } from './live.js';
 import { createApi } from './api.js';
 import { DemoMatch } from './demo.js';
+import { seedDefaultMedia } from './defaultMedia.js';
 import { authMiddleware, isAuthorized } from './auth.js';
 import type { HudServer } from './io.js';
 
@@ -41,6 +42,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   fs.mkdirSync(uploadsDir, { recursive: true });
 
   const store = new Store(options.dataDir);
+  seedDefaultMedia(store, uploadsDir, options.hudDir);
   const app = express();
   app.disable('x-powered-by');
   const http = createServer(app);

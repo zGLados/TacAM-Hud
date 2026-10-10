@@ -10,3 +10,4 @@ out/
 coverage/
 .ref/
 *.tmp.ts
+.data-fresh/
