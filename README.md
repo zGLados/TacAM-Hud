@@ -26,18 +26,28 @@ CS2 broadcast HUD and HUD manager in the TacAM design. Inspired by [JTs-Hud](htt
 | Halftime | Match end with MVP |
 | --- | --- |
 | ![Halftime scene](docs/images/scene-halftime.webp) | ![Match end scene](docs/images/scene-matchEnd.webp) |
-| **Starting soon** | **Map veto** |
+| **Starting soon** (optional countdown) | **Map veto** |
 | ![Starting soon scene](docs/images/scene-starting.webp) | ![Map veto scene](docs/images/scene-veto.webp) |
 | **Upcoming matches** | **Player to watch** |
 | ![Upcoming matches scene](docs/images/scene-upcoming.webp) | ![Player to watch scene](docs/images/scene-playerToWatch.webp) |
 
+**Overlays** over the live HUD, one at a time (Director → Overlays, Stream Deck, shortcut or signal):
+
+| Scoreboard | Economy graph |
+| --- | --- |
+| ![Scoreboard overlay](docs/images/overlay-scoreboard.webp) | ![Economy graph overlay](docs/images/overlay-economy.webp) |
+| **Player comparison** | |
+| ![Player comparison overlay](docs/images/overlay-comparison.webp) | |
+
 **Control panel** (runs in the browser, also on a second device):
 
-| Live | Production control |
+| Live | Director |
 | --- | --- |
-| ![Control panel: live](docs/images/control-live.webp) | ![Control panel: production control](docs/images/control-director.webp) |
+| ![Control panel: live](docs/images/control-live.webp) | ![Control panel: director](docs/images/control-director.webp) |
 | **Statistics** | **Theme editor with live preview** |
 | ![Control panel: statistics](docs/images/control-stats.webp) | ![Control panel: theme editor](docs/images/control-theme.webp) |
+| **Integrations: signals** (game events → overlays, Companion, OBS) | **Captain veto** on the captain's phone |
+| ![Control panel: integrations with signals](docs/images/control-integrations.webp) | <img src="docs/images/veto-phone.webp" alt="Captain veto page on a phone" width="260"> |
 
 Screenshots are taken from the built-in demo match; the HUD is transparent and shown on a gray background here.
 
