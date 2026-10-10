@@ -1,6 +1,6 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.1.12** (Start CS2, CS2 console, Cache in the map pool).
+Hand-over state for the next session. Latest release: **v0.1.13** (CS2 console: LAN fallback and Windows diagnosis).
 
 ## Open tasks
 
@@ -11,7 +11,7 @@ Hand-over state for the next session. Latest release: **v0.1.12** (Start CS2, CS
 
 - Phase 3: #15 win probability **done**, released in v0.1.11. Next candidate #14 tournaments; cameras, OBS replays and the auto observer only after tests with real hardware/CS2.
 
-- **Background: camera paths in CS2.** Needs a console bridge to the observer client (`-netconport`). Plan: saved camera positions per map (`getpos` → `spec_goto`), smooth paths via `spec_lerpto` if CS2 still has it, else HLAE `mirv_campath` (insecure mode, observer PC only). Done so far: *Start CS2* with launch options (adds `-netconport`) and the console bridge with a test console (Integrations → CS2 console). Next: the owner tests there which commands work as a GOTV spectator (test buttons for `getpos`, `spec_mode`, `spec_goto`, `spec_lerpto`, `spec_player`). The same bridge is the base for the auto observer (#17).
+- **Background: camera paths in CS2.** Needs a console bridge to the observer client (`-netconport`). Plan: saved camera positions per map (`getpos` → `spec_goto`), smooth paths via `spec_lerpto` if CS2 still has it, else HLAE `mirv_campath` (insecure mode, observer PC only). Done so far: *Start CS2* with launch options (adds `-netconport`) and the console bridge with a test console (Integrations → CS2 console). Open issue: on the owner's PC nothing listened on 127.0.0.1:2020 (Start CS2 and Steam launch options); v0.1.13 adds LAN fallback + Diagnose to find out why. Then: the owner tests which commands work as a GOTV spectator (test buttons for `getpos`, `spec_mode`, `spec_goto`, `spec_lerpto`, `spec_player`). The same bridge is the base for the auto observer (#17).
 
 ## Decided / not planned
 
@@ -20,7 +20,7 @@ Hand-over state for the next session. Latest release: **v0.1.12** (Start CS2, CS
 
 ## Releases
 
-- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.12).
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.13).
 - Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 → 0.1.7 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies
