@@ -2,7 +2,7 @@ import { randomBytes, timingSafeEqual } from 'node:crypto';
 import type { Router } from 'express';
 import { z } from 'zod';
 import {
-  ACTIVE_DUTY_MAPS,
+  ACTIVE_MAP_POOL,
   VETO_ORDER,
   captainSteps,
   pickerSide,
@@ -101,7 +101,7 @@ export function captainVetoRoutes(api: Router, store: Store) {
     const parsed = startSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Invalid request' });
     const { first, sideChoice } = parsed.data;
-    const pool = [...new Set(parsed.data.pool ?? ACTIVE_DUTY_MAPS)];
+    const pool = [...new Set(parsed.data.pool ?? ACTIVE_MAP_POOL)];
     const needed = vetoMapsNeeded(match.matchType);
     const hasDecider = VETO_ORDER[match.matchType].includes('decider');
     // With a decider the pool must come out even, otherwise "the map left over" is ambiguous.

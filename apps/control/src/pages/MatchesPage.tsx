@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ACTIVE_DUTY_MAPS, VETO_ORDER, captainSteps, prettyMapName, vetoMapsNeeded, type Match, type MatchType, type TeamProfile, type Veto } from '@tacam/shared';
+import { ACTIVE_DUTY_MAPS, ACTIVE_MAP_POOL, VETO_ORDER, captainSteps, prettyMapName, vetoMapsNeeded, type Match, type MatchType, type TeamProfile, type Veto } from '@tacam/shared';
 import { api, uploadUrl, useData, type MatchInput, type Settings } from '../api';
 import { Card, ConfirmButton, CopyField, Field, Group, Modal, PageHeader, Toggle, useRun } from '../components/ui';
 
@@ -30,7 +30,7 @@ function vetoTemplate(type: MatchType, left: string | null, right: string | null
   return VETO_ORDER[type].map((vetoType, i) => ({
     ...emptyVeto(),
     type: vetoType,
-    mapName: ACTIVE_DUTY_MAPS[i],
+    mapName: ACTIVE_MAP_POOL[i],
     teamId: vetoType === 'decider' ? null : i % 2 === 0 ? left : right,
   }));
 }
@@ -204,7 +204,7 @@ function CaptainVetoDialog({ match, teams, onClose }: { match: Match; teams: Tea
   const [first, setFirst] = useState<'left' | 'right'>('left');
   const [sideChoice, setSideChoice] = useState(true);
   const needed = vetoMapsNeeded(match.matchType);
-  const [pool, setPool] = useState<string[]>(ACTIVE_DUTY_MAPS.slice(0, needed));
+  const [pool, setPool] = useState<string[]>(ACTIVE_MAP_POOL.slice(0, needed));
   const [host, setHost] = useState('');
   const name = (slot: 'left' | 'right') => teams.find((t) => t.id === match[slot].id)?.name ?? (slot === 'left' ? 'Left team' : 'Right team');
   const session = match.captainVeto;

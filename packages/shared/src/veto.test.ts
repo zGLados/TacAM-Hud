@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { captainSteps, remainingMaps, vetoMapsNeeded } from './veto.js';
+import { ACTIVE_MAP_POOL } from './format.js';
 import type { Veto } from './types.js';
 
 const veto = (type: Veto['type'], mapName: string): Veto => ({
@@ -38,5 +39,13 @@ describe('captain veto steps', () => {
 
   it('lists the maps that are still available', () => {
     expect(remainingMaps(['a', 'b', 'c'], [veto('ban', 'b')])).toEqual(['a', 'c']);
+  });
+});
+
+describe('active map pool', () => {
+  it('is the current seven-map pool with Cache instead of Overpass', () => {
+    expect(ACTIVE_MAP_POOL).toHaveLength(vetoMapsNeeded('bo3'));
+    expect(ACTIVE_MAP_POOL).toContain('de_cache');
+    expect(ACTIVE_MAP_POOL).not.toContain('de_overpass');
   });
 });

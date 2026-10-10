@@ -1,4 +1,4 @@
-import { ACTIVE_DUTY_MAPS, type Match } from '@tacam/shared';
+import { ACTIVE_MAP_POOL, type Match } from '@tacam/shared';
 import type { Store } from './store.js';
 
 const MAPS_PER_FORMAT = { bo1: 1, bo2: 2, bo3: 3, bo5: 5 } as const;
@@ -33,7 +33,7 @@ export function matchzyConfig(store: Store, match: Match) {
     const pickerIsTeam1 = v.teamId === match.left.id;
     return (v.side === 'CT') === pickerIsTeam1 ? 'team1_ct' : 'team2_ct';
   };
-  const pool = match.captainVeto?.pool ?? ACTIVE_DUTY_MAPS.slice(0, 7);
+  const pool = match.captainVeto?.pool ?? ACTIVE_MAP_POOL;
   const rosterSize = Math.max(Object.keys(team1.players).length, Object.keys(team2.players).length);
 
   return {

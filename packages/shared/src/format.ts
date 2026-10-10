@@ -62,6 +62,7 @@ export function countryFlagEmoji(code: string | null | undefined): string | null
   return String.fromCodePoint(...[...code.toUpperCase()].map((c) => 127397 + c.charCodeAt(0)));
 }
 
+/** All competitive maps the HUD knows (radar, banners); offered in veto and map selects. */
 export const ACTIVE_DUTY_MAPS = [
   'de_ancient',
   'de_anubis',
@@ -74,3 +75,9 @@ export const ACTIVE_DUTY_MAPS = [
   'de_vertigo',
   'de_cache',
 ] as const;
+
+/**
+ * Current Active Duty pool (default for vetos). Since Premier Season 5 (July 2026)
+ * Cache replaces Overpass: Ancient, Anubis, Cache, Dust2, Inferno, Mirage, Nuke.
+ */
+export const ACTIVE_MAP_POOL = ['de_ancient', 'de_anubis', 'de_cache', 'de_dust2', 'de_inferno', 'de_mirage', 'de_nuke'] as const;
