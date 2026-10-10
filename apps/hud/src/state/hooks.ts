@@ -30,10 +30,10 @@ export interface Sides {
   rightPlayers: Player[];
 }
 
-/** Left/right teams as displayed, honoring the "swap teams" switch from the control panel. */
+/** Left/right teams as displayed, honoring the "swap teams" switch and the server's halftime flip. */
 export function useSides(): Sides | null {
   const game = useHud((s) => s.game);
-  const swap = useHud((s) => s.config.swapTeams);
+  const swap = useHud((s) => s.config.swapTeams) !== useHud((s) => s.flip);
   if (!game) return null;
   const { team_ct, team_t } = game.map;
   let left = team_ct.orientation === 'left' ? team_ct : team_t;

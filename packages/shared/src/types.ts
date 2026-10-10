@@ -198,6 +198,11 @@ export interface HudConfig {
   matchPreview: { matchId: string | null; visible: boolean };
   /** Swap the displayed sides (visual only). */
   swapTeams: boolean;
+  /**
+   * Keep each team on the HUD side it started the map on. CS2 always shows CT
+   * on the left, so without this the teams change sides at halftime.
+   */
+  keepTeamSides: boolean;
   radar: { size: number; enlarged: boolean };
   /** Elements the producer can toggle individually. */
   visibility: {
@@ -227,6 +232,7 @@ export const DEFAULT_HUD_CONFIG: HudConfig = {
   playerPreview: { steamid: null, visible: false },
   matchPreview: { matchId: null, visible: false },
   swapTeams: false,
+  keepTeamSides: false,
   radar: { size: 366, enlarged: false },
   visibility: {
     hud: true,
@@ -349,6 +355,8 @@ export interface GsiUpdate {
   teams: { left: HudTeamExtension | null; right: HudTeamExtension | null };
   /** Data comes from the built-in demo match, not from CS2. */
   demo: boolean;
+  /** Show left/right swapped so the teams keep their HUD side after halftime (`keepTeamSides`). */
+  flip: boolean;
 }
 
 export interface LivePlayerSummary {

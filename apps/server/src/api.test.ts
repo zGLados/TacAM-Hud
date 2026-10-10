@@ -140,6 +140,59 @@ describe('API', () => {
     expect(await scene()).toBe('pause');
   });
 
+  it('keeps team sides after halftime and ignores coaches', async () => {
+    const coach = '76561198999999999';
+    await fetch(`${base}/players`, json('POST', { steamid: coach, username: 'coach', firstName: '', lastName: '', country: null, avatar: null, teamId: null, isCoach: true, extra: {} }));
+    const config = await (await fetch(`${base}/hud/config`)).json();
+    const setKeep = (keepTeamSides: boolean) => fetch(`${base}/hud/config`, json('PUT', { ...config, keepTeamSides }));
+
+    const player = (side: 'CT' | 'T', slot: number) => ({
+      name: `p${slot}`,
+      observer_slot: slot,
+      team: side,
+      match_stats: { kills: 0, assists: 0, deaths: 0, mvps: 0, score: 0 },
+      weapons: {},
+      state: { health: 100, armor: 0, helmet: false, flashed: 0, smoked: 0, burning: 0, money: 800, round_kills: 0, round_killhs: 0, round_totaldmg: 0, equip_value: 200 },
+      position: '0, 0, 0',
+      forward: '1, 0, 0',
+    });
+    const team = (name: string) => ({ name, score: 0, consecutive_round_losses: 0, timeouts_remaining: 1, matches_won_this_series: 0 });
+    // CS2 keeps CT on the low observer slots (= left) for the whole map; the coach takes slot 1.
+    const gsi = (ct: string, t: string, round: number) => ({
+      auth: { token: server.store.doc('settings').gsiToken },
+      provider: { name: 'Counter-Strike: Global Offensive', appid: 730, version: 1, steamid: '1', timestamp: 1 },
+      map: { mode: 'competitive', name: 'de_nuke', phase: 'live', round, team_ct: team(ct), team_t: team(t), num_matches_to_win_series: 0, current_spectators: 0, souvenirs_total: 0, round_wins: {} },
+      round: { phase: 'live' },
+      player: { steamid: coach, name: 'coach', observer_slot: 1, team: round < 12 ? 'T' : 'CT' },
+      allplayers: {
+        [coach]: player(round < 12 ? 'T' : 'CT', 1),
+        '76561198100000002': player('CT', 2),
+        '76561198100000003': player('CT', 3),
+        '76561198100000006': player('T', 6),
+        '76561198100000007': player('T', 7),
+      },
+      phase_countdowns: { phase: 'live', phase_ends_in: '100.0' },
+    });
+    const send = (ct: string, t: string, round: number) => fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', gsi(ct, t, round)));
+    const summary = async () => (await (await fetch(`${base}/live`)).json()).summary;
+
+    await setKeep(true);
+    await send('Alpha', 'Beta', 3);
+    let live = await summary();
+    expect([live.left.name, live.right.name]).toEqual(['Alpha', 'Beta']);
+    expect(live.observed).toBeNull();
+    expect(live.players.map((p: { steamid: string }) => p.steamid)).not.toContain(coach);
+
+    await send('Beta', 'Alpha', 13); // second half: Beta is CT now and CS2 shows CT on the left
+    live = await summary();
+    expect([live.left.name, live.right.name]).toEqual(['Alpha', 'Beta']);
+
+    await setKeep(false);
+    await send('Beta', 'Alpha', 14);
+    live = await summary();
+    expect([live.left.name, live.right.name]).toEqual(['Beta', 'Alpha']);
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

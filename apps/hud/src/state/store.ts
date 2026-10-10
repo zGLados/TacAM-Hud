@@ -32,6 +32,8 @@ export interface HudState {
   connected: boolean;
   /** Data comes from the demo match (shows the own kill feed). */
   demo: boolean;
+  /** Server says: show left/right swapped (keep team sides after halftime). */
+  flip: boolean;
 }
 
 /** Shared csgogsi instance; components can subscribe to its events (roundEnd, bombPlant, …). */
@@ -52,6 +54,7 @@ let state: HudState = {
   killfeed: [],
   connected: false,
   demo: false,
+  flip: false,
 };
 
 const listeners = new Set<() => void>();
@@ -103,11 +106,11 @@ socket.on('connect', () => {
 });
 socket.on('disconnect', () => set({ connected: false }));
 
-socket.on('update', ({ raw, teams, demo }) => {
+socket.on('update', ({ raw, teams, demo, flip }) => {
   GSI.teams.left = teams.left;
   GSI.teams.right = teams.right;
   const game = GSI.digest(raw as CSGORaw);
-  if (game) set({ game, demo });
+  if (game) set({ game, demo, flip });
 });
 
 socket.on('kill', (entry) => set({ killfeed: [...state.killfeed.slice(-7), entry] }));

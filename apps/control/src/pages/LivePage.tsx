@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { prettyMapName, type LivePlayerSummary } from '@tacam/shared';
 import { api, useData, useLive } from '../api';
-import { Card, Field, Modal, PageHeader, useRun } from '../components/ui';
+import { Card, Field, Modal, PageHeader, Toggle, useRun } from '../components/ui';
 
 function AddPlayerModal({ player, onClose }: { player: LivePlayerSummary; onClose: () => void }) {
   const run = useRun();
   const { data: teams } = useData(api.teams.list, []);
   const [username, setUsername] = useState(player.name);
   const [teamId, setTeamId] = useState<string>('');
+  const [isCoach, setIsCoach] = useState(false);
   const save = async () => {
     const created = await run(
       () =>
@@ -19,7 +20,7 @@ function AddPlayerModal({ player, onClose }: { player: LivePlayerSummary; onClos
           country: null,
           avatar: null,
           teamId: teamId || null,
-          isCoach: false,
+          isCoach,
           extra: {},
         }),
       `${username} created`
@@ -57,6 +58,7 @@ function AddPlayerModal({ player, onClose }: { player: LivePlayerSummary; onClos
           ))}
         </select>
       </Field>
+      <Toggle checked={isCoach} onChange={setIsCoach} label="Coach (hidden in the HUD)" />
     </Modal>
   );
 }

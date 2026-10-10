@@ -185,11 +185,20 @@ function HudControls() {
         <Toggle checked={vis.economy} onChange={(v) => setVis('economy', v)} label="Economy box" />
         <Toggle checked={vis.sponsors} onChange={(v) => setVis('sponsors', v)} label="Sponsors" />
         <Toggle checked={config.swapTeams} onChange={(swapTeams) => save({ swapTeams })} label="Swap teams left/right" />
+        <Toggle
+          checked={config.keepTeamSides}
+          onChange={(keepTeamSides) => save({ keepTeamSides })}
+          label="Keep team sides after halftime"
+        />
         <Toggle checked={!config.sideBoxes.hidden} onChange={(v) => save({ sideBoxes: { ...config.sideBoxes, hidden: !v } })} label="Side boxes" />
       </div>
       <p className="muted small">
         With real CS2, use the game's kill feed: <code>cl_draw_only_deathnotices 1</code> in the observer client hides the CS HUD except
         the kill feed. The own kill feed is only needed when the CS HUD is completely off; it is always shown in the demo match.
+      </p>
+      <p className="muted small">
+        CS2 always shows CT on the left, so the teams change sides at halftime. “Keep team sides” keeps each team where it started the map
+        (teams are recognized by their players or the CS team name). The observer’s number keys stay the in-game slots.
       </p>
       <div className="row wrap">
         <button className="button" onClick={() => run(() => api.hud.action('radarBigger'))}>

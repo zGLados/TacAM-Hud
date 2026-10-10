@@ -24,6 +24,20 @@ export function isHalfBreak(round: number, regulationMR: number, overtimeMR: num
   return overtime > 0 && overtime % overtimeMR === 0;
 }
 
+/**
+ * Removes coaches from the payload. They occupy a team slot in CS2 but must not
+ * show up in the HUD, count for team detection/orientation or get stats; a
+ * spectated coach POV is dropped as well, so the HUD shows no focus player.
+ */
+export function withoutCoaches(raw: CSGORaw, coaches: Set<string>): CSGORaw {
+  const { player, ...rest } = raw;
+  return {
+    ...rest,
+    ...(player && !coaches.has(player.steamid) ? { player } : {}),
+    allplayers: raw.allplayers && Object.fromEntries(Object.entries(raw.allplayers).filter(([steamid]) => !coaches.has(steamid))),
+  };
+}
+
 /** Scenes the automation is allowed to replace. Producer-chosen scenes are left alone. */
 const AUTO_SCENES: SceneId[] = ['live', 'pause', 'halftime', 'matchEnd'];
 
@@ -42,6 +56,9 @@ export class LiveHub {
   private lastRoundsCount = 0;
   /** Last scene the automation chose, to only react to phase changes. */
   private lastAutoScene: SceneId | null = null;
+  /** Team shown on the left when `keepTeamSides` took effect on this map. */
+  private sideAnchor: { map: string; leftKey: string } | null = null;
+  private flip = false;
 
   constructor(
     private store: Store,
@@ -70,6 +87,8 @@ export class LiveHub {
     this.last = null;
     this.lastRoundsCount = 0;
     this.lastAutoScene = null;
+    this.sideAnchor = null;
+    this.flip = false;
     this.io.emit('stats', this.tracker.snapshot());
     this.io.emit('refresh');
   }
@@ -159,7 +178,37 @@ export class LiveHub {
     return {
       left: this.teamExtension(leftId, match),
       right: this.teamExtension(rightId, match),
+      leftSide: (isCTLeft ? 'CT' : 'T') as Side,
     };
+  }
+
+  /**
+   * With `keepTeamSides`, remembers which team was on the left when the map (or
+   * the setting) started and flips the display once that team shows up on the
+   * right. Only the display is flipped, so observer slot numbers stay correct.
+   * Teams are recognized by their database profile, else by the CS team name.
+   */
+  private sideFlip(raw: CSGORaw, teams: ReturnType<LiveHub['resolveTeams']>) {
+    if (!this.store.doc('hudConfig').keepTeamSides || !raw.map) {
+      this.sideAnchor = null;
+      return false;
+    }
+    const rawName = (side: Side) => (side === 'CT' ? raw.map?.team_ct?.name : raw.map?.team_t?.name) ?? null;
+    const rightSide: Side = teams.leftSide === 'CT' ? 'T' : 'CT';
+    const leftKey = teams.left?.id ?? rawName(teams.leftSide);
+    const rightKey = teams.right?.id ?? rawName(rightSide);
+    // Unknown or ambiguous teams: keep the current state instead of guessing.
+    if (!leftKey || !rightKey || leftKey === rightKey) return this.flip;
+    const map = raw.map.name;
+    if (this.sideAnchor?.map !== map) {
+      this.sideAnchor = { map, leftKey };
+      return false;
+    }
+    if (this.sideAnchor.leftKey === leftKey) return false;
+    if (this.sideAnchor.leftKey === rightKey) return true;
+    // Different teams than at the start (e.g. a new match on the same map).
+    this.sideAnchor = { map, leftKey };
+    return false;
   }
 
   ingest(raw: CSGORaw, demo = false) {
@@ -173,24 +222,18 @@ export class LiveHub {
         .filter((p) => p.isCoach)
         .map((p) => p.steamid)
     );
-    if (raw.allplayers && coaches.size) {
-      raw = {
-        ...raw,
-        allplayers: Object.fromEntries(
-          Object.entries(raw.allplayers).filter(([steamid]) => !coaches.has(steamid))
-        ),
-      };
-    }
+    if (coaches.size) raw = withoutCoaches(raw, coaches);
 
     const teams = this.resolveTeams(raw);
     this.gsi.teams.left = teams.left;
     this.gsi.teams.right = teams.right;
     this.gsi.players = this.playerExtensions() as PlayerExtension[];
+    this.flip = this.sideFlip(raw, teams);
 
     const data = this.gsi.digest(raw);
     this.lastRaw = raw;
     this.lastUpdate = Date.now();
-    this.lastPayload = { raw, teams, demo };
+    this.lastPayload = { raw, teams: { left: teams.left, right: teams.right }, demo, flip: this.flip };
     this.io.emit('update', this.lastPayload);
     if (!data) return;
 
@@ -221,7 +264,8 @@ export class LiveHub {
     const data = this.last;
     if (!data) return null;
     const profiles = this.store.list('players');
-    const team = (orientation: 'left' | 'right') => {
+    const team = (displayed: 'left' | 'right') => {
+      const orientation = this.flip ? (displayed === 'left' ? 'right' : 'left') : displayed;
       const t = data.map.team_ct.orientation === orientation ? data.map.team_ct : data.map.team_t;
       return { name: t.name, side: t.side, score: t.score, teamId: t.id };
     };

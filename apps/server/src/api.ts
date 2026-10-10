@@ -65,6 +65,7 @@ const hudConfigSchema = z.object({
   playerPreview: z.object({ steamid: nullableStr, visible: z.boolean() }),
   matchPreview: z.object({ matchId: nullableStr, visible: z.boolean() }),
   swapTeams: z.boolean(),
+  keepTeamSides: z.boolean(),
   radar: z.object({ size: z.number().min(150).max(900), enlarged: z.boolean() }),
   visibility: z.object({
     hud: z.boolean(),
