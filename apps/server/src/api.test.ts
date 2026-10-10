@@ -340,6 +340,49 @@ describe('API', () => {
     await fetch(`${base}/settings/signals`, json('PUT', []));
   });
 
+  it('imports teams and sets up both sides of the live game in one step', async () => {
+    const imported = await (await fetch(`${base}/teams/import`, json('POST', [{ name: 'Gamma', shortName: 'GAM', country: 'DE' }, { name: 'gamma', shortName: '', country: null }]))).json();
+    expect(imported).toEqual({ created: 1, updated: 1 });
+    const gamma = server.store.list('teams').find((t) => t.name === 'Gamma')!;
+    expect(gamma).toMatchObject({ shortName: 'GAM', country: 'DE' });
+
+    const team = { score: 0, consecutive_round_losses: 0, timeouts_remaining: 1, matches_won_this_series: 0 };
+    const player = (side: 'CT' | 'T', slot: number, name: string) => ({
+      name,
+      observer_slot: slot,
+      team: side,
+      match_stats: { kills: 0, assists: 0, deaths: 0, mvps: 0, score: 0 },
+      weapons: {},
+      state: { health: 100, armor: 0, helmet: false, flashed: 0, smoked: 0, burning: 0, money: 800, round_kills: 0, round_killhs: 0, round_totaldmg: 0, equip_value: 200 },
+      position: '0, 0, 0',
+      forward: '1, 0, 0',
+    });
+    const raw = {
+      auth: { token: server.store.doc('settings').gsiToken },
+      provider: { name: 'Counter-Strike: Global Offensive', appid: 730, version: 1, steamid: '1', timestamp: 1 },
+      map: { mode: 'competitive', name: 'de_vertigo', phase: 'live', round: 0, team_ct: team, team_t: team, num_matches_to_win_series: 0, current_spectators: 0, souvenirs_total: 0, round_wins: {} },
+      round: { phase: 'freezetime' },
+      allplayers: { '76561198300000001': player('CT', 1, 'ct1'), '76561198300000002': player('CT', 2, 'ct2'), '76561198300000006': player('T', 6, 't1') },
+      phase_countdowns: { phase: 'freezetime', phase_ends_in: '10.0' },
+    };
+    await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', raw));
+    await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', raw));
+
+    const setup = (body: object) => fetch(`${base}/live/quick-setup`, json('POST', body));
+    expect((await setup({ left: { teamId: gamma.id }, right: { name: 'GAMMA' }, reassign: false, setMatch: false })).status).toBe(400);
+    expect((await setup({ left: { teamId: 'nope' }, right: { name: 'Delta' }, reassign: false, setMatch: false })).status).toBe(400);
+    expect(server.store.list('teams').some((t) => t.name === 'Delta')).toBe(false); // nothing half-created
+
+    const result = await (await setup({ left: { teamId: gamma.id }, right: { name: 'Delta', shortName: 'DEL' }, reassign: true, setMatch: true })).json();
+    expect(result.created).toBe(3);
+    const delta = server.store.list('teams').find((t) => t.name === 'Delta')!;
+    const teamOf = (steamid: string) => server.store.list('players').find((p) => p.steamid === steamid)?.teamId;
+    expect(teamOf('76561198300000001')).toBe(gamma.id); // CT holds the lower slots → left
+    expect(teamOf('76561198300000006')).toBe(delta.id);
+    const current = server.store.list('matches').find((m) => m.current)!;
+    expect([current.left.id, current.right.id]).toEqual([gamma.id, delta.id]);
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

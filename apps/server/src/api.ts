@@ -237,6 +237,99 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
     })
   );
 
+  api.post(
+    '/teams/import',
+    h((req, res) => {
+      // Teams are matched by name; logos are kept (a CSV cannot carry them).
+      const rows = z.array(teamSchema.pick({ name: true, shortName: true, country: true })).max(500).parse(req.body);
+      let created = 0;
+      let updated = 0;
+      for (const row of rows) {
+        const existing = store.list('teams').find((t) => t.name.toLowerCase() === row.name.toLowerCase());
+        if (existing) {
+          store.update('teams', existing.id, { shortName: row.shortName || existing.shortName, country: row.country ?? existing.country });
+          updated++;
+        } else {
+          store.insert('teams', { ...row, logo: null, extra: {} });
+          created++;
+        }
+      }
+      res.json({ created, updated });
+    })
+  );
+
+  /**
+   * Live tab "Quick setup": assigns a team (existing or new) to each side of the
+   * running game, creates the unknown players and optionally sets the match.
+   */
+  const teamChoice = z.union([z.object({ teamId: str.min(1) }), z.object({ name: str.min(1), shortName: str.default('') })]);
+  api.post(
+    '/live/quick-setup',
+    h((req, res) => {
+      const body = z.object({ left: teamChoice, right: teamChoice, reassign: z.boolean(), setMatch: z.boolean() }).parse(req.body);
+      const summary = live.summary();
+      if (!summary) return res.status(409).json({ error: 'No game data yet' });
+      // Validate everything before creating anything, so a bad request leaves no half-created team.
+      const byName = (name: string) => store.list('teams').find((t) => t.name.toLowerCase() === name.toLowerCase());
+      const key = (choice: z.infer<typeof teamChoice>) => ('teamId' in choice ? choice.teamId : byName(choice.name)?.id ?? `new:${choice.name.toLowerCase()}`);
+      for (const choice of [body.left, body.right]) {
+        if ('teamId' in choice && !store.get('teams', choice.teamId)) return res.status(400).json({ error: 'Team not found' });
+      }
+      if (key(body.left) === key(body.right)) return res.status(400).json({ error: 'Both sides have the same team' });
+      const resolve = (choice: z.infer<typeof teamChoice>) =>
+        'teamId' in choice
+          ? choice.teamId
+          : (byName(choice.name)?.id ?? store.insert('teams', { name: choice.name, shortName: choice.shortName, country: null, logo: null, extra: {} }).id);
+      const teamIds = { left: resolve(body.left), right: resolve(body.right) };
+
+      let created = 0;
+      let updated = 0;
+      for (const slot of ['left', 'right'] as const) {
+        const side = summary[slot].side;
+        for (const player of summary.players.filter((p) => p.side === side)) {
+          const profile = store.list('players').find((p) => p.steamid === player.steamid);
+          if (!profile) {
+            store.insert('players', {
+              steamid: player.steamid,
+              username: player.name,
+              firstName: '',
+              lastName: '',
+              country: null,
+              avatar: null,
+              teamId: teamIds[slot],
+              isCoach: false,
+              extra: {},
+            });
+            created++;
+          } else if (body.reassign && profile.teamId !== teamIds[slot]) {
+            store.update('players', profile.id, { teamId: teamIds[slot] });
+            updated++;
+          }
+        }
+      }
+      if (body.setMatch) {
+        const current = live.currentMatch();
+        if (current) {
+          store.update('matches', current.id, { left: { ...current.left, id: teamIds.left }, right: { ...current.right, id: teamIds.right } });
+        } else {
+          const match = store.insert('matches', {
+            left: { id: teamIds.left, wins: 0 },
+            right: { id: teamIds.right, wins: 0 },
+            matchType: 'bo1',
+            current: false,
+            vetos: [],
+            title: '',
+            startTime: null,
+            roundsPerHalf: null,
+            captainVeto: null,
+          });
+          setCurrent(match.id);
+        }
+      }
+      res.json({ created, updated, teams: teamIds });
+    })
+  );
+
   // --- matches -----------------------------------------------------------
 
   const setCurrent = (id: string | null) => {

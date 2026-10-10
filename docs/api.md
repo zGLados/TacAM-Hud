@@ -27,6 +27,8 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 | `POST /settings/install-gsi`, `GET /settings/gsi-config` | Install / download the GSI config |
 | `GET /demo`, `POST /demo/start`, `POST /demo/stop`, `POST /demo/seed` | Demo match |
 | `POST /auth/login` `{ pin }`, `GET /auth/status` | LAN login |
+| `POST /teams/import` `[{ name, shortName, country }]` | Team CSV import (matched by name) |
+| `POST /live/quick-setup` `{ left, right, reassign, setMatch }` | Live tab quick setup (`left`/`right`: `{ teamId }` or `{ name, shortName }`) |
 | `GET /actions` | Trigger actions (id, group, label) |
 | `PUT /settings/signals` `[rule]`, `GET /signals/log`, `POST /signals/test` `rule` | Signals: save rules, recent results, fire one rule |
 | `GET /obs`, `PUT /settings/obs` `{ enabled, url, password, sceneMap }` | OBS connection state and settings |

@@ -473,8 +473,9 @@ export interface LiveSummary {
   mapPhase: string;
   roundPhase: string | null;
   round: number;
-  left: { name: string; side: Side; score: number; teamId: string | null };
-  right: { name: string; side: Side; score: number; teamId: string | null };
+  /** `gsiName`: team name as sent by the game server (mp_teamname), null when CS2 sends none. */
+  left: { name: string; gsiName: string | null; side: Side; score: number; teamId: string | null };
+  right: { name: string; gsiName: string | null; side: Side; score: number; teamId: string | null };
   players: LivePlayerSummary[];
   observed: string | null;
 }

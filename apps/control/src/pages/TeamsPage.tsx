@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { countryFlagEmoji, type TeamProfile } from '@tacam/shared';
 import { api, uploadUrl, useData, type TeamInput } from '../api';
-import { Card, ConfirmButton, CountrySelect, Field, ImageUpload, Modal, PageHeader, useRun } from '../components/ui';
+import { Card, ConfirmButton, CountrySelect, Field, ImageUpload, Modal, PageHeader, useRun, useToast } from '../components/ui';
 
 const emptyTeam: TeamInput = { name: '', shortName: '', country: null, logo: null, extra: {} };
 
@@ -46,11 +46,23 @@ function TeamForm({ initial, onClose }: { initial: TeamProfile | null; onClose: 
   );
 }
 
+/** Parses "name;shortName;country" (comma or semicolon separated, header optional). */
+function parseTeamCsv(text: string) {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const separator = lines[0]?.includes(';') ? ';' : ',';
+  return lines
+    .map((line) => line.split(separator).map((c) => c.trim().replace(/^"|"$/g, '')))
+    .filter(([name], i) => name && !(i === 0 && name.toLowerCase() === 'name'))
+    .map(([name, shortName = '', country = '']) => ({ name, shortName: shortName.slice(0, 8), country: country ? country.toUpperCase() : null }));
+}
+
 export function TeamsPage() {
   const run = useRun();
   const { data: teams } = useData(api.teams.list, []);
   const { data: players } = useData(api.players.list, []);
   const [editing, setEditing] = useState<TeamProfile | 'new' | null>(null);
+  const toast = useToast();
+  const fileInput = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -58,10 +70,30 @@ export function TeamsPage() {
         title="Teams"
         description="Logo and name appear in the match bar, scenes and veto."
         actions={
-          <button className="button primary" onClick={() => setEditing('new')}>
-            + Team
-          </button>
+          <>
+            <button className="button ghost" onClick={() => fileInput.current?.click()}>
+              Import CSV
+            </button>
+            <button className="button primary" onClick={() => setEditing('new')}>
+              + Team
+            </button>
+          </>
         }
+      />
+      <input
+        ref={fileInput}
+        type="file"
+        accept=".csv,text/csv,text/plain"
+        hidden
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = '';
+          if (!file) return;
+          const rows = parseTeamCsv(await file.text());
+          if (!rows.length) return toast('No teams found in the file', 'error');
+          const result = await run(() => api.teams.import(rows));
+          if (result) toast(`${result.created} created, ${result.updated} updated`);
+        }}
       />
       <div className="team_grid">
         {teams.map((t) => {
@@ -97,6 +129,7 @@ export function TeamsPage() {
           </Card>
         )}
       </div>
+      <p className="muted small">CSV format: name;short name;country (e.g. "TacAM Red;TCR;DE"). Existing teams are matched by name; logos are added afterwards.</p>
       {editing && <TeamForm initial={editing === 'new' ? null : editing} onClose={() => setEditing(null)} />}
     </>
   );

@@ -96,6 +96,16 @@ function parseCsv(text: string, teams: TeamProfile[]): PlayerInput[] {
     }));
 }
 
+/** Team names in the last column of a player CSV. */
+function csvTeamNames(text: string) {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const separator = lines[0]?.includes(';') ? ';' : ',';
+  return lines
+    .map((line) => line.split(separator).map((c) => c.trim().replace(/^"|"$/g, '')))
+    .filter((cols) => /^\d{17}$/.test(cols[0]) && cols[5])
+    .map((cols) => cols[5]);
+}
+
 export function PlayersPage() {
   const run = useRun();
   const toast = useToast();
@@ -138,10 +148,15 @@ export function PlayersPage() {
           const file = e.target.files?.[0];
           e.target.value = '';
           if (!file) return;
-          const rows = parseCsv(await file.text(), teams);
+          const text = await file.text();
+          // Teams named in the CSV but not in the database are created first, so one file is enough.
+          const known = new Set(teams.flatMap((t) => [t.name.toLowerCase(), t.shortName.toLowerCase()]));
+          const missing = [...new Set(csvTeamNames(text).filter((n) => !known.has(n.toLowerCase())))];
+          if (missing.length) await api.teams.import(missing.map((name) => ({ name, shortName: '', country: null })));
+          const rows = parseCsv(text, missing.length ? await api.teams.list() : teams);
           if (!rows.length) return toast('No valid rows (the first column must be a SteamID64)', 'error');
           const result = await run(() => api.players.import(rows));
-          if (result) toast(`${result.created} created, ${result.updated} updated`);
+          if (result) toast(`${result.created} created, ${result.updated} updated${missing.length ? `, ${missing.length} new teams` : ''}`);
         }}
       />
       <Card>
@@ -186,7 +201,7 @@ export function PlayersPage() {
             )}
           </tbody>
         </table>
-        <p className="muted small">CSV format: steamid;name;first name;last name;country;team (team by name or short name)</p>
+        <p className="muted small">CSV format: steamid;name;first name;last name;country;team (team by name or short name; missing teams are created)</p>
       </Card>
       {editing && <PlayerForm initial={editing === 'new' ? null : editing} teams={teams} onClose={() => setEditing(null)} />}
     </>

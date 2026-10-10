@@ -286,7 +286,8 @@ export class LiveHub {
     const team = (displayed: 'left' | 'right') => {
       const orientation = this.flip ? (displayed === 'left' ? 'right' : 'left') : displayed;
       const t = data.map.team_ct.orientation === orientation ? data.map.team_ct : data.map.team_t;
-      return { name: t.name, side: t.side, score: t.score, teamId: t.id };
+      const raw = t.side === 'CT' ? this.lastRaw?.map?.team_ct : this.lastRaw?.map?.team_t;
+      return { name: t.name, gsiName: raw?.name ?? null, side: t.side, score: t.score, teamId: t.id };
     };
     return {
       map: data.map.name,

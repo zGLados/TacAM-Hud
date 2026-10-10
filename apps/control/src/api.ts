@@ -57,6 +57,9 @@ export interface Settings {
   addresses: string[];
 }
 
+/** Quick setup: an existing team or a new one by name. */
+export type QuickTeam = { teamId: string } | { name: string; shortName: string };
+
 /** A trigger URL action, see apps/server/src/actions.ts. */
 export interface TriggerActionInfo {
   id: string;
@@ -87,6 +90,12 @@ export const api = {
     create: (t: TeamInput) => request<TeamProfile>('POST', '/teams', t),
     update: (id: string, t: TeamInput) => request<TeamProfile>('PUT', `/teams/${id}`, t),
     remove: (id: string) => request<void>('DELETE', `/teams/${id}`),
+    import: (rows: { name: string; shortName: string; country: string | null }[]) =>
+      request<{ created: number; updated: number }>('POST', '/teams/import', rows),
+  },
+  live: {
+    quickSetup: (body: { left: QuickTeam; right: QuickTeam; reassign: boolean; setMatch: boolean }) =>
+      request<{ created: number; updated: number }>('POST', '/live/quick-setup', body),
   },
   matches: {
     list: () => request<Match[]>('GET', '/matches'),
