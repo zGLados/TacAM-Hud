@@ -17,6 +17,59 @@ const COLOR_LABELS: Record<ThemeColorKey, string> = {
   'text-muted': 'Text gedämpft',
 };
 
+/** One rotating sponsor: replace the logo in place, rename, reorder or remove it. */
+function SponsorItem({
+  sponsor,
+  first,
+  last,
+  onChange,
+  onMove,
+  onRemove,
+}: {
+  sponsor: Theme['sponsors'][number];
+  first: boolean;
+  last: boolean;
+  onChange: (sponsor: Theme['sponsors'][number]) => void;
+  onMove: (delta: -1 | 1) => void;
+  onRemove: () => void;
+}) {
+  const run = useRun();
+  const input = useRef<HTMLInputElement>(null);
+  return (
+    <div className="sponsor_item">
+      <img src={uploadUrl(sponsor.file)!} alt={sponsor.label} title="Klicken zum Ersetzen" onClick={() => input.current?.click()} />
+      <input value={sponsor.label} placeholder="Name" onChange={(e) => onChange({ ...sponsor, label: e.target.value })} />
+      <div className="row">
+        <button className="button small" onClick={() => onMove(-1)} disabled={first} aria-label="Nach vorne">
+          ←
+        </button>
+        <button className="button small" onClick={() => input.current?.click()}>
+          Ersetzen
+        </button>
+        <button className="button small" onClick={() => onMove(1)} disabled={last} aria-label="Nach hinten">
+          →
+        </button>
+      </div>
+      <button className="icon_button" onClick={onRemove} aria-label="Entfernen">
+        ×
+      </button>
+      <input
+        ref={input}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+        hidden
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = '';
+          if (!file) return;
+          const result = await run(() => api.upload(file));
+          if (result) onChange({ ...sponsor, file: result.file });
+        }}
+      />
+    </div>
+  );
+}
+
 /** Upload and manage the background videos for the starting soon / BRB / upcoming scenes. */
 function BackgroundVideos({ videos, onChange }: { videos: Theme['backgroundVideos']; onChange: (videos: Theme['backgroundVideos']) => void }) {
   const run = useRun();
@@ -149,16 +202,25 @@ export function ThemePage() {
           </Card>
 
           <Card title="Sponsoren" actions={<Toggle checked={theme.showSponsors} onChange={(showSponsors) => set({ showSponsors })} label="Anzeigen" />}>
-            <p className="muted">Ohne eigene Sponsoren werden die TacAM-Standardlogos verwendet.</p>
+            <p className="muted">
+              Ohne eigene Sponsoren werden die TacAM-Standardlogos verwendet. Logo anklicken oder „Ersetzen“ tauscht es aus, die Pfeile
+              ändern die Reihenfolge der Rotation. Danach speichern.
+            </p>
             <div className="sponsor_list">
               {theme.sponsors.map((s, i) => (
-                <div key={s.id} className="sponsor_item">
-                  <img src={uploadUrl(s.file)!} alt={s.label} />
-                  <input value={s.label} placeholder="Name" onChange={(e) => set({ sponsors: theme.sponsors.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)) })} />
-                  <button className="icon_button" onClick={() => set({ sponsors: theme.sponsors.filter((_, j) => j !== i) })} aria-label="Entfernen">
-                    ×
-                  </button>
-                </div>
+                <SponsorItem
+                  key={s.id}
+                  sponsor={s}
+                  first={i === 0}
+                  last={i === theme.sponsors.length - 1}
+                  onChange={(sponsor) => set({ sponsors: theme.sponsors.map((x, j) => (j === i ? sponsor : x)) })}
+                  onMove={(delta) => {
+                    const sponsors = [...theme.sponsors];
+                    [sponsors[i], sponsors[i + delta]] = [sponsors[i + delta], sponsors[i]];
+                    set({ sponsors });
+                  }}
+                  onRemove={() => set({ sponsors: theme.sponsors.filter((_, j) => j !== i) })}
+                />
               ))}
               <ImageUpload
                 value={null}

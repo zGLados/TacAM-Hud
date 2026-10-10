@@ -131,7 +131,7 @@ export class LiveHub {
     };
   }
 
-  ingest(raw: CSGORaw) {
+  ingest(raw: CSGORaw, demo = false) {
     const coaches = new Set(
       this.store
         .list('players')
@@ -155,7 +155,7 @@ export class LiveHub {
     const data = this.gsi.digest(raw);
     this.lastRaw = raw;
     this.lastUpdate = Date.now();
-    this.lastPayload = { raw, teams };
+    this.lastPayload = { raw, teams, demo };
     this.io.emit('update', this.lastPayload);
     if (!data) return;
 

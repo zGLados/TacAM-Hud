@@ -198,6 +198,10 @@ export interface HudConfig {
   visibility: {
     hud: boolean;
     radar: boolean;
+    /**
+     * Own kill feed. Off by default: with real CS2 data the game's kill feed is
+     * used (`cl_draw_only_deathnotices 1`). The demo match always shows it.
+     */
     killfeed: boolean;
     roundHistory: boolean;
     economy: boolean;
@@ -222,7 +226,7 @@ export const DEFAULT_HUD_CONFIG: HudConfig = {
   visibility: {
     hud: true,
     radar: true,
-    killfeed: true,
+    killfeed: false,
     roundHistory: true,
     economy: true,
     sponsors: true,
@@ -338,6 +342,8 @@ export interface GsiUpdate {
   raw: unknown;
   /** Team profiles resolved for the current left/right orientation. */
   teams: { left: HudTeamExtension | null; right: HudTeamExtension | null };
+  /** Data comes from the built-in demo match, not from CS2. */
+  demo: boolean;
 }
 
 export interface LivePlayerSummary {

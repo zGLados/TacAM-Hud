@@ -104,13 +104,17 @@ function HudControls() {
       <div className="toggle_grid">
         <Toggle checked={vis.hud} onChange={(v) => setVis('hud', v)} label="HUD sichtbar" />
         <Toggle checked={vis.radar} onChange={(v) => setVis('radar', v)} label="Radar" />
-        <Toggle checked={vis.killfeed} onChange={(v) => setVis('killfeed', v)} label="Killfeed" />
+        <Toggle checked={vis.killfeed} onChange={(v) => setVis('killfeed', v)} label="Eigener Killfeed (statt CS-Killfeed)" />
         <Toggle checked={vis.roundHistory} onChange={(v) => setVis('roundHistory', v)} label="Rundenverlauf" />
         <Toggle checked={vis.economy} onChange={(v) => setVis('economy', v)} label="Economy-Box" />
         <Toggle checked={vis.sponsors} onChange={(v) => setVis('sponsors', v)} label="Sponsoren" />
         <Toggle checked={config.swapTeams} onChange={(swapTeams) => save({ swapTeams })} label="Teams links/rechts tauschen" />
         <Toggle checked={!config.sideBoxes.hidden} onChange={(v) => save({ sideBoxes: { ...config.sideBoxes, hidden: !v } })} label="Seitenboxen" />
       </div>
+      <p className="muted small">
+        Bei echtem CS2 den Killfeed des Spiels nutzen: im Observer-Client <code>cl_draw_only_deathnotices 1</code> blendet das CS-HUD bis auf
+        den Killfeed aus. Der eigene Killfeed ist nur nötig, wenn das CS-HUD komplett aus ist; im Demo-Match wird er immer gezeigt.
+      </p>
       <div className="row wrap">
         <button className="button" onClick={() => run(() => api.hud.action('radarBigger'))}>
           Radar +

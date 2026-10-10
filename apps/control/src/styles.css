@@ -844,3 +844,9 @@ input[type='range'] {
   background: var(--bg);
   flex-shrink: 0;
 }
+.sponsor_item img {
+  cursor: pointer;
+}
+.sponsor_item .row {
+  gap: 4px;
+}

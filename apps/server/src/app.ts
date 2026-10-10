@@ -46,7 +46,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   const http = createServer(app);
   const io: HudServer = new Server(http, { maxHttpBufferSize: 1e6 });
   const live = new LiveHub(store, io);
-  const demo = new DemoMatch((raw) => live.ingest(raw));
+  const demo = new DemoMatch((raw) => live.ingest(raw, true));
 
   // --- realtime ----------------------------------------------------------
 

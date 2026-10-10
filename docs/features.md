@@ -29,13 +29,17 @@ At map end (csgogsi event `matchEnd`) the server writes score and winner into th
 
 **Fixed OBS URL per scene:** `/hud/?scene=<id>` always shows that scene and ignores the scene chosen in the control panel, so every OBS scene can have its own browser source and scenes are switched in OBS. `/hud/?scene=live` shows only the in-game HUD and never a full-screen scene. The URLs are listed in the control panel under Einstellungen → OBS.
 
+## Kill feed
+
+With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnotices 1` in the observer client to hide the CS HUD except for the kill feed. The own kill feed (`HudConfig.visibility.killfeed`, off by default) is only needed when the CS HUD is hidden completely; the demo match always shows it (`GsiUpdate.demo`).
+
 ## HUD configuration ("panel")
 
 `HudConfig`: trivia, side boxes (title/subtitle/logo), player and match preview, swap teams, radar size, visibility of individual elements, team logo as avatar. Changes reach all HUDs immediately via Socket.io. HUD actions (`radarBigger`, `radarSmaller`, `toggleRadarView`, `toggleHud`) are transient and come from shortcuts or buttons.
 
 ## Theme editor
 
-`Theme.colors` → CSS variables `--color-<key>` (`primary`, `panel`, `panel-strong`, `ct`, `t`, `money`, `bomb`, `defuse`, `border`, `text`, `text-muted`), plus `--radius`, `--hud-font`, sponsors (rotation, interval), brand and tournament logo. The preview in the editor receives unsaved changes via `postMessage` (`tacam:theme-preview`, same origin only); OBS only sees saved themes.
+`Theme.colors` → CSS variables `--color-<key>` (`primary`, `panel`, `panel-strong`, `ct`, `t`, `money`, `bomb`, `defuse`, `border`, `text`, `text-muted`), plus `--radius`, `--hud-font`, sponsors (rotation, interval; each logo can be replaced, renamed and reordered), brand and tournament logo. The preview in the editor receives unsaved changes via `postMessage` (`tacam:theme-preview`, same origin only); OBS only sees saved themes.
 
 ## Production control from a second device
 

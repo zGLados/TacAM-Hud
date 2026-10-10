@@ -18,6 +18,7 @@ export function Layout() {
   const config = useHud((s) => s.config);
   const match = useHud((s) => s.match);
   const rounds = useHud((s) => s.stats.rounds);
+  const demo = useHud((s) => s.demo);
   const sides = useSides();
   const [hudHidden, setHudHidden] = useState(false);
   useAction('toggleHud', () => setHudHidden((h) => !h));
@@ -30,7 +31,8 @@ export function Layout() {
   return (
     <div className={`hud__layout ${visibility.hud && !hudHidden ? '' : 'is-hidden'}`}>
       <Sponsors />
-      {visibility.killfeed && <KillFeed />}
+      {/* With real CS2 data the game's own kill feed is used, see HudConfig.visibility.killfeed */}
+      {(visibility.killfeed || demo) && <KillFeed />}
       <RadarBox game={game} />
       <MatchBar />
       <PhaseBanners game={game} />

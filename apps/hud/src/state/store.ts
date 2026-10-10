@@ -30,6 +30,8 @@ export interface HudState {
   stats: StatsSnapshot;
   killfeed: KillFeedEntry[];
   connected: boolean;
+  /** Data comes from the demo match (shows the own kill feed). */
+  demo: boolean;
 }
 
 /** Shared csgogsi instance; components can subscribe to its events (roundEnd, bombPlant, …). */
@@ -49,6 +51,7 @@ let state: HudState = {
   stats: { map: null, players: [], rounds: [] },
   killfeed: [],
   connected: false,
+  demo: false,
 };
 
 const listeners = new Set<() => void>();
@@ -100,11 +103,11 @@ socket.on('connect', () => {
 });
 socket.on('disconnect', () => set({ connected: false }));
 
-socket.on('update', ({ raw, teams }) => {
+socket.on('update', ({ raw, teams, demo }) => {
   GSI.teams.left = teams.left;
   GSI.teams.right = teams.right;
   const game = GSI.digest(raw as CSGORaw);
-  if (game) set({ game });
+  if (game) set({ game, demo });
 });
 
 socket.on('kill', (entry) => set({ killfeed: [...state.killfeed.slice(-7), entry] }));
