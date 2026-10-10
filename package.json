@@ -9,7 +9,8 @@
     "apps/*"
   ],
   "engines": {
-    "node": ">=18.19"
+    "node": ">=22.12",
+    "npm": ">=11"
   },
   "scripts": {
     "dev": "npm run build -w @tacam/shared && concurrently -n server,hud,control -c red,blue,green \"npm run dev -w @tacam/server\" \"npm run dev -w @tacam/hud\" \"npm run dev -w @tacam/control\"",
@@ -23,5 +24,10 @@
   "devDependencies": {
     "concurrently": "^9.1.2",
     "typescript": "~5.6.3"
+  },
+  "packageManager": "npm@11.19.1",
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "electron-winstaller@5.4.0": true
   }
 }

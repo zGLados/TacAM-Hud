@@ -24,11 +24,14 @@ jobs:
         with:
           ref: ${{ env.TAG }}
 
-      # Electron 43 requires Node >= 22.12 to install.
+      # Node >= 22.12 (Electron 43). npm 11 because npm 10 (bundled with Node 22) crashes
+      # resolving Vitest's peer dependencies ("Cannot read properties of null (reading 'edgesOut')").
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+
+      - run: npm install -g npm@11.19.1
 
       - run: npm ci
 

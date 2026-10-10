@@ -19,7 +19,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 ## Conventions
 
 - **Documentation and code comments are English.** Comments are sparse and explain the why. UI texts are English as well (control panel, desktop app, API error messages, HUD).
-- Node 18 in the dev setup: do not add packages that need Node ≥ 20 (exception: Electron, the desktop app needs Node ≥ 22.12).
+- Node ≥ 22.12 + npm ≥ 11 (npm 10 crashes on Vitest's peer deps). Locally Node 22 lives in `~/.local/node22` (`export PATH=~/.local/node22/bin:$PATH`); the system Node is 18 and too old. New packages with install scripts must be approved in `allowScripts` (`npm install-scripts approve <pkg>`).
 - HUD CSS: BEM in kebab-case, `data-side`/`data-align`/`data-state`, states `is-*`; no IDs; colors only via `--color-*` variables (see `docs/hud-styling.md`). New elements get their own file in `styles/` + an import in `styles/index.css`.
 - Theme colors = `THEME_COLOR_KEYS` in `shared/types.ts`; the HUD sets `--color-<key>`. Add new keys to the control panel as well (`ThemePage` labels).
 - Always validate server input with a zod schema in `api.ts`; store changes go through `store.insert/update/setDoc`, broadcasts happen automatically (`store.on('change')`).

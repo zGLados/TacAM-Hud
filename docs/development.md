@@ -9,7 +9,7 @@
 | `npm test` | Vitest (`packages/shared` stats, `apps/server` API) |
 | `npm run typecheck` | tsc in all workspaces |
 | `npm start` | Start the built server |
-| `npm run desktop` / `npm run dist` | Start Electron / build installers (Node ≥ 22.12) |
+| `npm run desktop` / `npm run dist` | Start Electron / build installers |
 
 `packages/shared` is built to `dist/` and the other packages import it from there, so always run `npm run build -w @tacam/shared` after changing `shared`.
 
@@ -22,7 +22,7 @@ Isolated test server: `TACAM_DATA_DIR=./.data HUD_PORT=13490 GSI_PORT=23490 npx 
 
 ## Versions
 
-Dependencies are pinned to Node-18-compatible versions (Vite 5.4, Vitest 2.1, Express 4, csgogsi 4.1, React 18.3). Exception: Electron 43 (security fixes) needs Node ≥ 22.12. After a Node upgrade the other packages can be bumped as well.
+Requires **Node ≥ 22.12** and **npm ≥ 11** (`.nvmrc`, `engines`, `packageManager` in the root `package.json`). npm 10, which ships with Node 22, crashes while resolving Vitest's peer dependencies (`Cannot read properties of null (reading 'edgesOut')`); `npm install -g npm@11` fixes it. npm 11 only runs install scripts listed under `allowScripts` in the root `package.json` (esbuild, electron-winstaller); approve new ones with `npm install-scripts approve <pkg>`. Main versions: Vite 8, Vitest 5, React 18.3, React Router 7, Express 4, Electron 43.
 
 ## Tests
 
@@ -45,7 +45,7 @@ Note: `google-chrome --headless --screenshot` with `--virtual-time-budget` hangs
 
 ## Releases
 
-Publishing a GitHub release (tag `vX.Y.Z`) runs `.github/workflows/release.yml` on `windows-latest` with Node 22: `npm ci`, typecheck, tests, build, then `electron-builder --win nsis`. The version is taken from the tag, and the installer `.exe` is attached to the release together with `latest.yml` and the `.blockmap`. The desktop app (`apps/desktop/src/updater.ts`, `electron-updater`) reads `latest.yml` from the newest GitHub release on startup and offers the update; it downloads only after confirmation and installs silently on restart. The data in `userData` is never touched by the installer. Draft and pre-releases are ignored, and the portable build does not update itself. The workflow can also be started manually for an existing tag (`workflow_dispatch`).
+Publishing a GitHub release (tag `vX.Y.Z`) runs `.github/workflows/release.yml` on `windows-latest` with Node 22 and npm 11: `npm ci`, typecheck, tests, build, then `electron-builder --win nsis`. The version is taken from the tag, and the installer `.exe` is attached to the release together with `latest.yml` and the `.blockmap`. The desktop app (`apps/desktop/src/updater.ts`, `electron-updater`) reads `latest.yml` from the newest GitHub release on startup and offers the update; it downloads only after confirmation and installs silently on restart. The data in `userData` is never touched by the installer. Draft and pre-releases are ignored, and the portable build does not update itself. The workflow can also be started manually for an existing tag (`workflow_dispatch`).
 
 Checklist:
 

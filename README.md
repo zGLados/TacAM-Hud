@@ -43,7 +43,7 @@ Screenshots are taken from the built-in demo match; the HUD is transparent and s
 
 ## Quick start
 
-Requires Node.js ≥ 18.19 (≥ 22.12 for the desktop app, see below).
+Requires Node.js ≥ 22.12 and npm ≥ 11 (`npm install -g npm@11`; the npm 10 bundled with Node 22 fails to install the dependencies).
 
 ```bash
 npm install
@@ -68,7 +68,7 @@ npm run desktop      # builds everything and starts the app
 npm run dist         # installers (Windows NSIS/portable, Linux AppImage, macOS dmg)
 ```
 
-The app runs the server internally, opens the control panel and registers global keyboard shortcuts. Electron 43 needs **Node ≥ 22.12** to install and build; server, HUD and control panel also run on Node 18.
+The app runs the server internally, opens the control panel and registers global keyboard shortcuts.
 
 Publishing a GitHub release with a tag like `v1.2.3` builds the Windows installer automatically and attaches it to the release (`.github/workflows/release.yml`).
 

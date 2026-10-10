@@ -11,7 +11,7 @@
   },
   "main": "dist/main.cjs",
   "scripts": {
-    "build": "esbuild src/main.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/main.cjs --external:electron --external:bufferutil --external:utf-8-validate --log-override:empty-import-meta=silent",
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist/main.cjs --external:electron --external:bufferutil --external:utf-8-validate --log-override:empty-import-meta=silent",
     "typecheck": "tsc --noEmit",
     "start": "npm run build && electron .",
     "dist": "npm run build && electron-builder"
@@ -19,11 +19,11 @@
   "devDependencies": {
     "@tacam/server": "0.1.0",
     "@tacam/shared": "0.1.0",
-    "@types/node": "^18.19.130",
+    "@types/node": "^22.20.5",
     "electron": "43.7.9",
     "electron-builder": "26.15.3",
     "electron-updater": "6.8.9",
-    "esbuild": "0.25.12"
+    "esbuild": "0.28.2"
   },
   "build": {
     "appId": "de.tacam.hud",

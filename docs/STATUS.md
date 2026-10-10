@@ -1,21 +1,25 @@
-# Project status & open tasks
+# Project status
 
-Everything listed here is **not done yet**.
+Hand-over state for the next session. Latest release: **v0.1.5** (Windows installer with in-app updater).
 
-## Ideas from zGLados/wartescreen (decided)
+## Open tasks
 
-Evaluated together with the project owner:
+None at the moment.
 
-- Done: fixed OBS URL per scene (`/hud/?scene=<id>`), background videos, scenes "upcoming matches" and "player to watch".
-- Not planned: FACEIT import (tournaments rarely run on FACEIT), veto animation.
+## Decided / not planned
 
-## Release workflow
+- From zGLados/wartescreen: fixed OBS URL per scene, background videos, "upcoming matches" and "player to watch" are done. FACEIT import (tournaments rarely run on FACEIT) and a veto animation are not planned.
 
-`.github/workflows/release.yml` works (v0.1.0–v0.1.5). From v0.1.4 on the release also carries `latest.yml` + `.blockmap` for the in-app updater; the update path 0.1.4 → 0.1.5 was verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
+## Releases
+
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.5).
+- Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The update 0.1.4 → 0.1.5 was verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies
 
-- The system Node is 18.19. Server, HUD and control panel run on it.
-- The desktop app uses Electron 43.7.9 (security fixes) → **Node ≥ 22.12 required** to install/build. Under Node 18 the Electron binary is missing. App start was so far only tested with Electron 33.
-- `react-router-dom` 6.30.6: two moderate advisories (backslash redirect in `<Link>`, SSR hydration), not exploitable here; fixed only in v7 (breaking change).
+- Node ≥ 22.12 and npm ≥ 11 (see `docs/development.md`). On the dev machine the system Node is 18; Node 22 is installed user-locally in `~/.local/node22`.
 - Changing shared types → `npm run build -w @tacam/shared` before server/HUD.
+
+## Known audit findings (accepted)
+
+`npm audit` reports 8 moderate findings, all from `sprintf-js` inside electron-builder's download chain (`@electron/get` → `global-agent` → `roarr`). It only runs while building the installer, never in the app or server; the suggested "fix" is a downgrade of electron-builder. Check again when electron-builder updates its dependencies.
