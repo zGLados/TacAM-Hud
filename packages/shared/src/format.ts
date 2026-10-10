@@ -17,6 +17,22 @@ export function formatRoundLabel(mapRound: number, regulationMR = 12, overtimeMR
   return `OT ${ot} (${otRound - (ot - 1) * otLength}/${otLength})`;
 }
 
+export interface RoundRules {
+  /** Rounds per half in regulation (CS2 competitive: 12, wingman: 8). */
+  regulationMR: number;
+  /** Rounds per overtime half. */
+  overtimeMR: number;
+}
+
+/**
+ * Round rules for a GSI game mode. `override` (rounds per half, from the match)
+ * covers custom servers, e.g. 1v1/2v2 setups running in competitive mode.
+ */
+export function roundRules(mode: string | undefined, override?: number | null): RoundRules {
+  const regulationMR = override || (mode === 'scrimcomp2v2' ? 8 : 12);
+  return { regulationMR, overtimeMR: 3 };
+}
+
 /** "de_mirage" or "workshop/123/de_mirage" → "de_mirage" */
 export function normalizeMapName(name: string): string {
   return name.substring(name.lastIndexOf('/') + 1);

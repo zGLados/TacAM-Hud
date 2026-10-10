@@ -161,7 +161,7 @@ export class StatsTracker {
   /** Totals at the start of each round, to roll back on round restores. */
   private roundStartTotals = new Map<number, Map<string, PlayerTotals>>();
 
-  constructor(private regulationMR = 12) {}
+  constructor(public regulationMR = 12) {}
 
   reset(mapName: string | null = null) {
     this.mapName = mapName;

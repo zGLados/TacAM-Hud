@@ -22,6 +22,7 @@ const emptyMatch: MatchInput = {
   vetos: [],
   title: '',
   startTime: null,
+  roundsPerHalf: null,
 };
 
 /** Standard BO1/BO3/BO5 veto order so the producer only fills in maps and teams. */
@@ -160,6 +161,16 @@ function MatchForm({ initial, teams, onClose }: { initial: Match | null; teams: 
           </select>
         </Field>
       </div>
+      <Field label="Rounds per half" hint="Leave empty: 12, or 8 for wingman (detected from the game mode). Set it for custom servers, e.g. 1v1 with MR6.">
+        <input
+          type="number"
+          min={1}
+          max={30}
+          placeholder="automatic"
+          value={match.roundsPerHalf ?? ''}
+          onChange={(e) => set({ roundsPerHalf: e.target.value ? Number(e.target.value) : null })}
+        />
+      </Field>
       {teamSelect('left')}
       {teamSelect('right')}
       <Toggle checked={match.current} onChange={(current) => set({ current })} label="Current match (used by the HUD)" />

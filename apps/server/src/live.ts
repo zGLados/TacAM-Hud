@@ -2,6 +2,7 @@ import { CSGOGSI, type CSGO, type CSGORaw, type PlayerExtension, type Score } fr
 import {
   StatsTracker,
   normalizeMapName,
+  roundRules,
   type GsiStatus,
   type GsiUpdate,
   type HudPlayerExtension,
@@ -224,6 +225,12 @@ export class LiveHub {
     );
     if (coaches.size) raw = withoutCoaches(raw, coaches);
 
+    // Wingman (MR8) comes from the game mode, custom 1v1/2v2 servers from the match.
+    const rules = roundRules(raw.map?.mode, this.currentMatch()?.roundsPerHalf);
+    this.gsi.regulationMR = rules.regulationMR;
+    this.gsi.overtimeMR = rules.overtimeMR;
+    this.tracker.regulationMR = rules.regulationMR;
+
     const teams = this.resolveTeams(raw);
     this.gsi.teams.left = teams.left;
     this.gsi.teams.right = teams.right;
@@ -233,7 +240,7 @@ export class LiveHub {
     const data = this.gsi.digest(raw);
     this.lastRaw = raw;
     this.lastUpdate = Date.now();
-    this.lastPayload = { raw, teams: { left: teams.left, right: teams.right }, demo, flip: this.flip };
+    this.lastPayload = { raw, teams: { left: teams.left, right: teams.right }, demo, flip: this.flip, rules };
     this.io.emit('update', this.lastPayload);
     if (!data) return;
 

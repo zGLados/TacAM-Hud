@@ -57,6 +57,7 @@ const matchSchema = z.object({
   vetos: z.array(vetoSchema).default([]),
   title: str.default(''),
   startTime: nullableStr.default(null),
+  roundsPerHalf: z.number().int().min(1).max(30).nullable().default(null),
 });
 
 const sideBox = z.object({ title: z.string(), subtitle: z.string(), image: nullableStr });

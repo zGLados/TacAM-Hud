@@ -1,3 +1,5 @@
+import type { RoundRules } from './format.js';
+
 // Domain types shared between server, HUD and control panel.
 
 export type Side = 'CT' | 'T';
@@ -66,6 +68,8 @@ export interface Match {
   title: string;
   /** ISO date-time string. */
   startTime: string | null;
+  /** Rounds per half when the server differs from the game mode default (e.g. 1v1 on MR6); null = automatic. */
+  roundsPerHalf: number | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -371,6 +375,8 @@ export interface GsiUpdate {
   demo: boolean;
   /** Show left/right swapped so the teams keep their HUD side after halftime (`keepTeamSides`). */
   flip: boolean;
+  /** Round rules of the current map (game mode + match override). */
+  rules: RoundRules;
 }
 
 export interface LivePlayerSummary {

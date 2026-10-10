@@ -461,6 +461,7 @@ export function seedDemoData(store: Store) {
     current: true,
     title: 'Demo – Grand Final',
     startTime: null,
+    roundsPerHalf: null,
     vetos: [
       { type: 'ban', mapName: 'de_nuke', teamId: teamIds[0], side: 'NO', reverseSide: false, score: {}, winner: null, mapEnd: false },
       { type: 'ban', mapName: 'de_ancient', teamId: teamIds[1], side: 'NO', reverseSide: false, score: {}, winner: null, mapEnd: false },

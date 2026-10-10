@@ -45,6 +45,8 @@ With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnoti
 
 **Keep team sides after halftime** (`keepTeamSides`): CS2 always shows CT on the left, so teams change HUD sides at halftime. With the option on, `LiveHub` remembers per map which team (database profile, else CS team name) was on the left and sends `flip: true` in the update once it appears on the right. Only the display flips; the observer slot numbers stay the in-game ones. Coaches marked in the player database are removed from the GSI data before teams and sides are resolved, also as spectated player.
 
+**Round rules / wingman:** `roundRules()` (`packages/shared/src/format.ts`) derives rounds per half from the GSI game mode (`scrimcomp2v2` = wingman, MR8; otherwise MR12) or from the match field `roundsPerHalf` for custom servers (e.g. 1v1 on MR6). The server applies them to csgogsi and the stats tracker and sends them in every update, so halftime detection, round label, round history and pistol rounds use the same rules in server and HUD. Team panels simply show fewer players.
+
 ## Stream Deck / Companion (trigger URLs)
 
 `apps/server/src/actions.ts` defines one-click actions (scenes, HUD toggles, overlays, swap teams, swap map sides) as `/api/trigger/<id>?key=<actionKey>`, callable with GET or POST because many button tools can only open a URL. The key lives in the settings, is required even for local requests (so a web page in the browser cannot fire actions against 127.0.0.1) and can be renewed under Settings → Stream Deck / Companion, which also lists all URLs. From another computer the server needs LAN access.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CSGO, Player } from 'csgogsi';
 import { StatsTracker, classifyBuy, computeRating, inferKills } from './stats.js';
-import { formatRoundLabel } from './format.js';
+import { formatRoundLabel, roundRules } from './format.js';
 
 type PlayerInit = {
   steamid: string;
@@ -287,5 +287,16 @@ describe('helpers', () => {
     expect(formatRoundLabel(0)).toBe('Round 1/24');
     expect(formatRoundLabel(24)).toBe('OT 1 (1/6)');
     expect(formatRoundLabel(30)).toBe('OT 2 (1/6)');
+  });
+});
+
+describe('roundRules', () => {
+  it('uses MR12 for competitive, MR8 for wingman and the match override for custom servers', () => {
+    expect(roundRules('competitive')).toEqual({ regulationMR: 12, overtimeMR: 3 });
+    expect(roundRules('scrimcomp2v2')).toEqual({ regulationMR: 8, overtimeMR: 3 });
+    expect(roundRules('competitive', 6).regulationMR).toBe(6);
+    expect(roundRules(undefined, null).regulationMR).toBe(12);
+    expect(formatRoundLabel(7, 8)).toBe('Round 8/16');
+    expect(formatRoundLabel(16, 8)).toBe('OT 1 (1/6)');
   });
 });

@@ -138,6 +138,18 @@ describe('API', () => {
     expect(await scene()).toBe('live');
     await send(5, 'paused'); // a normal pause is still a pause
     expect(await scene()).toBe('pause');
+
+    // wingman (MR8): the half break is after 8 rounds, 12 is a normal pause
+    const wingman = (round: number, phase: string) => {
+      const raw = gsi(round, phase);
+      return fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { ...raw, map: { ...raw.map, mode: 'scrimcomp2v2' } }));
+    };
+    await wingman(8, 'freezetime');
+    await wingman(8, 'paused');
+    expect(await scene()).toBe('halftime');
+    await wingman(12, 'live');
+    await wingman(12, 'paused');
+    expect(await scene()).toBe('pause');
   });
 
   it('keeps team sides after halftime and ignores coaches', async () => {

@@ -106,7 +106,9 @@ socket.on('connect', () => {
 });
 socket.on('disconnect', () => set({ connected: false }));
 
-socket.on('update', ({ raw, teams, demo, flip }) => {
+socket.on('update', ({ raw, teams, demo, flip, rules }) => {
+  GSI.regulationMR = rules.regulationMR;
+  GSI.overtimeMR = rules.overtimeMR;
   GSI.teams.left = teams.left;
   GSI.teams.right = teams.right;
   const game = GSI.digest(raw as CSGORaw);
