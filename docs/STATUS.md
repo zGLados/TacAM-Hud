@@ -1,6 +1,6 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.1.13** (CS2 console: LAN fallback and Windows diagnosis).
+Hand-over state for the next session. Latest release: **v0.1.14** (CS2 console: -tools hint on Windows, engine_no_focus_sleep 0 on connect).
 
 ## Open tasks
 
@@ -20,7 +20,7 @@ Hand-over state for the next session. Latest release: **v0.1.13** (CS2 console: 
 
 ## Releases
 
-- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.13).
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.14).
 - Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 → 0.1.7 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies
