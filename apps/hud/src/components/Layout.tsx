@@ -11,6 +11,7 @@ import { RadarBox } from './RadarBox';
 import { MapSeries } from './MapSeries';
 import { Sponsors } from './Sponsors';
 import { MatchTeaser, PhaseBanners, PlayerSpotlight, Trivia } from './Overlays';
+import { HudOverlay } from './HudOverlay';
 
 /** In-game HUD. Element placement follows the original TacAM layout. */
 export function Layout() {
@@ -47,6 +48,7 @@ export function Layout() {
         <Trivia />
         <PlayerSpotlight game={game} />
       </div>
+      <HudOverlay sides={sides} />
       <MatchTeaser />
       <MapSeries match={match} teams={[sides.left, sides.right]} visible={freezetime} mapName={game.map.name} />
       {(['left', 'right'] as const).map((align) => (

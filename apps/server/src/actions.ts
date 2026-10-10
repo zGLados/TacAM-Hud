@@ -18,6 +18,8 @@ export interface TriggerAction {
 
 type VisibilityKey = keyof HudConfig['visibility'];
 
+const OVERLAY_LABELS = { scoreboard: 'Scoreboard', economy: 'Economy graph', comparison: 'Player comparison' };
+
 export function createActions(store: Store, live: LiveHub, io: HudServer): TriggerAction[] {
   const config = () => store.doc('hudConfig');
   const patchConfig = (patch: Partial<HudConfig>) => store.setDoc('hudConfig', { ...config(), ...patch });
@@ -74,6 +76,15 @@ export function createActions(store: Store, live: LiveHub, io: HudServer): Trigg
       label: 'Match preview on/off',
       run: () => patchConfig({ matchPreview: { ...config().matchPreview, visible: !config().matchPreview.visible } }),
     },
+    ...(['scoreboard', 'economy', 'comparison'] as const).map(
+      (overlay): TriggerAction => ({
+        id: `overlay-${overlay}`,
+        group: 'Overlays',
+        label: `${OVERLAY_LABELS[overlay]} on/off`,
+        run: () => patchConfig({ overlay: config().overlay === overlay ? 'none' : overlay }),
+      })
+    ),
+    { id: 'overlay-off', group: 'Overlays', label: 'Hide center overlay', run: () => patchConfig({ overlay: 'none' }) },
     { id: 'swap-teams', group: 'Teams', label: 'Swap teams left/right', run: () => patchConfig({ swapTeams: !config().swapTeams }) },
     {
       id: 'keep-sides-toggle',

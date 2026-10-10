@@ -1,0 +1,97 @@
+/* Center overlays toggled from the control panel (HudConfig.overlay). */
+
+.hud-overlay {
+  position: fixed;
+  /* below the round history, same anchor as .center-stack */
+  top: 190px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: overlay-fade-in 0.3s ease-out;
+}
+
+/* scoreboard */
+.scoreboard {
+  width: 1040px;
+}
+.scoreboard__team {
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.scoreboard__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 3px solid var(--color-border);
+}
+.scoreboard__team[data-side='CT'] .scoreboard__header {
+  border-bottom-color: var(--color-ct);
+}
+.scoreboard__team[data-side='T'] .scoreboard__header {
+  border-bottom-color: var(--color-t);
+}
+.scoreboard__logo img {
+  display: block;
+  height: 36px;
+  width: auto;
+}
+.scoreboard__team-name {
+  flex: 1;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.scoreboard__score {
+  font-size: 30px;
+  font-weight: 800;
+}
+.scoreboard__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 18px;
+}
+.scoreboard__table th {
+  padding: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.scoreboard__table td {
+  padding: 6px;
+  text-align: center;
+  font-weight: 600;
+  border-top: 1px solid var(--color-border);
+}
+.scoreboard__table .scoreboard__player {
+  width: 300px;
+  text-align: left;
+  padding-left: 16px;
+}
+.scoreboard__table .scoreboard__money {
+  width: 110px;
+  text-align: right;
+  padding-right: 16px;
+}
+.scoreboard__table td.scoreboard__money {
+  color: var(--color-money);
+}
+.scoreboard__slot {
+  display: inline-block;
+  width: 22px;
+  margin-right: 8px;
+  color: var(--color-text-muted);
+}
+.scoreboard__table tr.is-dead td {
+  color: var(--color-dead);
+}
+.scoreboard__table td.is-good {
+  color: var(--color-money);
+}
+.scoreboard__table td.is-bad {
+  color: var(--color-primary-light);
+}

@@ -209,6 +209,9 @@ export interface SideBoxConfig {
   image: string | null;
 }
 
+export const HUD_OVERLAYS = ['none', 'scoreboard', 'economy', 'comparison'] as const;
+export type HudOverlay = (typeof HUD_OVERLAYS)[number];
+
 export interface HudConfig {
   trivia: { title: string; content: string; visible: boolean };
   sideBoxes: { left: SideBoxConfig; right: SideBoxConfig; hidden: boolean };
@@ -235,6 +238,10 @@ export interface HudConfig {
     economy: boolean;
     sponsors: boolean;
   };
+  /** Full-width overlay in the center of the live HUD (one at a time). */
+  overlay: HudOverlay;
+  /** SteamID64s of the two players in the comparison overlay. */
+  comparison: { left: string | null; right: string | null };
   replaceAvatars: 'never' | 'if_missing' | 'always';
   /** SteamID64 of the player shown in the "player to watch" scene. */
   playerToWatch: string | null;
@@ -260,6 +267,8 @@ export const DEFAULT_HUD_CONFIG: HudConfig = {
     economy: true,
     sponsors: true,
   },
+  overlay: 'none',
+  comparison: { left: null, right: null },
   replaceAvatars: 'never',
   playerToWatch: null,
 };

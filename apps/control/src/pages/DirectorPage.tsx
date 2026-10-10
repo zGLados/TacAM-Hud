@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { HudConfig, SceneId, SceneState } from '@tacam/shared';
+import type { HudConfig, HudOverlay, SceneId, SceneState } from '@tacam/shared';
 import { api, useData, useLive } from '../api';
 import { Card, Field, ImageUpload, PageHeader, Toggle, useRun } from '../components/ui';
 import { HudMonitor } from '../components/HudMonitor';
@@ -225,6 +225,30 @@ function HudControls() {
   );
 }
 
+const OVERLAYS: { id: HudOverlay; label: string }[] = [
+  { id: 'none', label: 'Off' },
+  { id: 'scoreboard', label: 'Scoreboard' },
+  { id: 'economy', label: 'Economy graph' },
+  { id: 'comparison', label: 'Player comparison' },
+];
+
+function OverlayPanel() {
+  const { config, save } = useConfigEditor();
+  if (!config) return null;
+  return (
+    <Card title="Overlays">
+      <div className="row wrap">
+        {OVERLAYS.map((o) => (
+          <button key={o.id} className={`button ${config.overlay === o.id ? 'primary' : ''}`} onClick={() => save({ overlay: o.id })}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+      <p className="muted small">Shown in the center of the live HUD, one at a time. Also available as Stream Deck actions.</p>
+    </Card>
+  );
+}
+
 function TriviaPanel() {
   const { config, save } = useConfigEditor();
   const [title, setTitle] = useState('');
@@ -352,6 +376,7 @@ export function DirectorPage() {
       <ScenePanel />
       <div className="grid two">
         <HudControls />
+        <OverlayPanel />
         <TriviaPanel />
         <PreviewPanel />
         <MatchControls />

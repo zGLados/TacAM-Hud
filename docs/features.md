@@ -47,6 +47,8 @@ With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnoti
 
 **Round rules / wingman:** `roundRules()` (`packages/shared/src/format.ts`) derives rounds per half from the GSI game mode (`scrimcomp2v2` = wingman, MR8; otherwise MR12) or from the match field `roundsPerHalf` for custom servers (e.g. 1v1 on MR6). The server applies them to csgogsi and the stats tracker and sends them in every update, so halftime detection, round label, round history and pistol rounds use the same rules in server and HUD. Team panels simply show fewer players.
 
+**Center overlays** (`HudConfig.overlay`, `apps/hud/src/components/HudOverlay.tsx`): scoreboard, economy graph or player comparison over the live HUD, one at a time. The state lives on the server, so the Director shows what is on air and a reloaded OBS source keeps it. Scoreboard: both teams with slot, HP, K/A/D, ADR, KAST, rating and money; dead players are dimmed.
+
 ## Stream Deck / Companion (trigger URLs)
 
 `apps/server/src/actions.ts` defines one-click actions (scenes, HUD toggles, overlays, swap teams, swap map sides) as `/api/trigger/<id>?key=<actionKey>`, callable with GET or POST because many button tools can only open a URL. The key lives in the settings, is required even for local requests (so a web page in the browser cannot fire actions against 127.0.0.1) and can be renewed under Settings → Stream Deck / Companion, which also lists all URLs. From another computer the server needs LAN access.

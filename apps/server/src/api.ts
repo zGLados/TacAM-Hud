@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
-import { SCENE_IDS, THEME_COLOR_KEYS, type HudBootstrap } from '@tacam/shared';
+import { HUD_OVERLAYS, SCENE_IDS, THEME_COLOR_KEYS, type HudBootstrap } from '@tacam/shared';
 import type { Store } from './store.js';
 import type { LiveHub } from './live.js';
 import type { HudServer } from './io.js';
@@ -68,6 +68,8 @@ const hudConfigSchema = z.object({
   matchPreview: z.object({ matchId: nullableStr, visible: z.boolean() }),
   swapTeams: z.boolean(),
   keepTeamSides: z.boolean(),
+  overlay: z.enum(HUD_OVERLAYS),
+  comparison: z.object({ left: nullableStr, right: nullableStr }),
   radar: z.object({ size: z.number().min(150).max(900), enlarged: z.boolean() }),
   visibility: z.object({
     hud: z.boolean(),
