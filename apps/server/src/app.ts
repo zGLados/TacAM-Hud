@@ -9,6 +9,8 @@ import { LiveHub } from './live.js';
 import { createApi } from './api.js';
 import { createActions, type TriggerAction } from './actions.js';
 import { ObsBridge } from './obs.js';
+import { attachLhmSocket, buildHudConfig, lhmRoutes, type PanelSection } from './lhm.js';
+import { hudFile, hudsDir } from './huds.js';
 import { SignalEngine } from './signals.js';
 import { DemoMatch } from './demo.js';
 import { seedDefaultMedia } from './defaultMedia.js';
@@ -67,6 +69,9 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
     else next(new Error('unauthorized'));
   });
   io.on('connection', (socket) => {
+    attachLhmSocket(socket, live, (dir) =>
+      buildHudConfig(store, hudFile<PanelSection[]>(options.dataDir, dir, 'panel.json'), store.doc('settings').hudPanels[dir] ?? {})
+    );
     socket.on('hello', (role) => {
       if (role === 'control' || role === 'hud') socket.join(role);
       // A reloaded HUD shows the game right away instead of waiting for the next GSI tick.
@@ -105,6 +110,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   // --- HTTP --------------------------------------------------------------
 
   app.use(authMiddleware(store));
+  app.use('/api', lhmRoutes(store, live, uploadsDir, options.hudDir));
   app.use('/api', createApi({ store, live, io, actions, obs, signals, uploadsDir, gsiPort, demo }));
   app.use(
     '/uploads',
@@ -122,6 +128,13 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
     app.get(`${mount}/*`, (_req, res) => res.sendFile(path.join(dir, 'index.html')));
   };
   spa('/hud', options.hudDir);
+  // Imported HUDs (LHM / JTs-Hud format), each at /huds/<folder>/
+  fs.mkdirSync(hudsDir(options.dataDir), { recursive: true });
+  app.use('/huds', express.static(hudsDir(options.dataDir)));
+  // LHM HUDs load country flags from here; we have no flag images, so answer with an
+  // empty image instead of a broken one (TacAM's own HUD uses emoji flags).
+  const blank = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+  app.get('/files/img/flags/:file', (_req, res) => res.type('png').send(blank));
   spa('/control', options.controlDir);
   app.get('/', (_req, res) => res.redirect('/control/'));
 

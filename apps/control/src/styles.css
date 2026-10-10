@@ -1060,3 +1060,28 @@ td.bad {
 .director_spacer {
   height: 20px;
 }
+
+/* HUDs page */
+.hud_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 16px;
+}
+.hud_card_head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hud_card_head img {
+  width: 120px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+.hud_panel_section h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

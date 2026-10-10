@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Navigate, useParams } from 'react-router-dom';
 import { SCENE_IDS, SCENE_LABELS, type ObsSettings, type ObsStatus } from '@tacam/shared';
 import { api, useData, type Settings } from '../api';
-import { Card, ConfirmButton, copyText, Field, PageHeader, Toggle, useRun } from '../components/ui';
+import { Card, ConfirmButton, copyText, Field, Group, PageHeader, Toggle, useRun } from '../components/ui';
 import { SignalsPanel } from './SignalsPage';
 
 /** OBS WebSocket connection and scene mapping (apps/server/src/obs.ts). */
@@ -43,7 +43,7 @@ function ObsCard({ settings, onSaved }: { settings: Settings; onSaved: () => voi
           <input type="password" value={draft.password} onChange={(e) => set({ password: e.target.value })} />
         </Field>
       </div>
-      <Field label="Switch OBS scene with the TacAM scene" hint="Leave empty to keep OBS where it is for that scene.">
+      <Group label="Switch OBS scene with the TacAM scene" hint="Leave empty to keep OBS where it is for that scene.">
         <table className="table trigger_table">
           <tbody>
             {SCENE_IDS.map((id) => (
@@ -67,7 +67,7 @@ function ObsCard({ settings, onSaved }: { settings: Settings; onSaved: () => voi
             ))}
           </tbody>
         </table>
-      </Field>
+      </Group>
     </Card>
   );
 }

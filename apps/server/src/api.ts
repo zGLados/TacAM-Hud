@@ -15,6 +15,8 @@ import { loginHandler, statusHandler } from './auth.js';
 import { isAccelerator, triggerStatus, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 import { captainVetoRoutes } from './captainVeto.js';
 import { matchzyConfig } from './matchzy.js';
+import { buildHudConfig, emitHudAction, emitHudConfig, emitHudPanelAction, emitKeybindAction, emitRefresh, type PanelSection } from './lhm.js';
+import { getHud, hudFile, HudImportError, importHudZip, listHuds, removeHud } from './huds.js';
 import type { ObsBridge } from './obs.js';
 import type { SignalEngine } from './signals.js';
 
@@ -419,16 +421,82 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
     '/hud/action',
     h((req, res) => {
       const action = hudActionSchema.parse(req.body);
-      io.emit('action', action);
+      emitHudAction(io, action.type);
       res.json({ ok: true });
     })
   );
   api.post('/hud/refresh', (_req, res) => {
-    io.emit('refresh');
+    emitRefresh(io);
     res.json({ ok: true });
   });
 
   captainVetoRoutes(api, store);
+
+  // --- imported HUDs (LHM / JTs-Hud format) -------------------------------
+
+  api.get('/huds', (_req, res) => res.json(listHuds(store.dataDir)));
+  api.post('/huds/import', express.raw({ type: () => true, limit: '200mb' }), (req, res) => {
+    if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: 'No file received' });
+    try {
+      res.status(201).json(importHudZip(store.dataDir, new Uint8Array(req.body)));
+    } catch (error) {
+      if (error instanceof HudImportError) return res.status(400).json({ error: error.message });
+      throw error;
+    }
+  });
+  const panelOf = (dir: string) => hudFile<PanelSection[]>(store.dataDir, dir, 'panel.json');
+  api.get('/huds/:dir/panel', (req, res) => {
+    if (!getHud(store.dataDir, req.params.dir)) return res.status(404).json({ error: 'not found' });
+    res.json({
+      panel: panelOf(req.params.dir) ?? [],
+      keybinds: hudFile(store.dataDir, req.params.dir, 'keybinds.json') ?? [],
+      values: store.doc('settings').hudPanels[req.params.dir] ?? {},
+    });
+  });
+  api.put(
+    '/huds/:dir/panel',
+    h((req, res) => {
+      const dir = req.params.dir;
+      if (!getHud(store.dataDir, dir)) return res.status(404).json({ error: 'not found' });
+      const values = z.record(z.record(z.union([z.string().max(2000), z.boolean(), z.number(), z.null()]))).parse(req.body);
+      store.setDoc('settings', { ...store.doc('settings'), hudPanels: { ...store.doc('settings').hudPanels, [dir]: values } });
+      emitHudConfig(io, dir, buildHudConfig(store, panelOf(dir), values));
+      res.json(values);
+    })
+  );
+  api.post(
+    '/huds/:dir/action',
+    h((req, res) => {
+      if (!getHud(store.dataDir, req.params.dir)) return res.status(404).json({ error: 'not found' });
+      const { action, data } = z.object({ action: z.string().min(1).max(100), data: z.string().max(200).optional() }).parse(req.body);
+      emitHudPanelAction(io, req.params.dir, action, data);
+      res.json({ ok: true });
+    })
+  );
+  api.post(
+    '/huds/:dir/keybind',
+    h((req, res) => {
+      if (!getHud(store.dataDir, req.params.dir)) return res.status(404).json({ error: 'not found' });
+      const { action } = z.object({ action: z.string().min(1).max(100) }).parse(req.body);
+      emitKeybindAction(io, req.params.dir, action);
+      res.json({ ok: true });
+    })
+  );
+  // Image inputs of a HUD panel, requested by the HUD itself (LHM path).
+  api.get('/huds/:dir/:section/:input', (req, res) => {
+    const values = (store.doc('settings').hudPanels[req.params.dir]?.[req.params.section] ?? {}) as Record<string, unknown>;
+    const file = values[req.params.input];
+    if (typeof file !== 'string' || !file) return res.status(404).end();
+    const full = path.join(uploadsDir, path.basename(file));
+    if (!fs.existsSync(full)) return res.status(404).end();
+    res.sendFile(full);
+  });
+  api.delete('/huds/:dir', (req, res) => {
+    if (!removeHud(store.dataDir, req.params.dir)) return res.status(404).json({ error: 'not found' });
+    const { [req.params.dir]: _removed, ...rest } = store.doc('settings').hudPanels;
+    store.setDoc('settings', { ...store.doc('settings'), hudPanels: rest });
+    res.status(204).end();
+  });
 
   // --- trigger URLs (Stream Deck / Companion) -----------------------------
 

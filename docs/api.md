@@ -31,6 +31,9 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 | `POST /teams/import` `[{ name, shortName, country }]` | Team CSV import (matched by name) |
 | `POST /live/quick-setup` `{ left, right, reassign, setMatch }` | Live tab quick setup (`left`/`right`: `{ teamId }` or `{ name, shortName }`) |
 | `GET /actions` | Trigger actions (id, group, label) |
+| `GET /huds`, `POST /huds/import` (zip body), `DELETE /huds/:dir` | Imported HUDs |
+| `GET` / `PUT /huds/:dir/panel`, `POST /huds/:dir/action` `{ action, data? }`, `POST /huds/:dir/keybind` `{ action }` | Settings panel, panel actions and keybinds of an imported HUD |
+| LHM paths (`/match`, `/match/current`, `/teams/:id`, `/teams/logo/:id`, `/players/avatar/steamid/:id`, `/game-maps/cs2`, …) | Data for imported HUDs, see features.md |
 | `PUT /settings/signals` `[rule]`, `GET /signals/log`, `POST /signals/test` `rule` | Signals: save rules, recent results, fire one rule |
 | `GET /obs`, `PUT /settings/obs` `{ enabled, url, password, sceneMap }` | OBS connection state and settings |
 | `POST /matches/:id/captain-veto` `{ first, sideChoice, pool? }`, `DELETE /matches/:id/captain-veto` | Start/end a captain veto (returns the match with `captainVeto.tokens`) |

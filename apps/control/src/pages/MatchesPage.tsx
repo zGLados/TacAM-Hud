@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ACTIVE_DUTY_MAPS, VETO_ORDER, captainSteps, prettyMapName, vetoMapsNeeded, type Match, type MatchType, type TeamProfile, type Veto } from '@tacam/shared';
 import { api, uploadUrl, useData, type MatchInput, type Settings } from '../api';
-import { Card, ConfirmButton, CopyField, Field, Modal, PageHeader, Toggle, useRun } from '../components/ui';
+import { Card, ConfirmButton, CopyField, Field, Group, Modal, PageHeader, Toggle, useRun } from '../components/ui';
 
 const emptyVeto = (): Veto => ({
   type: 'pick',
@@ -281,7 +281,7 @@ function CaptainVetoDialog({ match, teams, onClose }: { match: Match; teams: Tea
             </select>
           </Field>
           <Toggle checked={sideChoice} onChange={setSideChoice} label="After each pick the other team chooses its starting side" />
-          <Field label={`Map pool (${pool.length} selected, ${hasDecider ? 'exactly' : 'at least'} ${needed} needed)`}>
+          <Group label={`Map pool (${pool.length} selected, ${hasDecider ? 'exactly' : 'at least'} ${needed} needed)`}>
             <div className="toggle_grid">
               {ACTIVE_DUTY_MAPS.map((m) => (
                 <Toggle
@@ -292,7 +292,7 @@ function CaptainVetoDialog({ match, teams, onClose }: { match: Match; teams: Tea
                 />
               ))}
             </div>
-          </Field>
+          </Group>
           <p className="muted small">Starting replaces the current veto of this match.</p>
         </>
       )}

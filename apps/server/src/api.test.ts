@@ -415,6 +415,41 @@ describe('API', () => {
     expect(typeof config.matchid).toBe('number');
   });
 
+  it('imports LHM-style HUD zips safely and serves them with the LHM data paths', async () => {
+    const { zipSync, strToU8 } = await import('fflate');
+    const upload = (files: Record<string, string>) =>
+      fetch(`${base}/huds/import`, { method: 'POST', headers: { 'content-type': 'application/zip' }, body: zipSync(Object.fromEntries(Object.entries(files).map(([k, v]) => [k, strToU8(v)]))) });
+
+    expect((await upload({ 'index.html': '<p>x</p>' })).status).toBe(400); // no hud.json
+    const evil = await upload({ 'hud.json': '{"name":"Evil"}', 'index.html': 'x', '../../escape.txt': 'x' });
+    expect(evil.status).toBe(400);
+    expect(fs.existsSync(path.join(dataDir, 'escape.txt'))).toBe(false);
+    expect((await upload({ 'hud.json': '{"name":"Dota","game":"dota2"}', 'index.html': 'x' })).status).toBe(400);
+
+    // zipped as a folder: hud.json one level down
+    const res = await upload({ 'My HUD/hud.json': '{"name":"My HUD","version":"1.2","author":"me"}', 'My HUD/index.html': '<p>imported</p>', 'My HUD/thumb.png': 'png' });
+    expect(res.status).toBe(201);
+    const hud = await res.json();
+    expect(hud).toMatchObject({ name: 'My HUD', version: '1.2', author: 'me', thumb: 'thumb.png' });
+    expect(await (await fetch(`http://127.0.0.1:${port}/huds/${hud.dir}/`)).text()).toBe('<p>imported</p>');
+    expect((await (await fetch(`${base}/huds`)).json()).map((h: { dir: string }) => h.dir)).toContain(hud.dir);
+
+    // LHM data paths
+    const teams = await (await fetch(`${base}/teams`)).json();
+    expect(teams[0]._id).toBe(teams[0].id);
+    const someone = server.store.list('players')[0];
+    const filtered = await (await fetch(`${base}/players?steamids=${someone.steamid}`)).json();
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0]).toMatchObject({ _id: someone.id, team: someone.teamId ?? '' });
+    expect((await (await fetch(`${base}/teams/${teams[0].id}`)).json()).name).toBe(teams[0].name);
+    const maps = await (await fetch(`${base}/game-maps/cs2`)).json();
+    expect(maps.find((m: { lhmId: string }) => m.lhmId === 'de_nuke').radars).toHaveLength(2);
+    expect((await fetch(`${base}/match/current`)).status).toBe(200);
+
+    expect((await fetch(`${base}/huds/${hud.dir}`, { method: 'DELETE' })).status).toBe(204);
+    expect((await fetch(`http://127.0.0.1:${port}/huds/${hud.dir}/`)).status).toBe(404);
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

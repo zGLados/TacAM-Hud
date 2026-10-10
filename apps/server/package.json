@@ -16,6 +16,7 @@
     "@tacam/shared": "0.1.0",
     "csgogsi": "4.1.2",
     "express": "^4.22.3",
+    "fflate": "0.8.3",
     "multer": "^2.0.2",
     "obs-websocket-js": "5.0.8",
     "socket.io": "^4.8.1",

@@ -4,7 +4,7 @@ Hand-over state for the next session. Latest release: **v0.1.9** (LHM roadmap ph
 
 ## Open tasks
 
-- **Next: HUD import support.** Allow importing other HUDs (e.g. a zipped HUD folder like the LHM/JTs-Hud HUD packages) next to the built-in TacAM HUD, choose the active one in the control panel and serve it as the OBS browser source. First clarify with the owner which formats must work (LHM/OpenHud HUD zips, plain HTML/JS folders) and how imported HUDs get the live data (same Socket.io events/`csgogsi` payload as `apps/hud`).
+- HUD import (LHM / JTs-Hud format) **done**, not released yet. Tested with the official LHM CS2 default HUD (lexogrine/cs2-react-hud, built locally): live data, teams, radar, match series, settings panel (trivia, side boxes). Still to test: other community HUDs and a JTs-Hud HUD package.
 - LHM roadmap ([lhm-roadmap.md](lhm-roadmap.md)): **phase 1 done** (#1–#7) and released in v0.1.7.
 - LHM roadmap phase 2 **done** (#8–#12b): captain veto, Companion state URLs, OBS WebSocket, signals, quick setup + team CSV, MatchZy export. Released in v0.1.8; v0.1.9 reorganized the control panel (Integrations page, grouped navigation, Director jump bar). Phase 3 items are proposals.
 - Still to confirm on Windows with v0.1.7: global shortcuts (defaults + re-registering after a change), Stream Deck trigger URLs (Elgato "Website" action in background mode), overlays and "keep team sides" in a real match, a real wingman game.

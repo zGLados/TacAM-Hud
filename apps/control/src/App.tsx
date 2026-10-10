@@ -10,6 +10,7 @@ import { MatchesPage } from './pages/MatchesPage';
 import { StatsPage } from './pages/StatsPage';
 import { ThemePage } from './pages/ThemePage';
 import { IntegrationsPage } from './pages/IntegrationsPage';
+import { HudsPage } from './pages/HudsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 const NAV: { group: string; items: { to: string; label: string }[] }[] = [
@@ -33,6 +34,7 @@ const NAV: { group: string; items: { to: string; label: string }[] }[] = [
     group: 'Setup',
     items: [
       { to: '/theme', label: 'Theme' },
+      { to: '/huds', label: 'HUDs' },
       { to: '/integrations', label: 'Integrations' },
       { to: '/settings', label: 'Settings' },
     ],
@@ -107,6 +109,7 @@ function Shell() {
           <Route path="/teams" element={<TeamsPage />} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/theme" element={<ThemePage />} />
+          <Route path="/huds" element={<HudsPage />} />
           <Route path="/integrations" element={<Navigate to="/integrations/obs" replace />} />
           <Route path="/integrations/:tab" element={<IntegrationsPage />} />
           <Route path="/signals" element={<Navigate to="/integrations/signals" replace />} />

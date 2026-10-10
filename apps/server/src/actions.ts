@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { SCENE_IDS, SCENE_LABELS, type HudAction, type HudConfig } from '@tacam/shared';
 import type { HudServer } from './io.js';
+import { emitHudAction, emitRefresh } from './lhm.js';
 import type { LiveHub } from './live.js';
 import type { Store } from './store.js';
 
@@ -25,7 +26,7 @@ const OVERLAY_LABELS = { scoreboard: 'Scoreboard', economy: 'Economy graph', com
 export function createActions(store: Store, live: LiveHub, io: HudServer): TriggerAction[] {
   const config = () => store.doc('hudConfig');
   const patchConfig = (patch: Partial<HudConfig>) => store.setDoc('hudConfig', { ...config(), ...patch });
-  const hudAction = (type: HudAction['type']) => () => io.emit('action', { type });
+  const hudAction = (type: HudAction['type']) => () => emitHudAction(io, type);
   const toggleVisibility = (key: VisibilityKey) => () =>
     patchConfig({ visibility: { ...config().visibility, [key]: !config().visibility[key] } });
   const visible = (key: VisibilityKey) => () => config().visibility[key];
@@ -48,7 +49,7 @@ export function createActions(store: Store, live: LiveHub, io: HudServer): Trigg
       isActive: () => store.doc('scene').auto,
     },
     { id: 'hud-toggle', group: 'HUD', label: 'Show/hide the HUD', run: hudAction('toggleHud') },
-    { id: 'hud-refresh', group: 'HUD', label: 'Reload all HUDs', run: () => io.emit('refresh') },
+    { id: 'hud-refresh', group: 'HUD', label: 'Reload all HUDs', run: () => emitRefresh(io) },
     { id: 'radar-bigger', group: 'HUD', label: 'Radar bigger', run: hudAction('radarBigger') },
     { id: 'radar-smaller', group: 'HUD', label: 'Radar smaller', run: hudAction('radarSmaller') },
     { id: 'radar-enlarge-toggle', group: 'HUD', label: 'Enlarged radar on/off', run: hudAction('toggleRadarView') },

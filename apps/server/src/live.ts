@@ -16,6 +16,7 @@ import {
 import type { Store } from './store.js';
 import type { HudServer } from './io.js';
 import { detectGameEvents, type GameEvent } from './signals.js';
+import { emitLhmUpdate, emitRefresh } from './lhm.js';
 
 export const uploadUrl = (file: string | null) => (file ? `/uploads/${encodeURIComponent(file)}` : null);
 
@@ -94,7 +95,7 @@ export class LiveHub {
     this.sideAnchor = null;
     this.flip = false;
     this.io.emit('stats', this.tracker.snapshot());
-    this.io.emit('refresh');
+    emitRefresh(this.io);
   }
 
   get status(): GsiStatus {
@@ -244,7 +245,8 @@ export class LiveHub {
     this.lastRaw = raw;
     this.lastUpdate = Date.now();
     this.lastPayload = { raw, teams: { left: teams.left, right: teams.right }, demo, flip: this.flip, rules };
-    this.io.emit('update', this.lastPayload);
+    this.io.to('hud').emit('update', this.lastPayload);
+    emitLhmUpdate(this.io, raw);
     if (!data) return;
 
     const kills = this.tracker.update(data);

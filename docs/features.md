@@ -35,9 +35,20 @@ At map end (csgogsi event `matchEnd`) the server writes score and winner into th
 
 With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnotices 1` in the observer client to hide the CS HUD except for the kill feed. The own kill feed (`HudConfig.visibility.killfeed`, off by default) is only needed when the CS HUD is hidden completely; the demo match always shows it (`GsiUpdate.demo`).
 
+## Imported HUDs (LHM / JTs-Hud format)
+
+Besides the built-in TacAM HUD, **Setup → HUDs** imports HUDs built on the LHM template (lexogrine/cs2-react-hud; JTs-Hud uses the same format): a zip with `hud.json` and `index.html` at its root or in one top-level folder. `apps/server/src/huds.ts` validates and extracts it (zip-slip protection, max. 300 MB / 3000 files, rejects non-CS2 HUDs) to `<dataDir>/huds/<name>-<id>/`, served at `/huds/<dir>/`; the OBS URL is `/huds/<dir>/?isProd=true`.
+
+`apps/server/src/lhm.ts` emulates what those HUDs expect from LHM:
+- **Socket.io:** handshake `started` → `readyToRegister` → `register(name)`; imported HUDs join the `lhm` room and get `update` with the raw GSI payload (coaches removed), `hud_config`, `hud_action`, `keybindAction` and `refreshHUD`. TacAM's own HUD gets its `update` only in the `hud` room, so the two formats never mix. Radar/HUD actions and "reload HUDs" reach both.
+- **REST:** `/api/match`, `/api/match/current`, `/api/teams` and `/api/players` (also with `_id`/`team` fields and `?steamids=`), `/api/teams/:id`, `/api/teams/logo/:id`, `/api/players/avatar/steamid/:id`, `/api/game-maps/cs2` (+ radar images, from `packages/shared/src/radar.ts` and the built TacAM HUD), `/api/tournament` and `/api/camera` (empty). Country flags (`/files/img/flags/…`) answer with an empty image.
+- **Settings panel:** the HUD's `panel.json` is rendered as a form (text, checkbox, select, image, team, match, player, action buttons); values are stored per HUD in `settings.hudPanels` and sent as `hud_config` with team/match/player ids expanded to objects; image inputs are served at `/api/huds/<dir>/<section>/<input>`. `keybinds.json` actions appear as buttons.
+
+Not supported: LHM cameras, tournaments, Scout AI and cloud features. TacAM overlays, scenes and signals only apply to the TacAM HUD. An imported HUD runs its own code with access to the API – only import trusted HUDs.
+
 ## Control panel layout
 
-The sidebar groups the pages into **Broadcast** (Live, Director, Stats), **Data** (Matches, Teams, Players) and **Setup** (Theme, Integrations, Settings). *Integrations* has one tab each for OBS, Stream Deck / Companion, keyboard shortcuts and signals (`/control/integrations/<tab>`); *Settings* keeps game connection, OBS browser source URLs and LAN access. The Director stays a single page (everything reachable while live) with a sticky jump bar: Scenes · HUD · Overlays · Content (scene text, countdown, player to watch, trivia, previews, side boxes) · Match.
+The sidebar groups the pages into **Broadcast** (Live, Director, Stats), **Data** (Matches, Teams, Players) and **Setup** (Theme, HUDs, Integrations, Settings). *Integrations* has one tab each for OBS, Stream Deck / Companion, keyboard shortcuts and signals (`/control/integrations/<tab>`); *Settings* keeps game connection, OBS browser source URLs and LAN access. The Director stays a single page (everything reachable while live) with a sticky jump bar: Scenes · HUD · Overlays · Content (scene text, countdown, player to watch, trivia, previews, side boxes) · Match.
 
 ## HUD configuration ("panel")
 

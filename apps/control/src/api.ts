@@ -31,8 +31,9 @@ export class ApiError extends Error {
 async function request<T>(method: string, url: string, body?: unknown): Promise<T> {
   const res = await fetch(`/api${url}`, {
     method,
-    headers: body instanceof FormData || body === undefined ? undefined : { 'content-type': 'application/json' },
-    body: body instanceof FormData ? body : body === undefined ? undefined : JSON.stringify(body),
+    headers:
+      body instanceof FormData || body === undefined ? undefined : body instanceof Blob ? { 'content-type': 'application/zip' } : { 'content-type': 'application/json' },
+    body: body instanceof FormData || body instanceof Blob ? body : body === undefined ? undefined : JSON.stringify(body),
     credentials: 'same-origin',
   });
   if (res.status === 204) return undefined as T;
@@ -55,6 +56,29 @@ export interface Settings {
   cs2CfgDir: string | null;
   gsiInstalled: boolean;
   addresses: string[];
+}
+
+/** Imported HUD (apps/server/src/huds.ts). */
+export interface ImportedHud {
+  dir: string;
+  name: string;
+  version: string;
+  author: string;
+  thumb: string | null;
+  hasPanel: boolean;
+  hasKeybinds: boolean;
+}
+export interface HudPanelInput {
+  type: string;
+  name: string;
+  label?: string;
+  values?: { name: string; label: string }[];
+}
+export type HudPanelValues = Record<string, Record<string, string | boolean | number | null>>;
+export interface HudPanelData {
+  panel: { name: string; label?: string; inputs: HudPanelInput[] }[];
+  keybinds: { bind?: string; action: string; label?: string }[];
+  values: HudPanelValues;
 }
 
 /** Quick setup: an existing team or a new one by name. */
@@ -112,6 +136,15 @@ export const api = {
     const form = new FormData();
     form.append('file', file);
     return request<{ file: string; url: string }>('POST', '/uploads', form);
+  },
+  huds: {
+    list: () => request<ImportedHud[]>('GET', '/huds'),
+    import: (file: File) => request<ImportedHud>('POST', '/huds/import', file),
+    remove: (dir: string) => request<void>('DELETE', `/huds/${dir}`),
+    panel: (dir: string) => request<HudPanelData>('GET', `/huds/${dir}/panel`),
+    savePanel: (dir: string, values: HudPanelValues) => request<HudPanelValues>('PUT', `/huds/${dir}/panel`, values),
+    action: (dir: string, action: string, data?: string) => request<void>('POST', `/huds/${dir}/action`, { action, data }),
+    keybind: (dir: string, action: string) => request<void>('POST', `/huds/${dir}/keybind`, { action }),
   },
   uploadVideo: async (file: File) => {
     const form = new FormData();

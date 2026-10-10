@@ -35,6 +35,8 @@ export interface Settings {
   obs: ObsSettings;
   /** Game event → output rules (signals.ts). */
   signals: SignalRule[];
+  /** Settings panel values of imported HUDs (panel.json), per HUD folder. */
+  hudPanels: Record<string, Record<string, unknown>>;
   /** Default sponsors/brand logo were copied into uploads (see defaultMedia.ts). */
   defaultMediaSeeded: boolean;
 }
@@ -63,6 +65,7 @@ const defaults = (): Database => ({
     keybinds: { ...DEFAULT_KEYBINDS },
     obs: { enabled: false, url: 'ws://127.0.0.1:4455', password: '', sceneMap: {} },
     signals: [],
+    hudPanels: {},
     defaultMediaSeeded: false,
   },
   hudConfig: DEFAULT_HUD_CONFIG,

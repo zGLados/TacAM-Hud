@@ -86,6 +86,17 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
   );
 }
 
+/** Like Field, but without <label>: for groups of buttons/toggles, where a label would click the first one. */
+export function Group({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+  return (
+    <div className="field">
+      <span className="field_label">{label}</span>
+      {children}
+      {hint && <span className="field_hint">{hint}</span>}
+    </div>
+  );
+}
+
 export function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <label className="toggle">
