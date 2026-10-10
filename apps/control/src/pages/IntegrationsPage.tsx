@@ -268,7 +268,7 @@ function GameConsoleCard({ settings, onSaved }: { settings: Settings; onSaved: (
   };
   const saveTarget = async () => {
     const ok = await run(
-      () => api.settings.save({ steamPath: settings.steamPath, lanAccess: settings.lanAccess, accessPin: settings.accessPin, launchOptions: settings.launchOptions, launchTools: settings.launchTools, telnet: target }),
+      () => api.settings.save({ steamPath: settings.steamPath, lanAccess: settings.lanAccess, accessPin: settings.accessPin, launchOptions: settings.launchOptions, launchTools: settings.launchTools, launchBorderless: settings.launchBorderless, telnet: target }),
       'Saved'
     );
     if (ok) onSaved();

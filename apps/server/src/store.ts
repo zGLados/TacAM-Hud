@@ -30,6 +30,8 @@ export interface Settings {
   launchOptions: string;
   /** Add -tools when starting CS2 (Workshop Tools; on Windows needed for the console). */
   launchTools: boolean;
+  /** Start CS2 as a borderless window (-windowed -noborder): keeps drawing when unfocused. */
+  launchBorderless: boolean;
   /** Secret for `/api/trigger/<action>` URLs (Stream Deck, Companion). */
   actionKey: string;
   /**
@@ -68,6 +70,7 @@ const defaults = (): Database => ({
     telnet: { host: '127.0.0.1', port: 2020 },
     launchOptions: '-netconport 2020',
     launchTools: process.platform === 'win32',
+    launchBorderless: process.platform === 'win32',
     actionKey: randomUUID().replace(/-/g, ''),
     keybinds: { ...DEFAULT_KEYBINDS },
     obs: { enabled: false, url: 'ws://127.0.0.1:4455', password: '', sceneMap: {} },

@@ -35,8 +35,9 @@ describe('CS2 launch options', () => {
   });
 
   it('adds -noassetbrowser to -tools, so no asset browser window opens', () => {
-    expect(gameArgs('-tools -netconport 2020')).toEqual(['-tools', '-netconport', '2020', '-noassetbrowser']);
-    expect(gameArgs('-netconport 2020')).toEqual(['-netconport', '2020']);
+    expect(gameArgs('-tools -netconport 2020')).toEqual(['-tools', '-netconport', '2020', '-noassetbrowser', '+engine_no_focus_sleep', '0']);
+    expect(gameArgs('-netconport 2020 +engine_no_focus_sleep 5')).toEqual(['-netconport', '2020', '+engine_no_focus_sleep', '5']);
+    expect(gameArgs('-novid', true)).toEqual(['-novid', '+engine_no_focus_sleep', '0', '-windowed', '-noborder']);
   });
 
   it('adds -netconport only when it is missing', () => {

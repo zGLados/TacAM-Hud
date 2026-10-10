@@ -29,10 +29,20 @@ export class GameLaunchError extends Error {}
 const runOk = (file: string, args: string[]) =>
   new Promise<string>((resolve) => execFile(file, args, { windowsHide: true, timeout: 8000 }, (_e, stdout) => resolve(String(stdout ?? ''))));
 
-/** Options for the game: -tools also gets -noassetbrowser, so no asset browser window opens. */
-export function gameArgs(options: string) {
+/**
+ * Options for the game: -tools also gets -noassetbrowser (no asset browser window),
+ * and +engine_no_focus_sleep 0 so CS2 keeps rendering from the first second when
+ * the observer tabs out (sent on connect as well, but that may be too late).
+ * `borderless` runs CS2 as a borderless window: exclusive fullscreen stops drawing
+ * on focus loss.
+ */
+export function gameArgs(options: string, borderless = false) {
   const args = parseLaunchOptions(options);
   if (args.includes('-tools') && !args.includes('-noassetbrowser')) args.push('-noassetbrowser');
+  if (!args.includes('+engine_no_focus_sleep')) args.push('+engine_no_focus_sleep', '0');
+  if (borderless) {
+    for (const flag of ['-windowed', '-noborder']) if (!args.includes(flag)) args.push(flag);
+  }
   return args;
 }
 
@@ -41,8 +51,8 @@ export function gameArgs(options: string) {
  * run), like CS Demo Manager does – `steam -applaunch` does not reliably pass
  * options like -tools on. Linux: `steam -applaunch 730 …`.
  */
-export async function launchCs2(steamPath: string | null, options: string): Promise<string[]> {
-  const args = gameArgs(options);
+export async function launchCs2(steamPath: string | null, options: string, borderless = false): Promise<string[]> {
+  const args = gameArgs(options, borderless);
   if (process.platform === 'win32') {
     const cfgDir = findCs2CfgDir(steamPath);
     // …/game/csgo/cfg → …/game/bin/win64/cs2.exe
@@ -103,6 +113,7 @@ export class GameConsole {
       .then(() => {
         // Keep rendering at full speed while the observer works in another window
         // (TacAM, OBS); with -tools the game otherwise appears to freeze when unfocused.
+        this.lines.push({ at: Date.now(), text: '] engine_no_focus_sleep 0 (sent automatically)' });
         this.socket?.write('engine_no_focus_sleep 0\n');
       })
       .finally(() => {

@@ -35,7 +35,7 @@ export function SettingsPage() {
   const save = async () => {
     const restartNeeded = draft.lanAccess !== settings.lanAccess;
     const ok = await run(
-      () => api.settings.save({ steamPath: draft.steamPath || null, lanAccess: draft.lanAccess, accessPin: draft.accessPin, telnet: draft.telnet, launchOptions: draft.launchOptions, launchTools: draft.launchTools }),
+      () => api.settings.save({ steamPath: draft.steamPath || null, lanAccess: draft.lanAccess, accessPin: draft.accessPin, telnet: draft.telnet, launchOptions: draft.launchOptions, launchTools: draft.launchTools, launchBorderless: draft.launchBorderless }),
       restartNeeded ? 'Saved – LAN access takes effect after restarting the app' : 'Saved'
     );
     if (ok) reload();
@@ -81,6 +81,11 @@ export function SettingsPage() {
             checked={draft.launchTools}
             onChange={(launchTools) => set({ launchTools })}
             label="Workshop Tools mode (-tools) – on Windows needed for the console; requires the free “Counter-Strike 2 Workshop Tools” DLC"
+          />
+          <Toggle
+            checked={draft.launchBorderless}
+            onChange={(launchBorderless) => set({ launchBorderless })}
+            label="Borderless window (-windowed -noborder) – keeps CS2 drawing when you tab out to TacAM or OBS"
           />
           <div className="row">
             <button className="button" onClick={launch}>

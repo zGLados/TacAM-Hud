@@ -122,6 +122,7 @@ const settingsSchema = z.object({
   telnet: z.object({ host: str.min(1), port: z.number().int().min(1).max(65535) }),
   launchOptions: z.string().max(500).regex(/^[^\r\n]*$/, 'Launch options must be one line'),
   launchTools: z.boolean(),
+  launchBorderless: z.boolean(),
 });
 
 const hudActionSchema = z.object({
@@ -442,9 +443,9 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
   api.post(
     '/game/launch',
     h(async (_req, res) => {
-      const { steamPath, launchOptions, launchTools, telnet } = store.doc('settings');
+      const { steamPath, launchOptions, launchTools, launchBorderless, telnet } = store.doc('settings');
       try {
-        const args = await launchCs2(steamPath, withNetconPort(launchOptions, telnet.port, launchTools));
+        const args = await launchCs2(steamPath, withNetconPort(launchOptions, telnet.port, launchTools), launchBorderless);
         res.json({ ok: true, args });
       } catch (error) {
         if (error instanceof GameLaunchError) return res.status(400).json({ error: error.message });
