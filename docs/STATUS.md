@@ -15,6 +15,7 @@ Hand-over state for the next session. Latest release: **v0.1.11** (round win pro
 
 ## Decided / not planned
 
+- Not planned: bomb damage preview in the health bars (CS2 July 2026 bomb rework). CS2 computes it from damage data baked into the map and GSI does not send it (checked with a raw payload during a plant); an approximation would be wrong behind walls.
 - From zGLados/wartescreen: fixed OBS URL per scene, background videos, "upcoming matches" and "player to watch" are done. FACEIT import (tournaments rarely run on FACEIT) and a veto animation are not planned.
 
 ## Releases
