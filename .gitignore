@@ -11,3 +11,6 @@ coverage/
 .ref/
 *.tmp.ts
 .data-fresh/
+
+# personal Claude Code settings (e.g. plugins enabled only for one developer)
+.claude/settings.local.json
