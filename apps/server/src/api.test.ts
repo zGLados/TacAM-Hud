@@ -251,6 +251,42 @@ describe('API', () => {
     expect(server.actions.some((a) => a.id === 'overlay-scoreboard')).toBe(true);
   });
 
+  it('runs a captain veto from the team links', async () => {
+    const team = async (name: string) => (await (await fetch(`${base}/teams`, json('POST', { name, shortName: name, country: null, logo: null, extra: {} }))).json()).id;
+    const [a, b] = [await team('Alpha'), await team('Bravo')];
+    const match = await (await fetch(`${base}/matches`, json('POST', { left: { id: a, wins: 0 }, right: { id: b, wins: 0 }, matchType: 'bo3' }))).json();
+    const pool = ['de_ancient', 'de_anubis', 'de_dust2', 'de_inferno', 'de_mirage', 'de_nuke', 'de_train'];
+    expect((await fetch(`${base}/matches/${match.id}/captain-veto`, json('POST', { first: 'right', sideChoice: true, pool: pool.slice(0, 6) }))).status).toBe(400);
+    const started = await (await fetch(`${base}/matches/${match.id}/captain-veto`, json('POST', { first: 'right', sideChoice: true, pool }))).json();
+    const { left, right, both } = started.captainVeto.tokens;
+    const act = (token: string, body: unknown) => fetch(`${base}/captain/${token}`, json('POST', body));
+
+    expect((await act(left, { action: 'ban', map: 'de_nuke' })).status).toBe(409); // right starts
+    expect((await act(right, { action: 'pick', map: 'de_nuke' })).status).toBe(400); // a ban is due
+    expect((await act(right, { action: 'ban', map: 'de_nuke' })).status).toBe(200);
+    expect((await act(left, { action: 'ban', map: 'de_nuke' })).status).toBe(400); // already gone
+    await act(left, { action: 'ban', map: 'de_train' });
+    await act(right, { action: 'pick', map: 'de_mirage' });
+    await act(left, { action: 'side', side: 'CT' }); // left starts CT on right's pick
+    await act(both, { action: 'pick', map: 'de_inferno' }); // the shared link may act for both
+    await act(both, { action: 'side', side: 'T' });
+    await act(right, { action: 'ban', map: 'de_ancient' });
+    const last = await (await act(left, { action: 'ban', map: 'de_anubis' })).json();
+    expect(last.done).toBe(true);
+
+    const vetos = server.store.get('matches', match.id)!.vetos;
+    expect(vetos.map((v) => `${v.type}:${v.mapName}`)).toEqual([
+      'ban:de_nuke', 'ban:de_train', 'pick:de_mirage', 'pick:de_inferno', 'ban:de_ancient', 'ban:de_anubis', 'decider:de_dust2',
+    ]);
+    expect(vetos[2]).toMatchObject({ teamId: b, side: 'T' }); // picker starts on the other side
+    expect(vetos[3]).toMatchObject({ teamId: a, side: 'CT' });
+    expect((await act(left, { action: 'ban', map: 'de_dust2' })).status).toBe(409);
+
+    await fetch(`${base}/matches/${match.id}/captain-veto`, { method: 'DELETE' });
+    expect((await fetch(`${base}/captain/${left}`)).status).toBe(404);
+    expect(server.store.get('matches', match.id)!.vetos).toHaveLength(7);
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

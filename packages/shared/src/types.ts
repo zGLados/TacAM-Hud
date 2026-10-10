@@ -1,4 +1,5 @@
 import type { RoundRules } from './format.js';
+import type { CaptainVeto } from './veto.js';
 
 // Domain types shared between server, HUD and control panel.
 
@@ -70,6 +71,8 @@ export interface Match {
   startTime: string | null;
   /** Rounds per half when the server differs from the game mode default (e.g. 1v1 on MR6); null = automatic. */
   roundsPerHalf: number | null;
+  /** Running captain veto (links for the team captains), see veto.ts. */
+  captainVeto: CaptainVeto | null;
 }
 
 // ---------------------------------------------------------------------------

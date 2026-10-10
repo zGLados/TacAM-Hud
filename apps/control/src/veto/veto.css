@@ -1,0 +1,147 @@
+/* Captain veto page (veto.html): phone-friendly, uses the control panel palette. */
+
+.veto_page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+.veto_header {
+  text-align: center;
+}
+.veto_title {
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.veto_subtitle {
+  color: var(--muted);
+}
+.veto_teams {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.veto_team {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background: var(--panel);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  font-weight: 700;
+}
+.veto_team img {
+  height: 32px;
+  width: auto;
+}
+.veto_team small {
+  color: var(--muted);
+  font-weight: 600;
+}
+.veto_team.is-active {
+  border-color: var(--primary);
+}
+.veto_status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  font-size: 18px;
+  font-weight: 700;
+}
+.veto_status small {
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.veto_status.is-turn {
+  background: var(--primary);
+}
+.veto_status.is-turn small {
+  color: var(--text);
+}
+.veto_error {
+  color: var(--t);
+  text-align: center;
+}
+.veto_maps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.veto_map {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 72px;
+  padding: 14px 16px;
+  background: var(--panel);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.veto_map:disabled {
+  cursor: default;
+}
+.veto_map:not(:disabled):hover {
+  background: var(--panel-hover);
+}
+.veto_map.is-selected {
+  border-color: var(--primary);
+}
+.veto_map_name {
+  font-size: 18px;
+  font-weight: 700;
+}
+.veto_map_info {
+  font-size: 13px;
+  color: var(--muted);
+}
+.veto_map.is-ban {
+  opacity: 0.45;
+}
+.veto_map.is-ban .veto_map_name {
+  text-decoration: line-through;
+}
+.veto_map.is-pick {
+  border-color: var(--ok);
+}
+.veto_map.is-decider {
+  border-color: var(--warn);
+}
+.veto_confirm,
+.veto_sides {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 16px 0;
+}
+.veto_side_button {
+  flex: 1;
+  max-width: 260px;
+  padding: 18px;
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.veto_side_button.side_CT {
+  background: var(--ct);
+}
+.veto_side_button.side_T {
+  background: var(--t);
+}

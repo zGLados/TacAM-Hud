@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, useData, type Settings } from '../api';
-import { Card, ConfirmButton, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
+import { Card, ConfirmButton, CopyField, copyText, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
 
 const OBS_SCENES: [string, string][] = [
   ['live', 'In-game HUD only'],
@@ -14,31 +14,6 @@ const OBS_SCENES: [string, string][] = [
   ['upcoming', 'Upcoming matches'],
   ['playerToWatch', 'Player to Watch'],
 ];
-
-/** navigator.clipboard only exists in secure contexts (not on http://<lan-ip>). */
-async function copyText(text: string) {
-  if (navigator.clipboard) return navigator.clipboard.writeText(text);
-  const area = document.createElement('textarea');
-  area.value = text;
-  document.body.appendChild(area);
-  area.select();
-  document.execCommand('copy');
-  area.remove();
-}
-
-function CopyField({ label, value }: { label: string; value: string }) {
-  const run = useRun();
-  return (
-    <Field label={label}>
-      <div className="row">
-        <input value={value} readOnly onFocus={(e) => e.target.select()} />
-        <button className="button small" onClick={() => run(() => copyText(value), 'Copied')}>
-          Copy
-        </button>
-      </div>
-    </Field>
-  );
-}
 
 /** Turns a keydown into an Electron accelerator ("Ctrl+Shift+F5"); null while only modifiers are held. */
 function toAccelerator(e: KeyboardEvent): string | null {

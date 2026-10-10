@@ -50,6 +50,8 @@ export function authMiddleware(store: Store) {
     if (req.path === '/api/auth/login' || req.path === '/api/auth/status') return next();
     // Trigger URLs carry their own key (see actions.ts), also from other devices.
     if (req.path.startsWith('/api/trigger/')) return next();
+    // Captain veto links carry their own token (captainVeto.ts).
+    if (req.path.startsWith('/api/captain/')) return next();
     if (isAuthorized(store, req)) return next();
     if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io')) {
       return res.status(401).json({ error: 'unauthorized' });

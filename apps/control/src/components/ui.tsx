@@ -241,3 +241,28 @@ export function CountrySelect({ value, onChange }: { value: string | null; onCha
     </select>
   );
 }
+
+/** navigator.clipboard only exists in secure contexts (not on http://<lan-ip>). */
+export async function copyText(text: string) {
+  if (navigator.clipboard) return navigator.clipboard.writeText(text);
+  const area = document.createElement('textarea');
+  area.value = text;
+  document.body.appendChild(area);
+  area.select();
+  document.execCommand('copy');
+  area.remove();
+}
+
+export function CopyField({ label, value }: { label: string; value: string }) {
+  const run = useRun();
+  return (
+    <Field label={label}>
+      <div className="row">
+        <input value={value} readOnly onFocus={(e) => e.target.select()} />
+        <button className="button small" onClick={() => run(() => copyText(value), 'Copied')}>
+          Copy
+        </button>
+      </div>
+    </Field>
+  );
+}

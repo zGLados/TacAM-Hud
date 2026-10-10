@@ -13,6 +13,7 @@ import { DemoMatch, seedDemoData } from './demo.js';
 import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from './gsiInstall.js';
 import { loginHandler, statusHandler } from './auth.js';
 import { isAccelerator, TriggerError, validActionKey, type TriggerAction } from './actions.js';
+import { captainVetoRoutes } from './captainVeto.js';
 
 const str = z.string().trim();
 const nullableStr = z.string().trim().nullable();
@@ -247,7 +248,7 @@ export function createApi({ store, live, io, actions, uploadsDir, gsiPort, demo 
     '/matches',
     h((req, res) => {
       const body = matchSchema.parse(req.body);
-      const created = store.insert('matches', body);
+      const created = store.insert('matches', { ...body, captainVeto: null });
       if (body.current) setCurrent(created.id);
       res.status(201).json(created);
     })
@@ -323,6 +324,8 @@ export function createApi({ store, live, io, actions, uploadsDir, gsiPort, demo 
     io.emit('refresh');
     res.json({ ok: true });
   });
+
+  captainVetoRoutes(api, store);
 
   // --- trigger URLs (Stream Deck / Companion) -----------------------------
 

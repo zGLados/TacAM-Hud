@@ -15,5 +15,9 @@ export default defineConfig({
       '/socket.io': { target: server, ws: true },
     },
   },
-  build: { outDir: 'dist' },
+  build: {
+    outDir: 'dist',
+    // veto.html: page for the team captains (captain veto links), no login.
+    rollupOptions: { input: { main: 'index.html', veto: 'veto.html' } },
+  },
 });

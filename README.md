@@ -9,7 +9,7 @@ CS2 broadcast HUD and HUD manager in the TacAM design. Inspired by [JTs-Hud](htt
 | **New: scenes** | Starting soon (countdown), BRB, technical pause, halftime, map veto, scoreboard, match end with MVP, upcoming matches, player to watch; background videos; switched automatically, by click or via a fixed OBS URL per scene |
 | **New: web control** | Control panel in the browser, also on a tablet or second PC (LAN with PIN); Stream Deck / Companion URLs and configurable shortcuts |
 | **New: theme editor** | Colors, corner radius, font, sponsors, tournament logo, with live preview |
-| **Manager** | Players (incl. CSV import and creating them from the live game), teams, matches with veto editor, automatic map results, GSI installation, demo match |
+| **Manager** | Players (incl. CSV import and creating them from the live game), teams, matches with veto editor and captain veto links, automatic map results, GSI installation, demo match |
 
 ## Screenshots
 

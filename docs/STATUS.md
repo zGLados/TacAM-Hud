@@ -5,6 +5,9 @@ Hand-over state for the next session. Latest release: **v0.1.7** (LHM roadmap ph
 ## Open tasks
 
 - LHM roadmap ([lhm-roadmap.md](lhm-roadmap.md)): **phase 1 done** (#1–#7) and released in v0.1.7. Phases 2 and 3 are proposals, to be decided.
+- **In progress: LHM roadmap phase 2**, order #8 → #12b → #10 → #9 → #11 → #12, one commit per feature.
+  - Done: #8 captain veto.
+  - Next: #12b Companion status endpoint.
 - Still to confirm on Windows with v0.1.7: global shortcuts (defaults + re-registering after a change), Stream Deck trigger URLs (Elgato "Website" action in background mode), overlays and "keep team sides" in a real match, a real wingman game.
 
 ## Decided / not planned

@@ -60,7 +60,7 @@ export interface TriggerActionInfo {
 
 export type PlayerInput = Omit<PlayerProfile, 'id'>;
 export type TeamInput = Omit<TeamProfile, 'id'>;
-export type MatchInput = Omit<Match, 'id'>;
+export type MatchInput = Omit<Match, 'id' | 'captainVeto'>;
 
 export const api = {
   auth: {
@@ -87,6 +87,9 @@ export const api = {
     remove: (id: string) => request<void>('DELETE', `/matches/${id}`),
     toggleCurrent: (id: string) => request<Match>('POST', `/matches/${id}/current`),
     reverseCurrentMap: (id: string) => request<Match>('POST', `/matches/${id}/reverse-current-map`),
+    startCaptainVeto: (id: string, options: { first: 'left' | 'right'; sideChoice: boolean; pool: string[] }) =>
+      request<Match>('POST', `/matches/${id}/captain-veto`, options),
+    stopCaptainVeto: (id: string) => request<Match>('DELETE', `/matches/${id}/captain-veto`),
   },
   upload: async (file: File) => {
     const form = new FormData();

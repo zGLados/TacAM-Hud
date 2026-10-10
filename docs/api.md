@@ -28,6 +28,8 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 | `GET /demo`, `POST /demo/start`, `POST /demo/stop`, `POST /demo/seed` | Demo match |
 | `POST /auth/login` `{ pin }`, `GET /auth/status` | LAN login |
 | `GET /actions` | Trigger actions (id, group, label) |
+| `POST /matches/:id/captain-veto` `{ first, sideChoice, pool? }`, `DELETE /matches/:id/captain-veto` | Start/end a captain veto (returns the match with `captainVeto.tokens`) |
+| `GET` / `POST /captain/:token` `{ action: 'ban'\|'pick', map }` or `{ action: 'side', side }` | Captain veto page; the token replaces the PIN |
 | `GET` or `POST /trigger/:id?key=<actionKey>` (or header `x-tacam-key`) | Run a trigger action (Stream Deck, Companion). The key is required even for local requests; `POST /settings/action-key` creates a new one |
 
 Static paths: `/hud/`, `/control/`, `/uploads/<file>`.
