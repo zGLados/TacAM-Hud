@@ -28,8 +28,14 @@ export interface Settings {
   telnet: { host: string; port: number };
   /** Launch options for "Start CS2"; -netconport is added if missing. */
   launchOptions: string;
-  /** Add -tools when starting CS2 (Workshop Tools; on Windows needed for the console). */
-  launchTools: boolean;
+  /**
+   * How "Start CS2" starts the game. On Windows the console (-netconport) only works
+   * with `tools` (Workshop Tools, freezes when unfocused) or `hlae` (HLAE with
+   * -afxFixNetCon, also needed for camera paths via mirv_campath).
+   */
+  launchMode: 'normal' | 'tools' | 'hlae';
+  /** Path to HLAE.exe (advancedfx), for launchMode `hlae`. */
+  hlaePath: string;
   /** Start CS2 as a borderless window (-windowed -noborder): keeps drawing when unfocused. */
   launchBorderless: boolean;
   /** Secret for `/api/trigger/<action>` URLs (Stream Deck, Companion). */
@@ -69,7 +75,8 @@ const defaults = (): Database => ({
     accessPin: '',
     telnet: { host: '127.0.0.1', port: 2020 },
     launchOptions: '-netconport 2020',
-    launchTools: process.platform === 'win32',
+    launchMode: process.platform === 'win32' ? 'tools' : 'normal',
+    hlaePath: '',
     launchBorderless: process.platform === 'win32',
     actionKey: randomUUID().replace(/-/g, ''),
     keybinds: { ...DEFAULT_KEYBINDS },

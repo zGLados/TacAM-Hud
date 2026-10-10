@@ -243,8 +243,8 @@ function explainDiagnosis(d: ConsoleDiagnosis, port: number) {
   if (!d.cs2Running) return 'CS2 is not running.';
   if (d.netconPort === null) return 'CS2 runs without -netconport: the launch option did not arrive. Close CS2 completely and use “Start CS2”, or add -netconport to the launch options in Steam.';
   if (d.netconPort !== port) return `CS2 was started with -netconport ${d.netconPort}, but TacAM uses port ${port}. Set the port to ${d.netconPort}.`;
-  if (!d.listening.length && !/(^|\s)-tools(\s|$)/.test(d.commandLine ?? ''))
-    return 'CS2 runs with -netconport but without -tools. On Windows CS2 only opens the console port together with -tools (a CS2 bug): install the free “Counter-Strike 2 Workshop Tools” DLC and add -tools to the launch options.';
+  if (!d.listening.length && !/(^|\s)(-tools|-afxFixNetCon)(\s|$)/.test(d.commandLine ?? ''))
+    return 'CS2 runs with -netconport but neither via HLAE nor with -tools. On Windows CS2 only opens the console port then (a CS2 bug): set the launch mode under Settings to HLAE (recommended) or Workshop Tools.';
   if (!d.listening.length) return `CS2 runs with -netconport ${port}, but nothing listens on the port yet – join a match or demo, then connect again.`;
   return `CS2 listens on ${d.listening.join(', ')}. If “Connect” still fails, use that address as host.`;
 }
@@ -268,7 +268,7 @@ function GameConsoleCard({ settings, onSaved }: { settings: Settings; onSaved: (
   };
   const saveTarget = async () => {
     const ok = await run(
-      () => api.settings.save({ steamPath: settings.steamPath, lanAccess: settings.lanAccess, accessPin: settings.accessPin, launchOptions: settings.launchOptions, launchTools: settings.launchTools, launchBorderless: settings.launchBorderless, telnet: target }),
+      () => api.settings.save({ steamPath: settings.steamPath, lanAccess: settings.lanAccess, accessPin: settings.accessPin, launchOptions: settings.launchOptions, launchMode: settings.launchMode, hlaePath: settings.hlaePath, launchBorderless: settings.launchBorderless, telnet: target }),
       'Saved'
     );
     if (ok) onSaved();
@@ -277,8 +277,8 @@ function GameConsoleCard({ settings, onSaved }: { settings: Settings; onSaved: (
     <Card title="CS2 console">
       <p className="muted small">
         TacAM talks to the CS2 console of the observer PC through <code>-netconport</code> (added automatically by “Start CS2” under Settings). On Windows
-        CS2 only opens it together with <code>-tools</code> (Workshop Tools DLC, insecure mode – fine for demos and own servers; GOTV may need{' '}
-        <code>tv_secure_bypass 1</code> on the server). This is the
+        CS2 only opens it when started via HLAE (recommended, keeps running when you tab out) or with Workshop Tools – see the launch mode under Settings.
+        Both run CS2 in insecure mode: fine for demos and own servers; GOTV may need <code>tv_secure_bypass 1</code> on the server. This is the
         base for camera positions, camera paths and an automatic observer. Use the tests to check which commands CS2 accepts while spectating.
       </p>
       <div className="row wrap">

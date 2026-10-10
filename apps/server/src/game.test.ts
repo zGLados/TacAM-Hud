@@ -1,6 +1,6 @@
 import net from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
-import { GameConsole, gameArgs, listeningAddresses, parseLaunchOptions, withNetconPort } from './game.js';
+import { GameConsole, gameArgs, launchArgs, listeningAddresses, parseLaunchOptions, withNetconPort } from './game.js';
 
 let servers: net.Server[] = [];
 afterEach(() => {
@@ -40,12 +40,18 @@ describe('CS2 launch options', () => {
     expect(gameArgs('-novid', true)).toEqual(['-novid', '+engine_no_focus_sleep', '0', '-windowed', '-noborder']);
   });
 
+  it('adds the options of the launch mode', () => {
+    expect(launchArgs('-netconport 2020', 'tools', false)).toEqual(['-tools', '-netconport', '2020', '-noassetbrowser', '+engine_no_focus_sleep', '0']);
+    expect(launchArgs('-netconport 2020', 'hlae', true)).toEqual(['-insecure', '-afxFixNetCon', '-netconport', '2020', '+engine_no_focus_sleep', '0', '-windowed', '-noborder']);
+    expect(launchArgs('-insecure -netconport 2020', 'hlae', false)).toEqual(['-insecure', '-afxFixNetCon', '-netconport', '2020', '+engine_no_focus_sleep', '0']);
+    expect(launchArgs('-netconport 2020', 'normal', false)).toEqual(['-netconport', '2020', '+engine_no_focus_sleep', '0']);
+  });
+
   it('adds -netconport only when it is missing', () => {
     expect(withNetconPort('-novid', 2020)).toBe('-novid -netconport 2020');
     expect(withNetconPort('', 2121)).toBe('-netconport 2121');
     expect(withNetconPort('-netconport 2121 -novid', 2020)).toBe('-netconport 2121 -novid');
-    expect(withNetconPort('-novid', 2020, true)).toBe('-tools -novid -netconport 2020');
-    expect(withNetconPort('-tools -netconport 2020', 2020, true)).toBe('-tools -netconport 2020');
+
   });
 });
 

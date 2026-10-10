@@ -35,7 +35,7 @@ export function SettingsPage() {
   const save = async () => {
     const restartNeeded = draft.lanAccess !== settings.lanAccess;
     const ok = await run(
-      () => api.settings.save({ steamPath: draft.steamPath || null, lanAccess: draft.lanAccess, accessPin: draft.accessPin, telnet: draft.telnet, launchOptions: draft.launchOptions, launchTools: draft.launchTools, launchBorderless: draft.launchBorderless }),
+      () => api.settings.save({ steamPath: draft.steamPath || null, lanAccess: draft.lanAccess, accessPin: draft.accessPin, telnet: draft.telnet, launchOptions: draft.launchOptions, launchMode: draft.launchMode, hlaePath: draft.hlaePath.trim(), launchBorderless: draft.launchBorderless }),
       restartNeeded ? 'Saved – LAN access takes effect after restarting the app' : 'Saved'
     );
     if (ok) reload();
@@ -74,14 +74,30 @@ export function SettingsPage() {
             </a>
           </div>
           <p className="muted small">Restart CS2 after installing. The config sends to port {settings.gsiPort} and contains a secret token.</p>
-          <Field label="CS2 launch options" hint={`For “Start CS2”. -netconport ${draft.telnet.port} (console for camera control) is added if missing. On Windows the console also needs -tools (Workshop Tools DLC). TacAM sets engine_no_focus_sleep 0 on connect, so CS2 keeps running when unfocused.`}>
+          <Field label="CS2 launch options" hint={`For “Start CS2”. -netconport ${draft.telnet.port} (console for camera control) is added if missing. TacAM adds +engine_no_focus_sleep 0.`}>
             <input value={draft.launchOptions} onChange={(e) => set({ launchOptions: e.target.value })} placeholder="-novid -netconport 2020" />
           </Field>
-          <Toggle
-            checked={draft.launchTools}
-            onChange={(launchTools) => set({ launchTools })}
-            label="Workshop Tools mode (-tools) – on Windows needed for the console; requires the free “Counter-Strike 2 Workshop Tools” DLC"
-          />
+          <Field
+            label="Launch mode"
+            hint={
+              draft.launchMode === 'hlae'
+                ? 'HLAE starts CS2 with -afxFixNetCon: the console works without Workshop Tools and CS2 keeps running when you tab out. HLAE also brings mirv_campath for camera paths. Insecure mode.'
+                : draft.launchMode === 'tools'
+                  ? 'Workshop Tools (-tools): console works, but CS2 freezes as soon as another program has the focus. Needs the free “Counter-Strike 2 Workshop Tools” DLC. Insecure mode.'
+                  : 'Normal start. On Windows the CS2 console does not open this way (CS2 bug), so camera control is not available.'
+            }
+          >
+            <select value={draft.launchMode} onChange={(e) => set({ launchMode: e.target.value as Settings['launchMode'] })}>
+              <option value="hlae">HLAE (recommended for the console and camera paths)</option>
+              <option value="tools">Workshop Tools (-tools)</option>
+              <option value="normal">Normal</option>
+            </select>
+          </Field>
+          {draft.launchMode === 'hlae' && (
+            <Field label="Path to HLAE.exe" hint="Download HLAE from advancedfx.org (GitHub releases), unzip it, and enter the full path to HLAE.exe.">
+              <input value={draft.hlaePath} onChange={(e) => set({ hlaePath: e.target.value })} placeholder="C:\Tools\hlae\HLAE.exe" />
+            </Field>
+          )}
           <Toggle
             checked={draft.launchBorderless}
             onChange={(launchBorderless) => set({ launchBorderless })}

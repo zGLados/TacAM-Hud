@@ -49,7 +49,8 @@ export interface Settings {
   accessPin: string;
   telnet: { host: string; port: number };
   launchOptions: string;
-  launchTools: boolean;
+  launchMode: 'normal' | 'tools' | 'hlae';
+  hlaePath: string;
   launchBorderless: boolean;
   actionKey: string;
   keybinds: Record<string, string>;
@@ -197,7 +198,7 @@ export const api = {
   },
   settings: {
     get: () => request<Settings>('GET', '/settings'),
-    save: (s: Pick<Settings, 'steamPath' | 'lanAccess' | 'accessPin' | 'telnet' | 'launchOptions' | 'launchTools' | 'launchBorderless'>) => request<Settings>('PUT', '/settings', s),
+    save: (s: Pick<Settings, 'steamPath' | 'lanAccess' | 'accessPin' | 'telnet' | 'launchOptions' | 'launchMode' | 'hlaePath' | 'launchBorderless'>) => request<Settings>('PUT', '/settings', s),
     installGsi: () => request<{ file: string }>('POST', '/settings/install-gsi'),
     newActionKey: () => request<{ actionKey: string }>('POST', '/settings/action-key'),
     saveKeybinds: (keybinds: Record<string, string>) => request<Record<string, string>>('PUT', '/settings/keybinds', keybinds),

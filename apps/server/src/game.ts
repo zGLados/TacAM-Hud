@@ -17,11 +17,9 @@ export function parseLaunchOptions(options: string): string[] {
   return args;
 }
 
-/** Launch options with `-netconport <port>` (and `-tools` if wanted) guaranteed, so the console bridge can connect. */
-export function withNetconPort(options: string, port: number, tools = false) {
-  let out = /(^|\s)-netconport(\s|$)/.test(options) ? options.trim() : `${options.trim()} -netconport ${port}`.trim();
-  if (tools && !/(^|\s)-tools(\s|$)/.test(out)) out = `-tools ${out}`;
-  return out;
+/** Launch options with `-netconport <port>` guaranteed, so the console bridge can connect. */
+export function withNetconPort(options: string, port: number) {
+  return /(^|\s)-netconport(\s|$)/.test(options) ? options.trim() : `${options.trim()} -netconport ${port}`.trim();
 }
 
 export class GameLaunchError extends Error {}
@@ -46,15 +44,31 @@ export function gameArgs(options: string, borderless = false) {
   return args;
 }
 
+export interface LaunchSettings {
+  steamPath: string | null;
+  options: string;
+  mode: 'normal' | 'tools' | 'hlae';
+  hlaePath: string;
+  borderless: boolean;
+}
+
+/** Game options for a launch mode: -tools for Workshop Tools, -insecure -afxFixNetCon for HLAE. */
+export function launchArgs(options: string, mode: LaunchSettings['mode'], borderless: boolean) {
+  const extra = mode === 'tools' ? '-tools' : mode === 'hlae' ? '-insecure -afxFixNetCon' : '';
+  return gameArgs(`${extra} ${options}`.trim(), borderless).filter((a, i, all) => !a.startsWith('-') || all.indexOf(a) === i);
+}
+
 /**
  * Windows: runs cs2.exe from the CS2 folder directly with the options (Steam must
  * run), like CS Demo Manager does – `steam -applaunch` does not reliably pass
- * options like -tools on. Linux: `steam -applaunch 730 …`.
+ * options like -tools on. In HLAE mode HLAE starts cs2.exe with its hook
+ * (also like CS Demo Manager); -afxFixNetCon makes -netconport work without -tools.
+ * Linux: `steam -applaunch 730 …`.
  */
-export async function launchCs2(steamPath: string | null, options: string, borderless = false): Promise<string[]> {
-  const args = gameArgs(options, borderless);
+export async function launchCs2(settings: LaunchSettings): Promise<string[]> {
+  const args = launchArgs(settings.options, settings.mode, settings.borderless);
   if (process.platform === 'win32') {
-    const cfgDir = findCs2CfgDir(steamPath);
+    const cfgDir = findCs2CfgDir(settings.steamPath);
     // …/game/csgo/cfg → …/game/bin/win64/cs2.exe
     const exe = cfgDir ? path.join(cfgDir, '..', '..', 'bin', 'win64', 'cs2.exe') : null;
     if (!exe || !fs.existsSync(exe)) throw new GameLaunchError('cs2.exe not found. Please set the Steam folder in the settings.');
@@ -63,9 +77,18 @@ export async function launchCs2(steamPath: string | null, options: string, borde
     if (/cs2\.exe/i.test(await runOk('tasklist.exe', ['/FI', 'IMAGENAME eq cs2.exe', '/NH']))) {
       throw new GameLaunchError('CS2 is already running. Close it completely first, otherwise the launch options do not apply.');
     }
+    if (settings.mode === 'hlae') {
+      const hlae = settings.hlaePath.trim();
+      if (!hlae || !fs.existsSync(hlae)) throw new GameLaunchError('HLAE.exe not found. Set the path to HLAE.exe in the settings (download HLAE from advancedfx.org).');
+      const hook = path.join(path.dirname(hlae), 'x64', 'AfxHookSource2.dll');
+      if (!fs.existsSync(hook)) throw new GameLaunchError(`AfxHookSource2.dll not found next to HLAE (${hook}). Is HLAE up to date?`);
+      await spawnDetached(hlae, ['-noGui', '-autoStart', '-noConfig', '-afxDisableSteamStorage', '-customLoader', '-hookDllPath', hook, '-programPath', exe, '-cmdLine', args.join(' ')], path.dirname(hlae));
+      return args;
+    }
     await spawnDetached(exe, args, path.dirname(exe));
     return args;
   }
+  if (settings.mode === 'hlae') throw new GameLaunchError('HLAE only runs on Windows.');
   if (process.platform === 'linux') {
     await spawnDetached('steam', ['-applaunch', '730', ...args]);
     return args;
@@ -137,7 +160,7 @@ export class GameConsole {
       socket.on('data', (chunk: string) => this.onData(chunk));
       socket.once('error', (error) => {
         // CS2 bug on Windows: -netconport only opens the port together with -tools (Workshop Tools).
-        const hint = process.platform === 'win32' ? `start CS2 with -tools -netconport ${port}` : `start CS2 with -netconport ${port}`;
+        const hint = process.platform === 'win32' ? `start CS2 via HLAE or with -tools (Settings → launch mode)` : `start CS2 with -netconport ${port}`;
         this.lastError = (error as NodeJS.ErrnoException).code === 'ECONNREFUSED' ? `Nothing listens on ${host}:${port} – ${hint}` : error.message;
         reject(new Error(this.lastError));
       });
