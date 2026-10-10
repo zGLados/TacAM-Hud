@@ -1,23 +1,23 @@
-# HUD-Styling
+# HUD styling
 
-Das HUD übernimmt Werte und Layout des TacAM-Skins, aber mit eigener, sprechender Struktur statt der kopierten Skin-Klassen (`teambox`, `player_data`, `round-thingy`, `#encapsulator` …).
+The HUD keeps the values and layout of the TacAM skin, but with its own descriptive structure instead of the copied skin classes (`teambox`, `player_data`, `round-thingy`, `#encapsulator` …).
 
-## Namensschema
+## Naming scheme
 
-- **BEM in kebab-case**: Block `player-card`, Element `player-card__health-bar`, Modifier `phase-banner--warmup`.
-- **Seite/Ausrichtung als Data-Attribut**: `data-side="CT|T"`, `data-align="left|right"`; Radar zusätzlich `data-type` / `data-state`, Economy `data-buy`.
-- **Zustände als `is-*` / `has-*`**: `is-visible`, `is-hidden`, `is-dead`, `is-focused`, `is-current`, `is-won`, `has-bomb`.
-- **Keine IDs** fürs Styling.
-- **Theme-Variablen**: `--color-<key>` (siehe docs/features.md), `--radius`, `--hud-font`.
+- **BEM in kebab-case**: block `player-card`, element `player-card__health-bar`, modifier `phase-banner--warmup`.
+- **Side/alignment as data attributes**: `data-side="CT|T"`, `data-align="left|right"`; the radar also uses `data-type` / `data-state`, the economy box `data-buy`.
+- **States as `is-*` / `has-*`**: `is-visible`, `is-hidden`, `is-dead`, `is-focused`, `is-current`, `is-won`, `has-bomb`.
+- **No IDs** for styling.
+- **Theme variables**: `--color-<key>` (see docs/features.md), `--radius`, `--hud-font`.
 
-## Dateien (`apps/hud/src/styles/`)
+## Files (`apps/hud/src/styles/`)
 
-| Datei | Blöcke | Komponente |
+| File | Blocks | Component |
 | --- | --- | --- |
-| `base.css` | Fonts, `:root`-Variablen, `hud`, `hud__layout` | `App.tsx`, `Layout.tsx` |
+| `base.css` | fonts, `:root` variables, `hud`, `hud__layout` | `App.tsx`, `Layout.tsx` |
 | `match-bar.css` | `match-bar`, `bomb-timer`, `bomb-action`, `round-win-banner`, `series-bar` | `MatchBar.tsx` |
 | `team-panel.css` | `team-panel`, `player-card`, `equipment-icon--*` | `TeamPanel.tsx` |
-| `focus-player.css` | `focus-player` (beobachteter Spieler) | `FocusPlayer.tsx` |
+| `focus-player.css` | `focus-player` (spectated player) | `FocusPlayer.tsx` |
 | `side-column.css` | `side-column`, `utility-box`, `info-box`, `money-box`, `economy-box`, `buy-badge` | `SideColumn.tsx` |
 | `radar.css` | `radar-box`, `map-strip`, `radar`, `radar__player/grenade/bomb` | `RadarBox.tsx`, `radar/Radar.tsx` |
 | `kill-feed.css` | `kill-feed` | `KillFeed.tsx` |
@@ -27,15 +27,15 @@ Das HUD übernimmt Werte und Layout des TacAM-Skins, aber mit eigener, sprechend
 | `sponsors.css` | `sponsors` | `Sponsors.tsx` |
 | `scenes.css` | `scene`, `score-header`, `stats-table(s)`, `veto-list`, `veto-card`, `mvp-card` | `scenes/Scenes.tsx` |
 
-`index.css` importiert alles in dieser Reihenfolge. Radar-Sprites liegen als PNG in `assets/radar-sprites/` (im Skin waren sie Base64 in der CSS).
+`index.css` imports everything in this order. Radar sprites are PNG files in `assets/radar-sprites/` (in the skin they were Base64 inside the CSS).
 
-## Bewusste Abweichungen vom Skin
+## Intentional differences from the skin
 
-- Killfeed sitzt bei `top: 155px` statt `93px` (überlappte die Sponsoren).
-- Economy-Box neben der Geldbox (in der Spalte darüber ist kein Platz).
-- Entfernt, weil im Skin wirkungslos/ungenutzt: Scout-Prognosebalken, Kamera-Container, `round-thingy`, `.no-bo`, Zeus-/Secondary-Regeln.
-- Bekannte Überlappungen aus dem Original-Layout (Match-Vorschau über der rechten Box-Spalte, Spieler-Vorschau über Trivia) sind noch offen.
+- The kill feed sits at `top: 155px` instead of `93px` (it overlapped the sponsors).
+- The economy box sits next to the money box (there is no room in the column above it).
+- Removed because they had no effect or were unused in the skin: scout prediction bar, camera container, `round-thingy`, `.no-bo`, zeus/secondary weapon rules.
+- Known overlaps from the original layout (match preview over the right box column, player preview over the trivia box) are still open.
 
-## Änderungen prüfen
+## Checking changes
 
-Vor/nach CSS-Umbauten die visuelle Regression laufen lassen (siehe docs/development.md) – Ziel: 0 abweichende Pixel, außer bei beabsichtigten Änderungen.
+Run the visual regression before and after CSS changes (see docs/development.md). Target: 0 differing pixels, except for intended changes.

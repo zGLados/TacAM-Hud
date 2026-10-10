@@ -1,51 +1,53 @@
-# Schnittstellen
+# Interfaces
 
-Alle Pfade unter `http://localhost:1349/api`. Bodies sind JSON und werden mit zod validiert (400 mit Fehlertext bei ungültigen Daten).
+All paths are below `http://localhost:1349/api`. Bodies are JSON and validated with zod (400 with an error text for invalid data).
 
 ## REST
 
-| Methode & Pfad | Zweck |
+| Method & path | Purpose |
 | --- | --- |
-| `GET /bootstrap` | Alles, was ein HUD beim Start braucht (`HudBootstrap`) |
-| `GET/POST /players`, `PUT/DELETE /players/:id` | Spieler (SteamID64 = 17 Ziffern, eindeutig → 409) |
-| `POST /players/import` | Array von Spielern, Upsert per SteamID |
-| `GET/POST /teams`, `PUT/DELETE /teams/:id` | Teams (Löschen entfernt die Zuordnung der Spieler) |
-| `GET/POST /matches`, `PUT/DELETE /matches/:id` | Matches inkl. Veto; nur ein Match ist `current` |
-| `GET /matches/current` | aktuelles Match |
-| `POST /matches/:id/current` | als aktuell setzen/aufheben |
-| `POST /matches/:id/reverse-current-map` | `reverseSide` der laufenden Map umschalten |
-| `POST /uploads` (multipart `file`) | Bild hochladen → `{ file, url }`; `DELETE /uploads/:file` |
-| `GET/PUT /hud/config` | HUD-Konfiguration |
+| `GET /bootstrap` | Everything a HUD needs on startup (`HudBootstrap`) |
+| `GET/POST /players`, `PUT/DELETE /players/:id` | Players (SteamID64 = 17 digits, unique → 409) |
+| `POST /players/import` | Array of players, upsert by SteamID |
+| `GET/POST /teams`, `PUT/DELETE /teams/:id` | Teams (deleting removes the players' team assignment) |
+| `GET/POST /matches`, `PUT/DELETE /matches/:id` | Matches incl. veto; only one match is `current` |
+| `GET /matches/current` | Current match |
+| `POST /matches/:id/current` | Set/unset as current |
+| `POST /matches/:id/reverse-current-map` | Toggle `reverseSide` of the running map |
+| `POST /uploads` (multipart `file`) | Upload an image → `{ file, url }`; `DELETE /uploads/:file` |
+| `GET/PUT /hud/config` | HUD configuration |
 | `POST /hud/action` | `{ type: 'radarBigger' \| 'radarSmaller' \| 'toggleRadarView' \| 'toggleHud' }` |
-| `POST /hud/refresh` | alle HUDs neu laden |
-| `GET/PUT /theme`, `GET/PUT /scene` | Theme, Szene |
+| `POST /hud/refresh` | Reload all HUDs |
+| `GET/PUT /theme`, `GET/PUT /scene` | Theme, scene |
 | `GET /live` | `{ status, summary }` |
-| `GET /live/raw` | letzte GSI-Rohdaten (Debugging, Test-Fixtures) |
-| `GET /stats`, `POST /stats/reset`, `GET /killfeed` | Statistik |
-| `GET/PUT /settings` | Steam-Pfad, LAN-Zugriff, PIN, Telnet; GET liefert zusätzlich `gsiPort`, `cs2CfgDir`, `gsiInstalled`, `addresses` |
-| `POST /settings/install-gsi`, `GET /settings/gsi-config` | GSI-Config installieren / herunterladen |
-| `GET /demo`, `POST /demo/start`, `POST /demo/stop`, `POST /demo/seed` | Demo-Match |
-| `POST /auth/login` `{ pin }`, `GET /auth/status` | LAN-Anmeldung |
+| `GET /live/raw` | Last raw GSI payload (debugging, test fixtures) |
+| `GET /stats`, `POST /stats/reset`, `GET /killfeed` | Statistics |
+| `GET/PUT /settings` | Steam path, LAN access, PIN, telnet; GET also returns `gsiPort`, `cs2CfgDir`, `gsiInstalled`, `addresses` |
+| `POST /settings/install-gsi`, `GET /settings/gsi-config` | Install / download the GSI config |
+| `GET /demo`, `POST /demo/start`, `POST /demo/stop`, `POST /demo/seed` | Demo match |
+| `POST /auth/login` `{ pin }`, `GET /auth/status` | LAN login |
 
-Statische Pfade: `/hud/`, `/control/`, `/uploads/<datei>`.
+Static paths: `/hud/`, `/control/`, `/uploads/<file>`.
+
+Error messages in API responses are currently German because they are shown directly in the control panel.
 
 ## Socket.io
 
-Client → Server: `hello('hud' | 'control')` (Raum beitreten).
+Client → server: `hello('hud' | 'control')` (join a room).
 
-Server → Client (Typen in `packages/shared/src/types.ts`, `ServerToClientEvents`):
+Server → client (types in `packages/shared/src/types.ts`, `ServerToClientEvents`):
 
-| Event | Inhalt | Empfänger |
+| Event | Payload | Recipients |
 | --- | --- | --- |
-| `update` | `{ raw, teams: { left, right } }` – GSI-Rohdaten + Team-Extensions | alle |
-| `kill` | `KillFeedEntry` | alle |
-| `stats` | `StatsSnapshot` (bei Kills/Rundenende) | alle |
-| `config` / `theme` / `scene` / `match` / `teams` / `players` | nach Änderungen | alle |
-| `action` | HUD-Aktion | alle |
-| `refresh` | Seite neu laden | alle |
+| `update` | `{ raw, teams: { left, right } }`: raw GSI data + team extensions | all |
+| `kill` | `KillFeedEntry` | all |
+| `stats` | `StatsSnapshot` (on kills / round end) | all |
+| `config` / `theme` / `scene` / `match` / `teams` / `players` | after changes | all |
+| `action` | HUD action | all |
+| `refresh` | reload the page | all |
 | `live` | `LiveSummary` (max. 2/s) | `control` |
-| `gsiStatus` | `{ connected, lastUpdate, map, phase }` (alle 2 s) | `control` |
+| `gsiStatus` | `{ connected, lastUpdate, map, phase }` (every 2 s) | `control` |
 
 ## GSI
 
-CS2 postet an `http://127.0.0.1:23415/` mit `auth.token`. Die Config (`gamestate_integration_tacam.cfg`) erzeugt `apps/server/src/gsiInstall.ts`; sie landet in `<Steam-Library>/steamapps/common/Counter-Strike Global Offensive/game/csgo/cfg/`.
+CS2 posts to `http://127.0.0.1:23415/` with `auth.token`. The config (`gamestate_integration_tacam.cfg`) is generated by `apps/server/src/gsiInstall.ts` and written to `<Steam library>/steamapps/common/Counter-Strike Global Offensive/game/csgo/cfg/`.

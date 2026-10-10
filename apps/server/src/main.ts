@@ -13,13 +13,13 @@ const server = createTacamServer({
 server
   .start()
   .then(() => {
-    console.log(`TacAM HUD Server:   http://localhost:${server.port}/control/`);
-    console.log(`HUD (OBS-Quelle):   http://localhost:${server.port}/hud/`);
-    console.log(`GSI-Empfänger:      http://127.0.0.1:${server.gsiPort}/`);
-    console.log(`Daten:              ${server.store.dataDir}`);
+    console.log(`TacAM HUD server:   http://localhost:${server.port}/control/`);
+    console.log(`HUD (OBS source):   http://localhost:${server.port}/hud/`);
+    console.log(`GSI receiver:       http://127.0.0.1:${server.gsiPort}/`);
+    console.log(`Data:               ${server.store.dataDir}`);
   })
   .catch((error: NodeJS.ErrnoException) => {
-    console.error(error.code === 'EADDRINUSE' ? `Port bereits belegt: ${error.message}` : error);
+    console.error(error.code === 'EADDRINUSE' ? `Port already in use: ${error.message}` : error);
     process.exit(1);
   });
 

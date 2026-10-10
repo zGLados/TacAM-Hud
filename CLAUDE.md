@@ -1,39 +1,40 @@
 # CLAUDE.md
 
-CS2-Broadcast-HUD + Manager (TacAM-Design). Monorepo mit npm-Workspaces, TypeScript überall. Nutzer kommuniziert auf Deutsch; UI-Texte im Control-Panel deutsch, im HUD (Broadcast) englisch.
+CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript everywhere. The user communicates in German; control panel UI texts are German, the HUD (broadcast) is English.
 
-## Struktur
+## Structure
 
-- `packages/shared` – Domain-Typen, `StatsTracker`, `inferKills`, Format-Helfer. Wird nach `dist/` gebaut; **nach Änderungen `npm run build -w @tacam/shared`**, sonst sehen Server/Apps alte Typen.
-- `apps/server` – Express 4 + Socket.io; `app.ts` (Server-Fabrik), `live.ts` (GSI-Pipeline, Teamzuordnung, Szenen-Automatik), `api.ts` (REST + zod), `store.ts` (JSON-DB), `auth.ts` (LAN-PIN), `demo.ts` (simuliertes Match), `gsiInstall.ts`.
-- `apps/hud` – React-Overlay; Zustand in `state/store.ts` (useSyncExternalStore), Komponenten in `components/`, Szenen in `scenes/`, CSS pro Komponente in `styles/`.
-- `apps/control` – React-Control-Panel (react-router 6), Seiten in `pages/`, Bausteine in `components/ui.tsx`.
-- `apps/desktop` – Electron-Main (`src/main.ts`), per esbuild zu CJS gebündelt.
-- Doku: `README.md`, `docs/*.md`. **Offene Punkte und Übergabe-Stand: `docs/STATUS.md` zuerst lesen.**
+- `packages/shared`: domain types, `StatsTracker`, `inferKills`, format helpers. Built to `dist/`; **after changes run `npm run build -w @tacam/shared`**, otherwise server/apps see stale types.
+- `apps/server`: Express 4 + Socket.io; `app.ts` (server factory), `live.ts` (GSI pipeline, team assignment, scene automation), `api.ts` (REST + zod), `store.ts` (JSON DB), `auth.ts` (LAN PIN), `demo.ts` (simulated match), `gsiInstall.ts`.
+- `apps/hud`: React overlay; state in `state/store.ts` (useSyncExternalStore), components in `components/`, scenes in `scenes/`, one CSS file per component in `styles/`.
+- `apps/control`: React control panel (react-router 6), pages in `pages/`, building blocks in `components/ui.tsx`.
+- `apps/desktop`: Electron main (`src/main.ts`), bundled to CJS with esbuild.
+- `.github/workflows/release.yml`: builds the Windows installer when a GitHub release is published.
+- Docs: `README.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state.**
 
-## Befehle
+## Commands
 
-`npm run dev` · `npm run build` · `npm test` · `npm run typecheck` · Testserver: `TACAM_DATA_DIR=./.data HUD_PORT=13490 GSI_PORT=23490 npx tsx apps/server/src/main.ts`
+`npm run dev` · `npm run build` · `npm test` · `npm run typecheck` · test server: `TACAM_DATA_DIR=./.data HUD_PORT=13490 GSI_PORT=23490 npx tsx apps/server/src/main.ts`
 
-## Konventionen
+## Conventions
 
-- Node 18 im Dev-Setup: keine Pakete einführen, die Node ≥ 20 brauchen (Ausnahme Electron, Desktop braucht Node ≥ 22.12).
-- HUD-CSS: BEM in kebab-case, `data-side`/`data-align`/`data-state`, Zustände `is-*`; keine IDs; Farben nur über `--color-*`-Variablen (siehe `docs/hud-styling.md`). Neue Elemente bekommen eine eigene Datei in `styles/` + Import in `styles/index.css`.
-- Theme-Farben = `THEME_COLOR_KEYS` in `shared/types.ts`; HUD setzt `--color-<key>`. Neue Keys auch im Control-Panel (`ThemePage` Labels) ergänzen.
-- Server-Eingaben immer per zod-Schema in `api.ts` validieren; Store-Änderungen laufen über `store.insert/update/setDoc`, die Broadcasts passieren automatisch (`store.on('change')`).
-- csgogsi auf MR12/MR3 stellen (`regulationMR = 12`), Default ist MR15.
-- `useSyncExternalStore`-Selektoren dürfen nur bestehende Referenzen zurückgeben (keine neuen Objekte), sonst Endlosschleife.
-- Uploads werden als Dateiname gespeichert und als `/uploads/<name>` ausgeliefert.
-- Kommentare sparsam, englisch im Code; erklären das Warum.
+- **Documentation and code comments are English.** Comments are sparse and explain the why. UI texts in the control panel and API error messages stay German unless decided otherwise.
+- Node 18 in the dev setup: do not add packages that need Node ≥ 20 (exception: Electron, the desktop app needs Node ≥ 22.12).
+- HUD CSS: BEM in kebab-case, `data-side`/`data-align`/`data-state`, states `is-*`; no IDs; colors only via `--color-*` variables (see `docs/hud-styling.md`). New elements get their own file in `styles/` + an import in `styles/index.css`.
+- Theme colors = `THEME_COLOR_KEYS` in `shared/types.ts`; the HUD sets `--color-<key>`. Add new keys to the control panel as well (`ThemePage` labels).
+- Always validate server input with a zod schema in `api.ts`; store changes go through `store.insert/update/setDoc`, broadcasts happen automatically (`store.on('change')`).
+- Set csgogsi to MR12/MR3 (`regulationMR = 12`), the default is MR15.
+- `useSyncExternalStore` selectors may only return existing references (no new objects), otherwise they loop forever.
+- Uploads are stored as file names and served as `/uploads/<name>`.
 
-## Stolpersteine
+## Pitfalls
 
-- `.hud__layout` hat `perspective` → Containing Block für `position: fixed`; Wrapper müssen 100 % hoch sein.
-- iframe-Vorschau im (dunklen) Control-Panel braucht `color-scheme: light`, sonst opaker weißer Hintergrund.
-- `crypto.randomUUID`/`navigator.clipboard` fehlen bei LAN-Zugriff über http → Fallbacks verwenden.
-- `import.meta.url` existiert im Electron-CJS-Bundle nicht → nur lazy verwenden (`paths.ts`).
-- Kill-Events gibt es in CS2-GSI nicht; Killfeed/Stats basieren auf Zähler-Diffs (`inferKills`).
+- `.hud__layout` has `perspective` → containing block for `position: fixed`; wrappers must be 100 % high.
+- The iframe preview in the (dark) control panel needs `color-scheme: light`, otherwise it gets an opaque white background.
+- `crypto.randomUUID`/`navigator.clipboard` are missing for LAN access over http → use fallbacks.
+- `import.meta.url` does not exist in the Electron CJS bundle → only use it lazily (`paths.ts`).
+- CS2 GSI has no kill events; kill feed and stats are based on counter diffs (`inferKills`).
 
 ## Tests
 
-Vitest in `packages/shared` und `apps/server`. Visuelle Regression des HUD: siehe `docs/development.md` (Fixtures + Playwright + Pixel-Diff).
+Vitest in `packages/shared` and `apps/server`. Visual regression of the HUD: see `docs/development.md` (fixtures + Playwright + pixel diff).

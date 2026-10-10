@@ -1,54 +1,54 @@
-# Architektur
+# Architecture
 
-npm-Workspaces-Monorepo, alles TypeScript.
+npm workspaces monorepo, TypeScript everywhere.
 
 ```
-packages/shared   Typen, StatsTracker, Kill-Inferenz, Format-Helfer (von allen genutzt)
-apps/server       Express + Socket.io, GSI-Empfänger, JSON-Store, REST-API, Demo-Match
-apps/hud          React/Vite – das OBS-Overlay (/hud/)
-apps/control      React/Vite – Control-Panel/Regie (/control/)
-apps/desktop      Electron-Hülle: startet den Server im Main-Prozess, Fenster, Shortcuts
+packages/shared   types, StatsTracker, kill inference, format helpers (used by everything)
+apps/server       Express + Socket.io, GSI receiver, JSON store, REST API, demo match
+apps/hud          React/Vite: the OBS overlay (/hud/)
+apps/control      React/Vite: control panel / production control (/control/)
+apps/desktop      Electron shell: runs the server in the main process, window, shortcuts
 ```
 
 ## Ports
 
-| Port | Zweck | Bindung |
+| Port | Purpose | Binding |
 | --- | --- | --- |
-| 1349 | HTTP (HUD, Control, API, Uploads) + Socket.io | `127.0.0.1`, mit LAN-Zugriff `0.0.0.0` |
-| 23415 | GSI-Empfänger (CS2 → POST `/`) | immer `127.0.0.1` |
+| 1349 | HTTP (HUD, control, API, uploads) + Socket.io | `127.0.0.1`, `0.0.0.0` with LAN access |
+| 23415 | GSI receiver (CS2 → POST `/`) | always `127.0.0.1` |
 
-Überschreibbar mit `HUD_PORT` / `GSI_PORT`.
+Override with `HUD_PORT` / `GSI_PORT`.
 
-## Datenfluss
+## Data flow
 
 ```
-CS2 ──POST (Token)──▶ GSI-Server ──▶ LiveHub.ingest(raw)
-                                      ├─ Coaches herausfiltern
-                                      ├─ Teams auflösen (resolveTeams)
+CS2 ──POST (token)──▶ GSI server ──▶ LiveHub.ingest(raw)
+                                      ├─ filter out coaches
+                                      ├─ resolve teams (resolveTeams)
                                       ├─ csgogsi.digest → CSGO
-                                      ├─ StatsTracker.update → Kill-Events + Stats
-                                      ├─ Szenen-Automatik
+                                      ├─ StatsTracker.update → kill events + stats
+                                      ├─ scene automation
                                       └─ Socket.io: update / kill / stats / scene / live
-HUD:    GSI-Rohdaten + Team-Extensions → eigenes csgogsi.digest → React
+HUD:     raw GSI data + team extensions → its own csgogsi.digest → React
 Control: REST + Socket.io (live, stats, scene, config, gsiStatus)
 ```
 
-Der HUD parst die Rohdaten selbst (gleiches csgogsi), damit Events wie `roundEnd` lokal verfügbar sind. Der Server schickt jedem neu verbundenen HUD sofort das letzte Update (`lastPayload`), damit ein Reload nicht bis zum nächsten Tick leer bleibt.
+The HUD parses the raw data itself (same csgogsi version) so events such as `roundEnd` are available locally. The server immediately sends the last update (`lastPayload`) to every newly connected HUD, so a reload is not empty until the next tick.
 
-## Teamzuordnung
+## Team assignment
 
-csgogsi bestimmt links/rechts über Observer-Slots (niedrigere Slots = links). Welches **Datenbank-Team** auf welcher Seite spielt, ermittelt `LiveHub.resolveTeams` über die Team-Zugehörigkeit der verbundenen Spieler (mind. 2 Spieler pro Seite). Fallback: linkes/rechtes Team des aktuellen Matches, ggf. gedreht durch `veto.reverseSide`. So bleiben Logos und Namen nach dem Seitenwechsel zur Halbzeit korrekt.
+csgogsi decides left/right by observer slots (lower slots = left). Which **database team** plays on which side is determined by `LiveHub.resolveTeams` from the team membership of the connected players (at least 2 players per side). Fallback: left/right team of the current match, swapped by `veto.reverseSide` if set. This keeps logos and names correct after the halftime side switch.
 
-## Persistenz
+## Persistence
 
-`apps/server/src/store.ts`: eine `db.json` (Collections `players`, `teams`, `matches`; Dokumente `settings`, `hudConfig`, `theme`, `scene`), im Speicher gehalten, gedrosselt und atomar (tmp + rename) geschrieben. Beim Laden werden gespeicherte Werte tief über die Defaults gemergt, neue Felder bekommen so sinnvolle Werte. Bewusst kein SQLite: keine nativen Module in Electron.
+`apps/server/src/store.ts`: a single `db.json` (collections `players`, `teams`, `matches`; documents `settings`, `hudConfig`, `theme`, `scene`), kept in memory and written throttled and atomically (tmp + rename). On load, stored values are deep-merged over the defaults so new fields get sensible values. Deliberately no SQLite: no native modules in Electron.
 
-Jede Änderung löst `store.on('change')` aus; `app.ts` verteilt daraufhin `players`/`teams`/`match`/`config`/`theme`/`scene` an alle Clients.
+Every change emits `store.on('change')`; `app.ts` then broadcasts `players`/`teams`/`match`/`config`/`theme`/`scene` to all clients.
 
-## Sicherheit
+## Security
 
-- GSI-Daten nur mit dem geheimen Token aus `settings.gsiToken` (steht in der installierten Config).
-- Lokale Anfragen (127.0.0.1/::1) sind immer erlaubt. Entfernte nur bei aktivem LAN-Zugriff **und** gültigem Token (Cookie `tacam_token`, Header `x-tacam-token` oder `?token=`), den man per PIN über `/api/auth/login` bekommt. Token = HMAC(PIN) – PIN-Wechsel macht alte Sessions ungültig.
-- Uploads: nur Bildtypen, 8 MB, ausgeliefert mit strikter CSP + `nosniff` (SVGs können kein Script ausführen).
-- Theme-Farben werden per Regex validiert, bevor sie als CSS-Variablen im HUD landen.
-- Electron-Fenster: `contextIsolation`, `sandbox`, externe Links im System-Browser.
+- GSI data is only accepted with the secret token from `settings.gsiToken` (written into the installed config).
+- Local requests (127.0.0.1/::1) are always allowed. Remote ones only with LAN access enabled **and** a valid token (cookie `tacam_token`, header `x-tacam-token` or `?token=`), obtained with the PIN via `/api/auth/login`. Token = HMAC(PIN), so changing the PIN invalidates old sessions.
+- Uploads: image types only, 8 MB, served with a strict CSP + `nosniff` (SVGs cannot run scripts).
+- Theme colors are validated by regex before they become CSS variables in the HUD.
+- Electron windows: `contextIsolation`, `sandbox`, external links open in the system browser.

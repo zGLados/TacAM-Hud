@@ -35,7 +35,7 @@ function registerShortcuts() {
       if (action === 'refresh') server.io.emit('refresh');
       else server.io.emit('action', { type: action });
     });
-    if (!ok) console.warn(`Shortcut ${accelerator} ist bereits belegt`);
+    if (!ok) console.warn(`Shortcut ${accelerator} is already taken`);
   }
 }
 

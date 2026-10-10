@@ -1,47 +1,47 @@
-# Features im Detail
+# Features in detail
 
-## Live-Statistiken (`packages/shared/src/stats.ts`)
+## Live statistics (`packages/shared/src/stats.ts`)
 
-CS2-GSI liefert **keine Kill-Events**. `inferKills(prev, cur)` vergleicht deshalb aufeinanderfolgende Updates: gestiegene `deaths` = Opfer, gestiegene `kills` = Killer (bevorzugt Gegner), gestiegene `assists` = Assister, gestiegene `round_killhs` = Headshot, aktive Waffe des Killers = Waffe. Nicht ermittelbar: Flash-Assist, Wallbang, No-Scope, Utility-Schaden.
+CS2 GSI sends **no kill events**. `inferKills(prev, cur)` therefore compares consecutive updates: increased `deaths` = victim, increased `kills` = killer (enemies preferred), increased `assists` = assister, increased `round_killhs` = headshot, the killer's active weapon = weapon. Not available: flash assists, wallbangs, no-scopes, utility damage.
 
-`StatsTracker` pro Map:
+`StatsTracker` per map:
 
-| Wert | Berechnung |
+| Value | Calculation |
 | --- | --- |
-| ADR | `round_totaldmg` am Rundenende, laufende Runde zählt ab Rundenstart mit |
-| KAST | Runde mit Kill, Assist, Überleben (HP > 0 bei Rundenende) oder Trade (Killer stirbt binnen 5 s) |
-| Opening K/D | erster Kill der Runde |
-| Clutch | letzter Lebender seines Teams vs. ≥ 1 Gegner, Team gewinnt |
-| Rating | HLTV 1.0: (KillRating + 0,7·SurvivalRating + MultiKillRating) / 2,7 |
-| Economy | Equipment-Summe bei Freezetime-Ende → `pistol` (Runde 1/13), `eco` < 5k, `semi` < 10k, `force` < 20k, sonst `full` |
+| ADR | `round_totaldmg` at round end; the running round counts from round start |
+| KAST | Round with a kill, assist, survival (HP > 0 at round end) or trade (killer dies within 5 s) |
+| Opening K/D | First kill of the round |
+| Clutch | Last player alive on their team vs. ≥ 1 enemy, and the team wins |
+| Rating | HLTV 1.0: (KillRating + 0.7·SurvivalRating + MultiKillRating) / 2.7 |
+| Economy | Equipment sum at the end of freezetime → `pistol` (round 1/13), `eco` < 5k, `semi` < 10k, `force` < 20k, otherwise `full` |
 
-Robustheit: Map-Wechsel/Warmup → Reset. **Backup-Restore / `mp_restartgame`**: zu jeder Rundennummer wird beim Start ein Snapshot der Summen gespeichert; startet eine bekannte Runde erneut, wird auf den Snapshot zurückgerollt und spätere Runden verworfen. Ergebnis- und Siegerermittlung nutzt CS2-MR12 / MR3-Overtime (csgogsi-Default MR15 wird überschrieben).
+Robustness: map change / warmup → reset. **Backup restore / `mp_restartgame`**: a snapshot of the totals is stored when each round starts; if a known round starts again, the totals roll back to that snapshot and later rounds are discarded. Results and winners use CS2's MR12 / MR3 overtime (csgogsi's MR15 default is overridden).
 
-Am Map-Ende (csgogsi-Event `matchEnd`) trägt der Server Score und Sieger ins Veto des aktuellen Matches ein und erhöht die Serien-Siege.
+At map end (csgogsi event `matchEnd`) the server writes score and winner into the veto of the current match and increments the series wins.
 
-## Szenen
+## Scenes
 
-`SceneState { active, auto, message, countdownTo }`. Szenen: `live`, `starting`, `brb`, `pause`, `halftime`, `veto`, `scoreboard`, `matchEnd`. Mit `auto` schaltet der Server zwischen `live` ↔ `pause` (Spielphase `paused`), `halftime` (Map-Phase `intermission`) und `matchEnd` (`gameover`) – aber nur, wenn gerade eine dieser Szenen aktiv ist; vom Producer gewählte Szenen bleiben stehen. Vollbild-Szenen blenden das In-Game-HUD aus.
+`SceneState { active, auto, message, countdownTo }`. Scenes: `live`, `starting`, `brb`, `pause`, `halftime`, `veto`, `scoreboard`, `matchEnd`. With `auto`, the server switches between `live` ↔ `pause` (game phase `paused`), `halftime` (map phase `intermission`) and `matchEnd` (`gameover`), but only while one of these scenes is active; scenes picked by the producer stay. Full-screen scenes hide the in-game HUD.
 
-## HUD-Konfiguration („Panel“)
+## HUD configuration ("panel")
 
-`HudConfig`: Trivia, Seitenboxen (Titel/Untertitel/Logo), Spieler- und Match-Vorschau, Teams tauschen, Radargröße, Sichtbarkeit einzelner Elemente, Teamlogo als Avatar. Änderungen gehen per Socket sofort an alle HUDs. HUD-Aktionen (`radarBigger`, `radarSmaller`, `toggleRadarView`, `toggleHud`) sind flüchtig und kommen von Tastenkürzeln oder Buttons.
+`HudConfig`: trivia, side boxes (title/subtitle/logo), player and match preview, swap teams, radar size, visibility of individual elements, team logo as avatar. Changes reach all HUDs immediately via Socket.io. HUD actions (`radarBigger`, `radarSmaller`, `toggleRadarView`, `toggleHud`) are transient and come from shortcuts or buttons.
 
-## Theme-Editor
+## Theme editor
 
-`Theme.colors` → CSS-Variablen `--color-<key>` (`primary`, `panel`, `panel-strong`, `ct`, `t`, `money`, `bomb`, `defuse`, `border`, `text`, `text-muted`), dazu `--radius`, `--hud-font`, Sponsoren (Rotation, Intervall), Marken- und Turnierlogo. Die Vorschau im Editor bekommt ungespeicherte Änderungen per `postMessage` (`tacam:theme-preview`, nur gleiche Origin); OBS sieht erst gespeicherte Themes.
+`Theme.colors` → CSS variables `--color-<key>` (`primary`, `panel`, `panel-strong`, `ct`, `t`, `money`, `bomb`, `defuse`, `border`, `text`, `text-muted`), plus `--radius`, `--hud-font`, sponsors (rotation, interval), brand and tournament logo. The preview in the editor receives unsaved changes via `postMessage` (`tacam:theme-preview`, same origin only); OBS only sees saved themes.
 
-## Regie von einem zweiten Gerät
+## Production control from a second device
 
-Einstellungen → LAN-Zugriff + PIN, App neu starten. Das Control-Panel zeigt die LAN-URLs. Auf dem anderen Gerät einmal PIN eingeben (Cookie 30 Tage). Ein HUD auf einem anderen PC (z. B. OBS-Rechner) bekommt `?token=<token>` an die URL.
+Settings → enable LAN access + PIN, restart the app. The control panel shows the LAN URLs. Enter the PIN once on the other device (cookie valid for 30 days). A HUD on another PC (e.g. the OBS machine) gets `?token=<token>` appended to its URL.
 
-## Demo-Match
+## Demo match
 
-`apps/server/src/demo.ts` simuliert ein komplettes Match auf de_mirage (Kauf, Bewegung, Kills, Bombe, Defuse, Halbzeit, Game-Over) als echte GSI-Payloads. *Demo-Daten anlegen* erzeugt passende Teams, Spieler und ein BO3. Echte GSI-Daten stoppen die Demo automatisch.
+`apps/server/src/demo.ts` simulates a complete match on de_mirage (buying, movement, kills, bomb, defuse, halftime, game over) as real GSI payloads. *Demo-Daten anlegen* creates matching teams, players and a BO3. Real GSI data stops the demo automatically.
 
-## Bekannte Grenzen
+## Known limitations
 
-- Kein Killfeed-Detail (Flash/Wallbang/No-Scope), kein Utility-Schaden – nicht in CS2-GSI.
-- Keine Spieler-Kameras (WebRTC) und kein „Bring your own HUD“ wie in JTs-Hud.
-- Kein Spectator-Binds-Tool (Telnet-Einstellungen sind vorbereitet).
-- `react-router-dom` 6 hat zwei mittlere Advisories (Backslash-Redirect in `<Link>`, SSR-Hydration) – im Panel nicht ausnutzbar (nur feste Routen, kein SSR); Fix erst mit v7.
+- No kill feed details (flash/wallbang/no-scope) and no utility damage: not in CS2 GSI.
+- No player cameras (WebRTC) and no "bring your own HUD" as in JTs-Hud.
+- No spectator binds tool (telnet settings are prepared).
+- `react-router-dom` 6 has two moderate advisories (backslash redirect in `<Link>`, SSR hydration). Not exploitable in the panel (fixed routes only, no SSR); fixed only in v7.
