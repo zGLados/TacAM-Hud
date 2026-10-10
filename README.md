@@ -11,6 +11,34 @@ CS2 broadcast HUD and HUD manager in the TacAM design. Inspired by [JTs-Hud](htt
 | **New: theme editor** | Colors, corner radius, font, sponsors, tournament logo, with live preview |
 | **Manager** | Players (incl. CSV import and creating them from the live game), teams, matches with veto editor, automatic map results, GSI installation, demo match |
 
+## Screenshots
+
+**In-game HUD** during a round (kill feed, radar, team panels, focus player with live stats):
+
+![In-game HUD during a round](docs/images/hud-live.webp)
+
+**Freezetime**: round history, map series, utility, team money and the economy box with buy classification:
+
+![HUD during freezetime](docs/images/hud-freezetime.webp)
+
+**Broadcast scenes** (switched from the control panel, automatically, or via a fixed OBS URL per scene):
+
+| Halftime | Match end with MVP |
+| --- | --- |
+| ![Halftime scene](docs/images/scene-halftime.webp) | ![Match end scene](docs/images/scene-matchEnd.webp) |
+| **Starting soon** | **Map veto** |
+| ![Starting soon scene](docs/images/scene-starting.webp) | ![Map veto scene](docs/images/scene-veto.webp) |
+
+**Control panel** (runs in the browser, also on a second device):
+
+| Live | Production control |
+| --- | --- |
+| ![Control panel: live](docs/images/control-live.webp) | ![Control panel: production control](docs/images/control-director.webp) |
+| **Statistics** | **Theme editor with live preview** |
+| ![Control panel: statistics](docs/images/control-stats.webp) | ![Control panel: theme editor](docs/images/control-theme.webp) |
+
+Screenshots are taken from the built-in demo match; the HUD is transparent and shown on a gray background here.
+
 ## Quick start
 
 Requires Node.js ≥ 18.19 (≥ 22.12 for the desktop app, see below).

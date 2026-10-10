@@ -39,6 +39,10 @@ Local only, not part of the repo (the helper scripts live in the git-ignored `.r
 
 Note: `google-chrome --headless --screenshot` with `--virtual-time-budget` hangs with open socket connections and counts the window bar into the height; Playwright is more reliable.
 
+## README screenshots
+
+`docs/images/*.webp` are taken with Playwright from the demo match (HUD 1920×1080 on a gray background, control panel 1600×1000), then converted to WebP (quality 85). The capture scripts are local helpers in `.ref/pw/` (`readme_shots.cjs`, `readme_demo_shots.cjs`). Retake them after visible UI changes.
+
 ## Releases
 
 Publishing a GitHub release (tag `vX.Y.Z`) runs `.github/workflows/release.yml` on `windows-latest` with Node 22: `npm ci`, typecheck, tests, build, then `electron-builder --win nsis`. The version is taken from the tag, and the installer `.exe` is attached to the release. The workflow can also be started manually for an existing tag (`workflow_dispatch`).
