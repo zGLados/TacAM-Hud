@@ -59,6 +59,10 @@ With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnoti
 - **Teams CSV** (Teams → Import CSV): `name;short name;country`, matched by name; logos are added afterwards.
 - **Players CSV**: teams named in the last column that do not exist yet are created first, so one file is enough.
 
+## MatchZy server config
+
+Matches → *MatchZy config* downloads `GET /api/matches/:id/matchzy.json` (`apps/server/src/matchzy.ts`) for the [MatchZy](https://shobhit-pathak.github.io/MatchZy/match_setup/) CS2 server plugin (Get5-style format; load it with `matchzy_loadmatch <file>`). Teams come with their players' SteamID64s (coaches left out). Once the veto has all maps, `maplist` holds them in order with `map_sides` (`team1_ct`/`team2_ct` derived from the picking team's side, `knife` for the decider) and `skip_veto: true`; before that the map pool is listed and vetoed in game. `matchid` is a stable number derived from the match id.
+
 ## Captain veto
 
 Matches → *Captain veto* starts a veto session for a match (`apps/server/src/captainVeto.ts`, order and steps in `packages/shared/src/veto.ts`): who starts, whether the other team chooses its starting side after each pick, and the map pool (exactly as many maps as the format needs when there is a decider). The session holds three random tokens: one link per captain and one for both teams on a single device (stage/LAN). The links open `/control/veto.html?t=<token>`, a separate page without PIN login that polls `GET /api/captain/<token>` every second; `POST` makes a ban, pick or side choice. The server checks turn order, role and map availability, writes every step into `match.vetos` (so the veto scene updates live) and adds the decider automatically. `Veto.side` stores the picking team's starting side, i.e. the opposite of what the other team chose. Ending the session invalidates the links and keeps the veto; restarting creates new links and clears it. Captains on their own devices need LAN access.

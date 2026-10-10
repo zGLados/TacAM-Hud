@@ -14,6 +14,7 @@ import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from '
 import { loginHandler, statusHandler } from './auth.js';
 import { isAccelerator, triggerStatus, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 import { captainVetoRoutes } from './captainVeto.js';
+import { matchzyConfig } from './matchzy.js';
 import type { ObsBridge } from './obs.js';
 import type { SignalEngine } from './signals.js';
 
@@ -372,6 +373,11 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
     if (!match || !mapName) return res.status(404).json({ error: 'No running match/map' });
     const vetos = match.vetos.map((v) => (mapName.endsWith(v.mapName) ? { ...v, reverseSide: !v.reverseSide } : v));
     res.json(store.update('matches', match.id, { vetos }));
+  });
+  api.get('/matches/:id/matchzy.json', (req, res) => {
+    const match = store.get('matches', req.params.id);
+    if (!match) return res.status(404).json({ error: 'not found' });
+    res.attachment(`matchzy-${match.id.slice(0, 8)}.json`).json(matchzyConfig(store, match));
   });
   api.delete('/matches/:id', (req, res) => res.status(store.remove('matches', req.params.id) ? 204 : 404).end());
 

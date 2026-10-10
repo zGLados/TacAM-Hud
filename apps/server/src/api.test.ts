@@ -383,6 +383,38 @@ describe('API', () => {
     expect([current.left.id, current.right.id]).toEqual([gamma.id, delta.id]);
   });
 
+  it('exports a MatchZy config with players, maps and sides from the veto', async () => {
+    const team = async (name: string) => (await (await fetch(`${base}/teams`, json('POST', { name, shortName: '', country: null, logo: null, extra: {} }))).json()).id;
+    const [a, b] = [await team('Echo'), await team('Foxtrot')];
+    const player = (steamid: string, username: string, teamId: string, isCoach = false) =>
+      fetch(`${base}/players`, json('POST', { steamid, username, teamId, isCoach, firstName: '', lastName: '', country: null, avatar: null, extra: {} }));
+    await player('76561198500000001', 'echo1', a);
+    await player('76561198500000002', 'echo2', a);
+    await player('76561198500000003', 'echoCoach', a, true);
+    await player('76561198500000006', 'fox1', b);
+    const veto = (type: string, mapName: string, teamId: string | null, side = 'NO') => ({ type, mapName, teamId, side });
+    const match = await (
+      await fetch(
+        `${base}/matches`,
+        json('POST', {
+          left: { id: a, wins: 0 },
+          right: { id: b, wins: 0 },
+          matchType: 'bo3',
+          vetos: [veto('ban', 'de_nuke', a), veto('ban', 'de_train', b), veto('pick', 'de_mirage', a, 'T'), veto('pick', 'de_inferno', b, 'T'), veto('ban', 'de_ancient', a), veto('ban', 'de_anubis', b), veto('decider', 'de_dust2', null)],
+        })
+      )
+    ).json();
+    const res = await fetch(`${base}/matches/${match.id}/matchzy.json`);
+    expect(res.headers.get('content-disposition')).toContain('attachment');
+    const config = await res.json();
+    expect(config.team1).toEqual({ name: 'Echo', players: { '76561198500000001': 'echo1', '76561198500000002': 'echo2' } });
+    expect(config.maplist).toEqual(['de_mirage', 'de_inferno', 'de_dust2']);
+    // Echo picked Mirage and starts T → Foxtrot (team2) starts CT; Foxtrot picked Inferno and starts T → team1 CT
+    expect(config.map_sides).toEqual(['team2_ct', 'team1_ct', 'knife']);
+    expect(config).toMatchObject({ num_maps: 3, skip_veto: true, players_per_team: 2 });
+    expect(typeof config.matchid).toBe('number');
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

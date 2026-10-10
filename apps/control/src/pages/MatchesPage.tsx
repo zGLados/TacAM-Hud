@@ -356,6 +356,14 @@ export function MatchesPage() {
                 <button className={`button small ${m.captainVeto ? 'primary' : ''}`} onClick={() => setVetoFor(m.id)}>
                   {m.captainVeto ? 'Captain veto running' : 'Captain veto'}
                 </button>
+                <a
+                  className="button small ghost"
+                  href={`/api/matches/${m.id}/matchzy.json`}
+                  download
+                  title="Match config for the MatchZy CS2 server plugin (load with matchzy_loadmatch)"
+                >
+                  MatchZy config
+                </a>
                 <button className="button small" onClick={() => setEditing(m)}>
                   Edit
                 </button>
