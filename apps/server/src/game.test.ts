@@ -77,7 +77,8 @@ describe('GameConsole', () => {
     servers[0].close();
     await new Promise((r) => setTimeout(r, 50));
     const console = new GameConsole(() => ({ host: '127.0.0.1', port }));
-    await expect(console.send('getpos')).rejects.toThrow(`-netconport ${port}`);
+    // The hint differs per platform: on Windows the console needs HLAE or -tools (CS2 bug).
+    await expect(console.send('getpos')).rejects.toThrow(process.platform === 'win32' ? 'start CS2 via HLAE or with -tools' : `-netconport ${port}`);
   });
 });
 
