@@ -129,12 +129,6 @@ export function SettingsPage() {
               <option value="normal">Normal</option>
             </select>
           </Field>
-          {draft.launchMode === 'hlae' && <HlaeManager onInstalled={reload} />}
-          {draft.launchMode === 'hlae' && (
-            <Field label="Path to HLAE.exe" hint="Set automatically when TacAM installs HLAE. Only change it to use your own HLAE installation.">
-              <input value={draft.hlaePath} onChange={(e) => set({ hlaePath: e.target.value })} placeholder="C:\Tools\hlae\HLAE.exe" />
-            </Field>
-          )}
           <Toggle
             checked={draft.launchBorderless}
             onChange={(launchBorderless) => set({ launchBorderless })}
@@ -161,6 +155,20 @@ export function SettingsPage() {
               <CopyField key={id} label={label} value={`${origin}/hud/?scene=${id}`} />
             ))}
           </details>
+        </Card>
+
+        <Card title="HLAE (camera control)">
+          <p className="muted small">
+            HLAE starts CS2 so that TacAM can control it (console, camera paths) without Workshop Tools – CS2 keeps running when you tab out.
+            Install it here, then “Start CS2” uses it.
+          </p>
+          <HlaeManager onInstalled={reload} />
+          <Field label="Path to HLAE.exe" hint="Set automatically when TacAM installs HLAE. Only change it to use your own HLAE installation.">
+            <input value={draft.hlaePath} onChange={(e) => set({ hlaePath: e.target.value })} placeholder="C:\Tools\hlae\HLAE.exe" />
+          </Field>
+          {draft.launchMode !== 'hlae' && (
+            <p className="muted small">The launch mode is currently “{draft.launchMode === 'tools' ? 'Workshop Tools' : 'Normal'}” – choose HLAE under CS2 Game State Integration to use it.</p>
+          )}
         </Card>
 
         <Card title="Access from other devices" className="span_two">
