@@ -6,7 +6,7 @@ Everything listed here is **not done yet**.
 
 No full integration (separate server, duplicates the scenes). Worth adopting:
 
-1. A fixed OBS URL per scene, e.g. `/hud/?scene=brb` (one browser source per OBS scene).
+1. ~~A fixed OBS URL per scene~~ – done: `/hud/?scene=<id>` (see docs/features.md).
 2. FACEIT import (teams, rosters, veto by match ID).
 3. Background videos for starting soon / BRB.
 4. "Upcoming matches" and "player to watch" scenes based on player profiles + stats.

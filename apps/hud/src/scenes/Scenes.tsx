@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { formatClock, prettyMapName, type PlayerMatchStats, type Side } from '@tacam/shared';
 import { useHud } from '../state/store';
-import { useSides } from '../state/hooks';
+import { useActiveScene, useSides } from '../state/hooks';
 import { defaultTeamLogo, mapBanner } from '../lib/assets';
 import { RoundHistory } from '../components/RoundHistory';
 import { seriesWins } from '../components/MatchBar';
@@ -246,12 +246,13 @@ function MvpCard() {
 
 export function SceneOverlay() {
   const scene = useHud((s) => s.scene);
+  const active = useActiveScene();
   const game = useHud((s) => s.game);
   const rounds = useHud((s) => s.stats.rounds);
   const sides = useSides();
   const { left, right } = useSceneTeams();
 
-  switch (scene.active) {
+  switch (active) {
     case 'live':
       return null;
     case 'starting':

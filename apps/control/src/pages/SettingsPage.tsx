@@ -2,6 +2,17 @@ import { useEffect, useState } from 'react';
 import { api, useData, type Settings } from '../api';
 import { Card, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
 
+const OBS_SCENES: [string, string][] = [
+  ['live', 'Nur In-Game-HUD'],
+  ['starting', 'Starting Soon'],
+  ['brb', 'Be Right Back'],
+  ['pause', 'Technische Pause'],
+  ['halftime', 'Halbzeit'],
+  ['veto', 'Map-Veto'],
+  ['scoreboard', 'Scoreboard'],
+  ['matchEnd', 'Match-Ende'],
+];
+
 /** navigator.clipboard only exists in secure contexts (not on http://<lan-ip>). */
 async function copyText(text: string) {
   if (navigator.clipboard) return navigator.clipboard.writeText(text);
@@ -82,6 +93,16 @@ export function SettingsPage() {
         <Card title="OBS / Browser-Quelle">
           <CopyField label="HUD-URL (1920×1080, transparent)" value={`${origin}/hud/`} />
           <p className="muted small">In OBS als Browser-Quelle mit 1920×1080 einfügen. „Eigenes CSS“ leer lassen.</p>
+          <details>
+            <summary className="small">Feste URL pro Szene (Szenenwechsel direkt in OBS)</summary>
+            <p className="muted small">
+              Jede OBS-Szene bekommt ihre eigene Browser-Quelle. Diese URLs ignorieren die Szenenwahl im Control-Panel;
+              „Nur In-Game-HUD“ blendet nie eine Vollbild-Szene ein.
+            </p>
+            {OBS_SCENES.map(([id, label]) => (
+              <CopyField key={id} label={label} value={`${origin}/hud/?scene=${id}`} />
+            ))}
+          </details>
         </Card>
 
         <Card title="Zugriff von anderen Geräten" className="span_two">

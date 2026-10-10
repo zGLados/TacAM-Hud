@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { THEME_COLOR_KEYS } from '@tacam/shared';
 import { useHud } from './state/store';
+import { useActiveScene } from './state/hooks';
 import { Layout } from './components/Layout';
 import { SceneOverlay } from './scenes/Scenes';
 
@@ -17,7 +18,7 @@ function useTheme() {
 
 export function App() {
   useTheme();
-  const scene = useHud((s) => s.scene.active);
+  const scene = useActiveScene();
   return (
     <>
       <div className={`hud ${scene === 'live' ? '' : 'is-scene-active'}`}>

@@ -23,6 +23,8 @@ At map end (csgogsi event `matchEnd`) the server writes score and winner into th
 
 `SceneState { active, auto, message, countdownTo }`. Scenes: `live`, `starting`, `brb`, `pause`, `halftime`, `veto`, `scoreboard`, `matchEnd`. With `auto`, the server switches between `live` ↔ `pause` (game phase `paused`), `halftime` (map phase `intermission`) and `matchEnd` (`gameover`), but only while one of these scenes is active; scenes picked by the producer stay. Full-screen scenes hide the in-game HUD.
 
+**Fixed OBS URL per scene:** `/hud/?scene=<id>` always shows that scene and ignores the scene chosen in the control panel, so every OBS scene can have its own browser source and scenes are switched in OBS. `/hud/?scene=live` shows only the in-game HUD and never a full-screen scene. The URLs are listed in the control panel under Einstellungen → OBS.
+
 ## HUD configuration ("panel")
 
 `HudConfig`: trivia, side boxes (title/subtitle/logo), player and match preview, swap teams, radar size, visibility of individual elements, team logo as avatar. Changes reach all HUDs immediately via Socket.io. HUD actions (`radarBigger`, `radarSmaller`, `toggleRadarView`, `toggleHud`) are transient and come from shortcuts or buttons.

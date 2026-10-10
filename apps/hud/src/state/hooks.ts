@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { Events, Player, Team } from 'csgogsi';
-import type { HudAction } from '@tacam/shared';
+import { SCENE_IDS, type HudAction, type SceneId } from '@tacam/shared';
 import { GSI, onAction, useHud } from './store';
 
 /** Runs `handler` whenever the server sends this HUD action. */
@@ -49,3 +49,18 @@ export function useSides(): Sides | null {
 }
 
 export const isFreezetime = (phase: string | undefined) => phase === 'freezetime';
+
+/**
+ * Scene pinned via the URL (`/hud/?scene=brb`), so each OBS scene can use its own
+ * browser source. `?scene=live` shows only the in-game HUD. Without the
+ * parameter the scene chosen in the control panel is used.
+ */
+const pinnedScene = (() => {
+  const value = new URLSearchParams(window.location.search).get('scene');
+  return (SCENE_IDS as readonly string[]).includes(value ?? '') ? (value as SceneId) : null;
+})();
+
+export function useActiveScene(): SceneId {
+  const active = useHud((s) => s.scene.active);
+  return pinnedScene ?? active;
+}
