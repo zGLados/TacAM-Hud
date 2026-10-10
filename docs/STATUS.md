@@ -1,6 +1,6 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.1.6** (first build with Node 22, npm 11, Vite 8) (Windows installer with in-app updater).
+Hand-over state for the next session. Latest release: **v0.1.6**, the Windows installer with in-app updater and the first build with Node 22, npm 11 and Vite 8.
 
 ## Open tasks
 
