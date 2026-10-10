@@ -31,7 +31,8 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 | `POST /teams/import` `[{ name, shortName, country }]` | Team CSV import (matched by name) |
 | `POST /live/quick-setup` `{ left, right, reassign, setMatch }` | Live tab quick setup (`left`/`right`: `{ teamId }` or `{ name, shortName }`) |
 | `GET /actions` | Trigger actions (id, group, label) |
-| `POST /game/launch` | Start CS2 via Steam with the launch options |
+| `POST /game/launch` | Start CS2 with the launch options and launch mode |
+| `GET /hlae[?check=1]`, `POST /hlae/install` | Installed/latest HLAE; install or update HLAE from the advancedfx GitHub releases |
 | `GET /game/console[?connect=1]`, `POST /game/console` `{ command }`, `GET /game/console/diagnose` | CS2 console over -netconport: state + recent lines, send a command, Windows diagnosis |
 | `GET /huds`, `POST /huds/import` (zip body), `DELETE /huds/:dir` | Imported HUDs |
 | `GET` / `PUT /huds/:dir/panel`, `POST /huds/:dir/action` `{ action, data? }`, `POST /huds/:dir/keybind` `{ action }` | Settings panel, panel actions and keybinds of an imported HUD |

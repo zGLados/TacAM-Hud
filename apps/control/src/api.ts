@@ -71,6 +71,13 @@ export interface GameConsoleStatus {
   lines: { at: number; text: string }[];
 }
 
+export interface HlaeStatus {
+  installed: { version: string | null; path: string } | null;
+  latest: { version: string } | null;
+  error: string | null;
+  supported: boolean;
+}
+
 export interface ConsoleDiagnosis {
   supported: boolean;
   cs2Running: boolean;
@@ -163,6 +170,10 @@ export const api = {
     console: (connect = false) => request<GameConsoleStatus>('GET', `/game/console${connect ? '?connect=1' : ''}`),
     send: (command: string) => request<{ lines: string[] }>('POST', '/game/console', { command }),
     diagnose: () => request<ConsoleDiagnosis>('GET', '/game/console/diagnose'),
+  },
+  hlae: {
+    status: (check = false) => request<HlaeStatus>('GET', `/hlae${check ? '?check=1' : ''}`),
+    install: () => request<{ version: string | null; path: string }>('POST', '/hlae/install'),
   },
   huds: {
     list: () => request<ImportedHud[]>('GET', '/huds'),

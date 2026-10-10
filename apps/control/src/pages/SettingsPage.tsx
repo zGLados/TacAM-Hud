@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, useData, type Settings } from '../api';
+import { api, useData, type HlaeStatus, type Settings } from '../api';
 import { Card, CopyField, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
 
 const OBS_SCENES: [string, string][] = [
@@ -14,6 +14,42 @@ const OBS_SCENES: [string, string][] = [
   ['upcoming', 'Upcoming matches'],
   ['playerToWatch', 'Player to Watch'],
 ];
+
+/** HLAE installed and updated by TacAM from the advancedfx GitHub releases. */
+function HlaeManager({ onInstalled }: { onInstalled: () => void }) {
+  const run = useRun();
+  const [status, setStatus] = useState<HlaeStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    api.hlae.status(true).then(setStatus).catch(() => {});
+  }, []);
+  if (!status) return null;
+  if (!status.supported) return <p className="muted small">HLAE only runs on Windows.</p>;
+  const { installed, latest } = status;
+  const outdated = !!installed && !!latest && installed.version !== latest.version;
+  const install = async () => {
+    setBusy(true);
+    const result = await run(api.hlae.install, installed ? 'HLAE updated' : 'HLAE installed');
+    setBusy(false);
+    if (result) {
+      setStatus(await api.hlae.status(true));
+      onInstalled();
+    }
+  };
+  return (
+    <div className="row wrap">
+      <span className={`status_pill ${installed && !outdated ? 'ok' : 'off'}`}>
+        {installed ? `HLAE ${installed.version ?? ''} installed${outdated ? ` – ${latest!.version} available` : ''}` : 'HLAE not installed'}
+      </span>
+      {(!installed || outdated) && (
+        <button className="button small primary" disabled={busy || !latest} onClick={install}>
+          {busy ? 'Downloading…' : installed ? `Update to ${latest?.version}` : `Install HLAE ${latest?.version ?? ''}`}
+        </button>
+      )}
+      {status.error && <span className="muted small">Could not check for updates: {status.error}</span>}
+    </div>
+  );
+}
 
 export function SettingsPage() {
   const run = useRun();
@@ -93,8 +129,9 @@ export function SettingsPage() {
               <option value="normal">Normal</option>
             </select>
           </Field>
+          {draft.launchMode === 'hlae' && <HlaeManager onInstalled={reload} />}
           {draft.launchMode === 'hlae' && (
-            <Field label="Path to HLAE.exe" hint="Download HLAE from advancedfx.org (GitHub releases), unzip it, and enter the full path to HLAE.exe.">
+            <Field label="Path to HLAE.exe" hint="Set automatically when TacAM installs HLAE. Only change it to use your own HLAE installation.">
               <input value={draft.hlaePath} onChange={(e) => set({ hlaePath: e.target.value })} placeholder="C:\Tools\hlae\HLAE.exe" />
             </Field>
           )}

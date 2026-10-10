@@ -15,6 +15,7 @@ import { loginHandler, statusHandler } from './auth.js';
 import { isAccelerator, triggerStatus, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 import { captainVetoRoutes } from './captainVeto.js';
 import { diagnoseConsole, GameConsole, GameLaunchError, launchCs2, withNetconPort } from './game.js';
+import { HlaeError, installHlae, installedHlae, latestHlae } from './hlae.js';
 import { matchzyConfig } from './matchzy.js';
 import { buildHudConfig, emitHudAction, emitHudConfig, emitHudPanelAction, emitKeybindAction, emitRefresh, type PanelSection } from './lhm.js';
 import { getHud, hudFile, HudImportError, importHudZip, listHuds, removeHud } from './huds.js';
@@ -459,6 +460,34 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
     if (req.query.connect) await gameConsole.send('echo TacAM HUD connected', 200).catch(() => {});
     res.json(gameConsole.status());
   });
+  // HLAE managed by TacAM (download from the advancedfx GitHub releases).
+  api.get('/hlae', async (req, res) => {
+    const installed = installedHlae(store.dataDir);
+    let latest: { version: string } | null = null;
+    let error: string | null = null;
+    if (req.query.check) {
+      try {
+        latest = { version: (await latestHlae()).version };
+      } catch (e) {
+        error = (e as Error).message;
+      }
+    }
+    res.json({ installed, latest, error, supported: process.platform === 'win32' });
+  });
+  api.post(
+    '/hlae/install',
+    h(async (_req, res) => {
+      try {
+        const installed = await installHlae(store.dataDir, await latestHlae());
+        // Use the managed HLAE right away.
+        store.setDoc('settings', { ...store.doc('settings'), hlaePath: installed.path, launchMode: 'hlae' });
+        res.json(installed);
+      } catch (error) {
+        if (error instanceof HlaeError) return res.status(400).json({ error: error.message });
+        throw error;
+      }
+    })
+  );
   api.get('/game/console/diagnose', async (_req, res) => res.json(await diagnoseConsole(store.doc('settings').telnet.port)));
   api.post(
     '/game/console',
