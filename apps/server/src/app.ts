@@ -8,6 +8,7 @@ import { Store } from './store.js';
 import { LiveHub } from './live.js';
 import { createApi } from './api.js';
 import { createActions, type TriggerAction } from './actions.js';
+import { ObsBridge } from './obs.js';
 import { DemoMatch } from './demo.js';
 import { seedDefaultMedia } from './defaultMedia.js';
 import { authMiddleware, isAuthorized } from './auth.js';
@@ -32,6 +33,7 @@ export interface TacamServer {
   io: HudServer;
   /** One-click actions (trigger URLs, keyboard shortcuts in the desktop app). */
   actions: TriggerAction[];
+  obs: ObsBridge;
   port: number;
   gsiPort: number;
   start(): Promise<void>;
@@ -53,6 +55,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   const live = new LiveHub(store, io);
   const demo = new DemoMatch((raw) => live.ingest(raw, true));
   const actions = createActions(store, live, io);
+  const obs = new ObsBridge(store);
 
   // --- realtime ----------------------------------------------------------
 
@@ -99,7 +102,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   // --- HTTP --------------------------------------------------------------
 
   app.use(authMiddleware(store));
-  app.use('/api', createApi({ store, live, io, actions, uploadsDir, gsiPort, demo }));
+  app.use('/api', createApi({ store, live, io, actions, obs, uploadsDir, gsiPort, demo }));
   app.use(
     '/uploads',
     express.static(uploadsDir, {
@@ -146,15 +149,18 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
     live,
     io,
     actions,
+    obs,
     port,
     gsiPort,
     async start() {
       const host = store.doc('settings').lanAccess ? '0.0.0.0' : '127.0.0.1';
       await listen(http, port, host);
       await listen(gsiHttp, gsiPort, '127.0.0.1');
+      obs.start();
     },
     async stop() {
       demo.stop();
+      await obs.stop();
       store.flush();
       await new Promise<void>((resolve) => io.close(() => resolve()));
       await new Promise<void>((resolve) => gsiHttp.close(() => resolve()));

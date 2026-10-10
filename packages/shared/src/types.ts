@@ -171,6 +171,24 @@ export const SCENE_IDS = [
 
 export type SceneId = (typeof SCENE_IDS)[number];
 
+/** OBS connection via obs-websocket v5 (settings). */
+export interface ObsSettings {
+  enabled: boolean;
+  /** e.g. ws://127.0.0.1:4455 */
+  url: string;
+  password: string;
+  /** OBS program scene to switch to when a TacAM scene goes live. */
+  sceneMap: Partial<Record<SceneId, string>>;
+}
+
+export interface ObsStatus {
+  enabled: boolean;
+  connected: boolean;
+  error: string | null;
+  /** Scenes in OBS, for the mapping UI. */
+  scenes: string[];
+}
+
 /** Display names of the scenes (control panel, trigger URLs). */
 export const SCENE_LABELS: Record<SceneId, string> = {
   live: 'Live HUD',

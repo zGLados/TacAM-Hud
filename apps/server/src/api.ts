@@ -14,6 +14,7 @@ import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from '
 import { loginHandler, statusHandler } from './auth.js';
 import { isAccelerator, triggerStatus, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 import { captainVetoRoutes } from './captainVeto.js';
+import type { ObsBridge } from './obs.js';
 
 const str = z.string().trim();
 const nullableStr = z.string().trim().nullable();
@@ -149,12 +150,13 @@ export interface ApiOptions {
   live: LiveHub;
   io: HudServer;
   actions: TriggerAction[];
+  obs: ObsBridge;
   uploadsDir: string;
   gsiPort: number;
   demo: DemoMatch;
 }
 
-export function createApi({ store, live, io, actions, uploadsDir, gsiPort, demo }: ApiOptions) {
+export function createApi({ store, live, io, actions, obs, uploadsDir, gsiPort, demo }: ApiOptions) {
   const api = express.Router();
   api.use(express.json({ limit: '1mb' }));
 
@@ -426,6 +428,23 @@ export function createApi({ store, live, io, actions, uploadsDir, gsiPort, demo 
         used.set(key, id);
       }
       res.json(store.setDoc('settings', { ...store.doc('settings'), keybinds }).keybinds);
+    })
+  );
+  api.get('/obs', (_req, res) => res.json(obs.status()));
+  api.put(
+    '/settings/obs',
+    h((req, res) => {
+      const parsed = z
+        .object({
+          enabled: z.boolean(),
+          url: z.string().regex(/^wss?:\/\/[^\s]+$/, 'URL must start with ws:// or wss://'),
+          password: z.string().max(200),
+          sceneMap: z.record(z.enum(SCENE_IDS), z.string().max(200)),
+        })
+        .parse(req.body);
+      // Empty mappings are dropped instead of stored as "".
+      const sceneMap = Object.fromEntries(Object.entries(parsed.sceneMap).filter(([, v]) => v));
+      res.json(store.setDoc('settings', { ...store.doc('settings'), obs: { ...parsed, sceneMap } }).obs);
     })
   );
   api.post('/settings/action-key', (_req, res) => {

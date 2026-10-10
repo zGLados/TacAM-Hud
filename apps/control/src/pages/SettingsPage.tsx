@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SCENE_IDS, SCENE_LABELS, type ObsSettings, type ObsStatus } from '@tacam/shared';
 import { api, useData, type Settings } from '../api';
 import { Card, ConfirmButton, CopyField, copyText, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
 
@@ -14,6 +15,73 @@ const OBS_SCENES: [string, string][] = [
   ['upcoming', 'Upcoming matches'],
   ['playerToWatch', 'Player to Watch'],
 ];
+
+/** OBS WebSocket connection and scene mapping (apps/server/src/obs.ts). */
+function ObsCard({ settings, onSaved }: { settings: Settings; onSaved: () => void }) {
+  const run = useRun();
+  const [draft, setDraft] = useState<ObsSettings>(settings.obs);
+  const [status, setStatus] = useState<ObsStatus | null>(null);
+  useEffect(() => {
+    const load = () => api.settings.obsStatus().then(setStatus).catch(() => {});
+    load();
+    const timer = setInterval(load, 2000);
+    return () => clearInterval(timer);
+  }, []);
+  const set = (patch: Partial<ObsSettings>) => setDraft({ ...draft, ...patch });
+  const save = async () => (await run(() => api.settings.saveObs(draft), 'OBS settings saved')) && onSaved();
+  const scenes = status?.scenes ?? [];
+  return (
+    <Card
+      title="OBS WebSocket"
+      className="span_two"
+      actions={
+        <button className="button primary small" onClick={save}>
+          Save
+        </button>
+      }
+    >
+      <div className="row wrap">
+        <Toggle checked={draft.enabled} onChange={(enabled) => set({ enabled })} label="Connect to OBS" />
+        {status?.enabled && (
+          <span className={`status_pill ${status.connected ? 'ok' : 'off'}`}>{status.connected ? 'Connected' : status.error ? `Not connected: ${status.error}` : 'Connecting…'}</span>
+        )}
+      </div>
+      <div className="grid two">
+        <Field label="WebSocket URL" hint="OBS → Tools → WebSocket Server Settings (OBS 28 or newer)">
+          <input value={draft.url} onChange={(e) => set({ url: e.target.value })} placeholder="ws://127.0.0.1:4455" />
+        </Field>
+        <Field label="Password">
+          <input type="password" value={draft.password} onChange={(e) => set({ password: e.target.value })} />
+        </Field>
+      </div>
+      <Field label="Switch OBS scene with the TacAM scene" hint="Leave empty to keep OBS where it is for that scene.">
+        <table className="table trigger_table">
+          <tbody>
+            {SCENE_IDS.map((id) => (
+              <tr key={id}>
+                <td>{SCENE_LABELS[id]}</td>
+                <td className="right">
+                  <select
+                    value={draft.sceneMap[id] ?? ''}
+                    onChange={(e) => set({ sceneMap: { ...draft.sceneMap, [id]: e.target.value } })}
+                  >
+                    <option value="">—</option>
+                    {/* keep a mapped scene selectable even while OBS is offline */}
+                    {[...new Set([...scenes, ...(draft.sceneMap[id] ? [draft.sceneMap[id]!] : [])])].map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Field>
+    </Card>
+  );
+}
 
 /** Turns a keydown into an Electron accelerator ("Ctrl+Shift+F5"); null while only modifiers are held. */
 function toAccelerator(e: KeyboardEvent): string | null {
@@ -254,6 +322,7 @@ export function SettingsPage() {
           </p>
         </Card>
 
+        <ObsCard settings={settings} onSaved={reload} />
         <TriggerUrls settings={settings} onKeyChange={reload} />
         <Keybinds settings={settings} onSaved={reload} />
       </div>

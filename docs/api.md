@@ -28,6 +28,7 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 | `GET /demo`, `POST /demo/start`, `POST /demo/stop`, `POST /demo/seed` | Demo match |
 | `POST /auth/login` `{ pin }`, `GET /auth/status` | LAN login |
 | `GET /actions` | Trigger actions (id, group, label) |
+| `GET /obs`, `PUT /settings/obs` `{ enabled, url, password, sceneMap }` | OBS connection state and settings |
 | `POST /matches/:id/captain-veto` `{ first, sideChoice, pool? }`, `DELETE /matches/:id/captain-veto` | Start/end a captain veto (returns the match with `captainVeto.tokens`) |
 | `GET` / `POST /captain/:token` `{ action: 'ban'\|'pick', map }` or `{ action: 'side', side }` | Captain veto page; the token replaces the PIN |
 | `GET /trigger-status?key=` · `GET /trigger-status/:id?key=[&format=text]` | State for button feedback (scene, overlay, on/off per action; text = `1`/`0`) |

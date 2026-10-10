@@ -13,6 +13,8 @@ import type {
   StatsSnapshot,
   TeamProfile,
   Theme,
+  ObsSettings,
+  ObsStatus,
 } from '@tacam/shared';
 
 export class ApiError extends Error {
@@ -45,6 +47,7 @@ export interface Settings {
   telnet: { host: string; port: number };
   actionKey: string;
   keybinds: Record<string, string>;
+  obs: ObsSettings;
   gsiPort: number;
   cs2CfgDir: string | null;
   gsiInstalled: boolean;
@@ -127,6 +130,8 @@ export const api = {
     installGsi: () => request<{ file: string }>('POST', '/settings/install-gsi'),
     newActionKey: () => request<{ actionKey: string }>('POST', '/settings/action-key'),
     saveKeybinds: (keybinds: Record<string, string>) => request<Record<string, string>>('PUT', '/settings/keybinds', keybinds),
+    saveObs: (obs: ObsSettings) => request<ObsSettings>('PUT', '/settings/obs', obs),
+    obsStatus: () => request<ObsStatus>('GET', '/obs'),
   },
   actions: {
     list: () => request<TriggerActionInfo[]>('GET', '/actions'),

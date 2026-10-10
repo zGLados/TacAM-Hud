@@ -13,6 +13,7 @@ import {
   type SceneState,
   type TeamProfile,
   type Theme,
+  type ObsSettings,
 } from '@tacam/shared';
 
 export interface Settings {
@@ -30,6 +31,7 @@ export interface Settings {
    * "" = unbound; keys are never deleted, otherwise loading would merge the default back in.
    */
   keybinds: Record<string, string>;
+  obs: ObsSettings;
   /** Default sponsors/brand logo were copied into uploads (see defaultMedia.ts). */
   defaultMediaSeeded: boolean;
 }
@@ -56,6 +58,7 @@ const defaults = (): Database => ({
     telnet: { host: '127.0.0.1', port: 2020 },
     actionKey: randomUUID().replace(/-/g, ''),
     keybinds: { ...DEFAULT_KEYBINDS },
+    obs: { enabled: false, url: 'ws://127.0.0.1:4455', password: '', sceneMap: {} },
     defaultMediaSeeded: false,
   },
   hudConfig: DEFAULT_HUD_CONFIG,
