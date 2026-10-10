@@ -215,6 +215,11 @@ export function LivePage() {
         description="Current game state from CS2. Unknown players can be created right here with their SteamID."
         actions={
           <>
+            {!status?.connected && (
+              <button className="button ghost" onClick={() => run(api.game.launch, 'CS2 is starting (via Steam)')}>
+                Start CS2
+              </button>
+            )}
             {summary && (
               <button className="button ghost" onClick={() => setQuickSetup(true)}>
                 Quick setup

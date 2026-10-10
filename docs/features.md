@@ -50,9 +50,15 @@ Besides the built-in TacAM HUD, **Setup → HUDs** imports HUDs built on the LHM
 
 Not supported: LHM cameras, tournaments, Scout AI and cloud features. TacAM overlays, scenes and signals only apply to the TacAM HUD. An imported HUD runs its own code with access to the API – only import trusted HUDs.
 
+## Starting CS2 and the CS2 console
+
+*Start CS2* (Settings, and the Live tab while no GSI data arrives) runs `steam -applaunch 730 <launch options>` on the computer running TacAM HUD (`apps/server/src/game.ts`; Windows uses `steam.exe` from the Steam folder, Linux the `steam` launcher). `-applaunch` avoids Steam's prompt for custom arguments; `-netconport <port>` is added when missing. The launch options are stored in `settings.launchOptions`.
+
+`GameConsole` connects to that port (plain TCP, one command per line; `settings.telnet` holds host and port, default 127.0.0.1:2020), sends commands and keeps the last console lines. **Integrations → CS2 console** shows the connection state, sends own commands and has test buttons for the commands camera control would need (`getpos`, `spec_mode`, `spec_goto`, `spec_lerpto`, `spec_player`). Which of them CS2 accepts while spectating decides how camera paths are built (see STATUS.md).
+
 ## Control panel layout
 
-The sidebar groups the pages into **Broadcast** (Live, Director, Stats), **Data** (Matches, Teams, Players) and **Setup** (Theme, HUDs, Integrations, Settings). *Integrations* has one tab each for OBS, Stream Deck / Companion, keyboard shortcuts and signals (`/control/integrations/<tab>`); *Settings* keeps game connection, OBS browser source URLs and LAN access. The Director stays a single page (everything reachable while live) with a sticky jump bar: Scenes · HUD · Overlays · Content (scene text, countdown, player to watch, trivia, previews, side boxes) · Match.
+The sidebar groups the pages into **Broadcast** (Live, Director, Stats), **Data** (Matches, Teams, Players) and **Setup** (Theme, HUDs, Integrations, Settings). *Integrations* has one tab each for OBS, Stream Deck / Companion, keyboard shortcuts, signals and the CS2 console (`/control/integrations/<tab>`); *Settings* keeps game connection, OBS browser source URLs and LAN access. The Director stays a single page (everything reachable while live) with a sticky jump bar: Scenes · HUD · Overlays · Content (scene text, countdown, player to watch, trivia, previews, side boxes) · Match.
 
 ## HUD configuration ("panel")
 

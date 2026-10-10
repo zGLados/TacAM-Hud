@@ -14,6 +14,7 @@ import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from '
 import { loginHandler, statusHandler } from './auth.js';
 import { isAccelerator, triggerStatus, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 import { captainVetoRoutes } from './captainVeto.js';
+import { GameConsole, GameLaunchError, launchCs2, withNetconPort } from './game.js';
 import { matchzyConfig } from './matchzy.js';
 import { buildHudConfig, emitHudAction, emitHudConfig, emitHudPanelAction, emitKeybindAction, emitRefresh, type PanelSection } from './lhm.js';
 import { getHud, hudFile, HudImportError, importHudZip, listHuds, removeHud } from './huds.js';
@@ -119,6 +120,7 @@ const settingsSchema = z.object({
   lanAccess: z.boolean(),
   accessPin: z.string().regex(/^(\d{4,12})?$/, 'PIN must have 4–12 digits'),
   telnet: z.object({ host: str.min(1), port: z.number().int().min(1).max(65535) }),
+  launchOptions: z.string().max(500).regex(/^[^\r\n]*$/, 'Launch options must be one line'),
 });
 
 const hudActionSchema = z.object({
@@ -432,6 +434,39 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
   });
 
   captainVetoRoutes(api, store);
+
+  // --- CS2: start with launch options, console over -netconport -----------
+
+  const gameConsole = new GameConsole(() => store.doc('settings').telnet);
+  api.post(
+    '/game/launch',
+    h(async (_req, res) => {
+      const { steamPath, launchOptions, telnet } = store.doc('settings');
+      try {
+        const args = await launchCs2(steamPath, withNetconPort(launchOptions, telnet.port));
+        res.json({ ok: true, args });
+      } catch (error) {
+        if (error instanceof GameLaunchError) return res.status(400).json({ error: error.message });
+        throw error;
+      }
+    })
+  );
+  api.get('/game/console', async (req, res) => {
+    // ?connect=1 tries to connect, so the status shows whether CS2 listens.
+    if (req.query.connect) await gameConsole.send('echo TacAM HUD connected', 200).catch(() => {});
+    res.json(gameConsole.status());
+  });
+  api.post(
+    '/game/console',
+    h(async (req, res) => {
+      const { command } = z.object({ command: z.string().trim().min(1).max(500).regex(/^[^\r\n]*$/, 'One command per line') }).parse(req.body);
+      try {
+        res.json({ lines: await gameConsole.send(command) });
+      } catch (error) {
+        res.status(409).json({ error: (error as Error).message });
+      }
+    })
+  );
 
   // --- imported HUDs (LHM / JTs-Hud format) -------------------------------
 

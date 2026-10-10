@@ -24,7 +24,10 @@ export interface Settings {
   lanAccess: boolean;
   /** PIN required for non-local access. Empty = no LAN access allowed. */
   accessPin: string;
+  /** CS2 console (-netconport) used for camera control and the test console. */
   telnet: { host: string; port: number };
+  /** Launch options for "Start CS2"; -netconport is added if missing. */
+  launchOptions: string;
   /** Secret for `/api/trigger/<action>` URLs (Stream Deck, Companion). */
   actionKey: string;
   /**
@@ -61,6 +64,7 @@ const defaults = (): Database => ({
     lanAccess: false,
     accessPin: '',
     telnet: { host: '127.0.0.1', port: 2020 },
+    launchOptions: '-netconport 2020',
     actionKey: randomUUID().replace(/-/g, ''),
     keybinds: { ...DEFAULT_KEYBINDS },
     obs: { enabled: false, url: 'ws://127.0.0.1:4455', password: '', sceneMap: {} },

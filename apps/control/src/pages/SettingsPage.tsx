@@ -29,7 +29,7 @@ export function SettingsPage() {
   const save = async () => {
     const restartNeeded = draft.lanAccess !== settings.lanAccess;
     const ok = await run(
-      () => api.settings.save({ steamPath: draft.steamPath || null, lanAccess: draft.lanAccess, accessPin: draft.accessPin, telnet: draft.telnet }),
+      () => api.settings.save({ steamPath: draft.steamPath || null, lanAccess: draft.lanAccess, accessPin: draft.accessPin, telnet: draft.telnet, launchOptions: draft.launchOptions }),
       restartNeeded ? 'Saved – LAN access takes effect after restarting the app' : 'Saved'
     );
     if (ok) reload();
@@ -68,6 +68,15 @@ export function SettingsPage() {
             </a>
           </div>
           <p className="muted small">Restart CS2 after installing. The config sends to port {settings.gsiPort} and contains a secret token.</p>
+          <Field label="CS2 launch options" hint={`For “Start CS2”. -netconport ${draft.telnet.port} (console for camera control) is added if missing.`}>
+            <input value={draft.launchOptions} onChange={(e) => set({ launchOptions: e.target.value })} placeholder="-novid -netconport 2020" />
+          </Field>
+          <div className="row">
+            <button className="button" onClick={() => run(api.game.launch, 'CS2 is starting (via Steam)')}>
+              Start CS2
+            </button>
+            <span className="muted small">Starts CS2 on the computer running TacAM HUD. Save changed options first.</span>
+          </div>
         </Card>
 
         <Card title="OBS / browser source">

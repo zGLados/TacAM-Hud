@@ -48,6 +48,7 @@ export interface Settings {
   lanAccess: boolean;
   accessPin: string;
   telnet: { host: string; port: number };
+  launchOptions: string;
   actionKey: string;
   keybinds: Record<string, string>;
   obs: ObsSettings;
@@ -56,6 +57,15 @@ export interface Settings {
   cs2CfgDir: string | null;
   gsiInstalled: boolean;
   addresses: string[];
+}
+
+/** CS2 console bridge state (apps/server/src/game.ts). */
+export interface GameConsoleStatus {
+  host: string;
+  port: number;
+  connected: boolean;
+  error: string | null;
+  lines: { at: number; text: string }[];
 }
 
 /** Imported HUD (apps/server/src/huds.ts). */
@@ -137,6 +147,11 @@ export const api = {
     form.append('file', file);
     return request<{ file: string; url: string }>('POST', '/uploads', form);
   },
+  game: {
+    launch: () => request<{ ok: boolean; args: string[] }>('POST', '/game/launch'),
+    console: (connect = false) => request<GameConsoleStatus>('GET', `/game/console${connect ? '?connect=1' : ''}`),
+    send: (command: string) => request<{ lines: string[] }>('POST', '/game/console', { command }),
+  },
   huds: {
     list: () => request<ImportedHud[]>('GET', '/huds'),
     import: (file: File) => request<ImportedHud>('POST', '/huds/import', file),
@@ -171,7 +186,7 @@ export const api = {
   },
   settings: {
     get: () => request<Settings>('GET', '/settings'),
-    save: (s: Pick<Settings, 'steamPath' | 'lanAccess' | 'accessPin' | 'telnet'>) => request<Settings>('PUT', '/settings', s),
+    save: (s: Pick<Settings, 'steamPath' | 'lanAccess' | 'accessPin' | 'telnet' | 'launchOptions'>) => request<Settings>('PUT', '/settings', s),
     installGsi: () => request<{ file: string }>('POST', '/settings/install-gsi'),
     newActionKey: () => request<{ actionKey: string }>('POST', '/settings/action-key'),
     saveKeybinds: (keybinds: Record<string, string>) => request<Record<string, string>>('PUT', '/settings/keybinds', keybinds),

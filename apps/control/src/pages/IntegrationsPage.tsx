@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Navigate, useParams } from 'react-router-dom';
 import { SCENE_IDS, SCENE_LABELS, type ObsSettings, type ObsStatus } from '@tacam/shared';
-import { api, useData, type Settings } from '../api';
+import { api, useData, type GameConsoleStatus, type Settings } from '../api';
 import { Card, ConfirmButton, copyText, Field, Group, PageHeader, Toggle, useRun } from '../components/ui';
 import { SignalsPanel } from './SignalsPage';
 
@@ -228,11 +228,95 @@ function TriggerUrls({ settings, onKeyChange }: { settings: Settings; onKeyChang
 }
 
 
+/** Quick checks for camera control: which console commands CS2 accepts as a spectator. */
+const CONSOLE_TESTS: { label: string; command: string }[] = [
+  { label: 'Position', command: 'getpos' },
+  { label: 'Free camera', command: 'spec_mode 5' },
+  { label: 'Camera jump', command: 'spec_goto 0 0 500 45 90' },
+  { label: 'Camera path (3 s)', command: 'spec_lerpto 0 0 500 45 90 500 500 600 30 180 3' },
+  { label: 'Player 3', command: 'spec_player 3' },
+];
+
+/** Console of CS2 via -netconport: connection state, test commands, output. */
+function GameConsoleCard({ settings, onSaved }: { settings: Settings; onSaved: () => void }) {
+  const run = useRun();
+  const [status, setStatus] = useState<GameConsoleStatus | null>(null);
+  const [command, setCommand] = useState('');
+  const [target, setTarget] = useState(settings.telnet);
+  useEffect(() => {
+    const load = () => api.game.console().then(setStatus).catch(() => {});
+    load();
+    const timer = setInterval(load, 1500);
+    return () => clearInterval(timer);
+  }, []);
+  const send = async (cmd: string) => {
+    await run(() => api.game.send(cmd));
+    setStatus(await api.game.console());
+  };
+  const saveTarget = async () => {
+    const ok = await run(
+      () => api.settings.save({ steamPath: settings.steamPath, lanAccess: settings.lanAccess, accessPin: settings.accessPin, launchOptions: settings.launchOptions, telnet: target }),
+      'Saved'
+    );
+    if (ok) onSaved();
+  };
+  return (
+    <Card title="CS2 console">
+      <p className="muted small">
+        TacAM talks to the CS2 console of the observer PC through <code>-netconport</code> (added automatically by “Start CS2” under Settings). This is the
+        base for camera positions, camera paths and an automatic observer. Use the tests to check which commands CS2 accepts while spectating.
+      </p>
+      <div className="row wrap">
+        <Field label="Host">
+          <input value={target.host} onChange={(e) => setTarget({ ...target, host: e.target.value })} />
+        </Field>
+        <Field label="Port (-netconport)">
+          <input type="number" min={1} max={65535} value={target.port} onChange={(e) => setTarget({ ...target, port: Number(e.target.value) })} />
+        </Field>
+        <button className="button small" onClick={saveTarget} disabled={target.host === settings.telnet.host && target.port === settings.telnet.port}>
+          Save
+        </button>
+        <button className="button small" onClick={async () => setStatus(await api.game.console(true))}>
+          Connect
+        </button>
+        {status && (
+          <span className={`status_pill ${status.connected ? 'ok' : 'off'}`}>
+            {status.connected ? `Connected to ${status.host}:${status.port}` : status.error ?? 'Not connected'}
+          </span>
+        )}
+      </div>
+      <Group label="Tests for camera control">
+        <div className="row wrap">
+          {CONSOLE_TESTS.map((t) => (
+            <button key={t.command} className="button small" title={t.command} onClick={() => send(t.command)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </Group>
+      <form
+        className="row"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (command.trim()) void send(command.trim());
+        }}
+      >
+        <input className="grow mono" value={command} onChange={(e) => setCommand(e.target.value)} placeholder="Console command, e.g. getpos" />
+        <button className="button primary small" type="submit">
+          Send
+        </button>
+      </form>
+      <pre className="console_log">{status?.lines.map((l) => l.text).join('\n') || 'No output yet.'}</pre>
+    </Card>
+  );
+}
+
 const TABS = [
   { id: 'obs', label: 'OBS' },
   { id: 'streamdeck', label: 'Stream Deck / Companion' },
   { id: 'shortcuts', label: 'Keyboard shortcuts' },
   { id: 'signals', label: 'Signals' },
+  { id: 'console', label: 'CS2 console' },
 ] as const;
 
 /** Connections to other tools: OBS, Stream Deck / Companion, global shortcuts and signals. */
@@ -242,7 +326,7 @@ export function IntegrationsPage() {
   if (!TABS.some((t) => t.id === tab)) return <Navigate to="/integrations/obs" replace />;
   return (
     <>
-      <PageHeader title="Integrations" description="OBS, Stream Deck / Companion, keyboard shortcuts and automatic signals from game events." />
+      <PageHeader title="Integrations" description="OBS, Stream Deck / Companion, keyboard shortcuts, automatic signals from game events and the CS2 console." />
       <nav className="tabs">
         {TABS.map((t) => (
           <NavLink key={t.id} to={`/integrations/${t.id}`} className={({ isActive }) => `tab ${isActive ? 'active' : ''}`}>
@@ -254,6 +338,8 @@ export function IntegrationsPage() {
         <SignalsPanel />
       ) : !settings ? null : tab === 'obs' ? (
         <ObsCard settings={settings} onSaved={reload} />
+      ) : tab === 'console' ? (
+        <GameConsoleCard settings={settings} onSaved={reload} />
       ) : tab === 'streamdeck' ? (
         <TriggerUrls settings={settings} onKeyChange={reload} />
       ) : (

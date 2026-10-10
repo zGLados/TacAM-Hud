@@ -1085,3 +1085,20 @@ td.bad {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+.console_log {
+  max-height: 340px;
+  margin: 0;
+  padding: 10px 12px;
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  color: var(--muted);
+}
+input.grow {
+  flex: 1;
+}
