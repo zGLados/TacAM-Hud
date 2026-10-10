@@ -296,7 +296,7 @@ function GameConsoleCard({ settings, onSaved }: { settings: Settings; onSaved: (
         </button>
         {status && (
           <span className={`status_pill ${status.connected ? 'ok' : 'off'}`}>
-            {status.connected ? `Connected to ${status.actualHost ?? status.host}:${status.port}` : status.error ?? 'Not connected'}
+            {status.connected ? `Connected to ${status.host}:${status.port}` : status.error ?? 'Not connected'}
           </span>
         )}
       </div>

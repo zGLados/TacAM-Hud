@@ -64,8 +64,6 @@ export interface Settings {
 export interface GameConsoleStatus {
   host: string;
   port: number;
-  /** Address that answered (the LAN address when 127.0.0.1 did not). */
-  actualHost: string | null;
   connected: boolean;
   error: string | null;
   lines: { at: number; text: string }[];

@@ -29,7 +29,7 @@ export function SettingsPage() {
   // Shows what actually went to Steam, so a missing -tools is visible right away.
   const launch = async () => {
     const result = await run(api.game.launch);
-    if (result) toast(`CS2 is starting: ${result.args.slice(2).join(' ')}`);
+    if (result) toast(`CS2 is starting: ${result.args.join(' ')}`);
   };
 
   const save = async () => {

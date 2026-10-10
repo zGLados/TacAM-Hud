@@ -1,9 +1,8 @@
 import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
-import os from 'node:os';
 import { execFile, spawn } from 'node:child_process';
-import { defaultSteamPaths } from './gsiInstall.js';
+import { findCs2CfgDir } from './gsiInstall.js';
 
 /**
  * Starting CS2 with launch options and talking to its console over
@@ -25,34 +24,52 @@ export function withNetconPort(options: string, port: number, tools = false) {
   return out;
 }
 
-function steamExecutable(steamPath: string | null) {
-  if (process.platform === 'win32') {
-    const roots = steamPath ? [steamPath] : defaultSteamPaths();
-    for (const root of roots) {
-      const exe = path.join(root, 'steam.exe');
-      if (fs.existsSync(exe)) return exe;
-    }
-    return null;
-  }
-  // Linux: the steam launcher is on the PATH.
-  return process.platform === 'linux' ? 'steam' : null;
-}
-
 export class GameLaunchError extends Error {}
 
-/** `steam -applaunch 730 …` starts CS2 (and Steam if needed) without Steam's "custom arguments" prompt. */
-export function launchCs2(steamPath: string | null, options: string): Promise<string[]> {
-  const exe = steamExecutable(steamPath);
-  if (!exe) {
-    return Promise.reject(new GameLaunchError(process.platform === 'win32' ? 'steam.exe not found. Please set the Steam folder in the settings.' : 'Starting CS2 is only supported on Windows and Linux.'));
+const runOk = (file: string, args: string[]) =>
+  new Promise<string>((resolve) => execFile(file, args, { windowsHide: true, timeout: 8000 }, (_e, stdout) => resolve(String(stdout ?? ''))));
+
+/** Options for the game: -tools also gets -noassetbrowser, so no asset browser window opens. */
+export function gameArgs(options: string) {
+  const args = parseLaunchOptions(options);
+  if (args.includes('-tools') && !args.includes('-noassetbrowser')) args.push('-noassetbrowser');
+  return args;
+}
+
+/**
+ * Windows: runs cs2.exe from the CS2 folder directly with the options (Steam must
+ * run), like CS Demo Manager does – `steam -applaunch` does not reliably pass
+ * options like -tools on. Linux: `steam -applaunch 730 …`.
+ */
+export async function launchCs2(steamPath: string | null, options: string): Promise<string[]> {
+  const args = gameArgs(options);
+  if (process.platform === 'win32') {
+    const cfgDir = findCs2CfgDir(steamPath);
+    // …/game/csgo/cfg → …/game/bin/win64/cs2.exe
+    const exe = cfgDir ? path.join(cfgDir, '..', '..', 'bin', 'win64', 'cs2.exe') : null;
+    if (!exe || !fs.existsSync(exe)) throw new GameLaunchError('cs2.exe not found. Please set the Steam folder in the settings.');
+    const tasks = await runOk('tasklist.exe', ['/FI', 'IMAGENAME eq steam.exe', '/NH']);
+    if (!/steam\.exe/i.test(tasks)) throw new GameLaunchError('Steam is not running. Start Steam, log in, then try again.');
+    if (/cs2\.exe/i.test(await runOk('tasklist.exe', ['/FI', 'IMAGENAME eq cs2.exe', '/NH']))) {
+      throw new GameLaunchError('CS2 is already running. Close it completely first, otherwise the launch options do not apply.');
+    }
+    await spawnDetached(exe, args, path.dirname(exe));
+    return args;
   }
-  const args = ['-applaunch', '730', ...parseLaunchOptions(options)];
+  if (process.platform === 'linux') {
+    await spawnDetached('steam', ['-applaunch', '730', ...args]);
+    return args;
+  }
+  throw new GameLaunchError('Starting CS2 is only supported on Windows and Linux.');
+}
+
+function spawnDetached(file: string, args: string[], cwd?: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const child = spawn(exe, args, { detached: true, stdio: 'ignore', windowsHide: false });
-    child.once('error', (error) => reject(new GameLaunchError(`Could not start Steam: ${error.message}`)));
+    const child = spawn(file, args, { cwd, detached: true, stdio: 'ignore', windowsHide: false });
+    child.once('error', (error) => reject(new GameLaunchError(`Could not start ${path.basename(file)}: ${error.message}`)));
     child.once('spawn', () => {
       child.unref();
-      resolve(args);
+      resolve();
     });
   });
 }
@@ -70,45 +87,27 @@ export class GameConsole {
   status() {
     const { host, port } = this.target();
     const connected = !!this.socket && !this.socket.destroyed;
-    return { host, port, actualHost: connected ? this.actualHost : null, connected, error: connected ? null : this.lastError, lines: this.lines.slice(-200) };
+    return { host, port, connected, error: connected ? null : this.lastError, lines: this.lines.slice(-200) };
   }
 
   private connectedTo = '';
 
-  /** Host the console actually answered on (may differ from the setting, see connect). */
-  private actualHost: string | null = null;
-
-  private async connect(): Promise<void> {
+  private connect(): Promise<void> {
     const { host, port } = this.target();
     // Settings changed: drop the connection to the old address.
     if (this.socket && this.connectedTo !== `${host}:${port}`) this.disconnect();
-    if (this.socket && !this.socket.destroyed) return;
+    if (this.socket && !this.socket.destroyed) return Promise.resolve();
     if (this.connecting) return this.connecting;
     this.connectedTo = `${host}:${port}`;
-    // Some setups bind the console to the PC's LAN address instead of 127.0.0.1,
-    // so a refused loopback connection also tries the local IPv4 addresses.
-    const candidates = isLoopback(host) ? [host, ...localIPv4()] : [host];
-    this.connecting = (async () => {
-      let lastError: Error | null = null;
-      for (const candidate of candidates) {
-        try {
-          await this.open(candidate, port);
-          this.actualHost = candidate;
-          // Keep rendering at full speed while the observer works in another window
-          // (TacAM, OBS); with -tools the game otherwise appears to freeze when unfocused.
-          this.socket?.write('engine_no_focus_sleep 0\n');
-          return;
-        } catch (error) {
-          lastError = error as Error;
-        }
-      }
-      // CS2 bug on Windows: -netconport only opens the port together with -tools (Workshop Tools).
-      const hint = process.platform === 'win32' ? `start CS2 with -tools -netconport ${port} (Workshop Tools needed)` : `start CS2 with -netconport ${port}`;
-      this.lastError = candidates.length > 1 ? `Nothing listens on port ${port} (tried ${candidates.join(', ')}) – ${hint}` : lastError?.message ?? 'Connection failed';
-      throw new Error(this.lastError);
-    })().finally(() => {
-      this.connecting = null;
-    });
+    this.connecting = this.open(host, port)
+      .then(() => {
+        // Keep rendering at full speed while the observer works in another window
+        // (TacAM, OBS); with -tools the game otherwise appears to freeze when unfocused.
+        this.socket?.write('engine_no_focus_sleep 0\n');
+      })
+      .finally(() => {
+        this.connecting = null;
+      });
     return this.connecting;
   }
 
@@ -126,10 +125,9 @@ export class GameConsole {
       socket.once('timeout', () => socket.destroy(new Error(`No answer from ${host}:${port}`)));
       socket.on('data', (chunk: string) => this.onData(chunk));
       socket.once('error', (error) => {
-        this.lastError =
-          (error as NodeJS.ErrnoException).code === 'ECONNREFUSED'
-            ? `Nothing listens on ${host}:${port} – start CS2 with -netconport ${port}`
-            : error.message;
+        // CS2 bug on Windows: -netconport only opens the port together with -tools (Workshop Tools).
+        const hint = process.platform === 'win32' ? `start CS2 with -tools -netconport ${port}` : `start CS2 with -netconport ${port}`;
+        this.lastError = (error as NodeJS.ErrnoException).code === 'ECONNREFUSED' ? `Nothing listens on ${host}:${port} – ${hint}` : error.message;
         reject(new Error(this.lastError));
       });
       socket.once('close', () => {
@@ -161,15 +159,6 @@ export class GameConsole {
     this.socket?.destroy();
     this.socket = null;
   }
-}
-
-const isLoopback = (host: string) => host === '127.0.0.1' || host === 'localhost' || host === '::1';
-
-function localIPv4() {
-  return Object.values(os.networkInterfaces())
-    .flat()
-    .filter((i) => i && i.family === 'IPv4' && !i.internal)
-    .map((i) => i!.address);
 }
 
 const run = (file: string, args: string[]) =>

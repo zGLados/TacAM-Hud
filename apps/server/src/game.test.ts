@@ -1,7 +1,6 @@
 import net from 'node:net';
-import os from 'node:os';
 import { afterEach, describe, expect, it } from 'vitest';
-import { GameConsole, listeningAddresses, parseLaunchOptions, withNetconPort } from './game.js';
+import { GameConsole, gameArgs, listeningAddresses, parseLaunchOptions, withNetconPort } from './game.js';
 
 let servers: net.Server[] = [];
 afterEach(() => {
@@ -35,6 +34,11 @@ describe('CS2 launch options', () => {
     expect(parseLaunchOptions('-novid  -netconport 2020 +exec "my config.cfg"')).toEqual(['-novid', '-netconport', '2020', '+exec', 'my config.cfg']);
   });
 
+  it('adds -noassetbrowser to -tools, so no asset browser window opens', () => {
+    expect(gameArgs('-tools -netconport 2020')).toEqual(['-tools', '-netconport', '2020', '-noassetbrowser']);
+    expect(gameArgs('-netconport 2020')).toEqual(['-netconport', '2020']);
+  });
+
   it('adds -netconport only when it is missing', () => {
     expect(withNetconPort('-novid', 2020)).toBe('-novid -netconport 2020');
     expect(withNetconPort('', 2121)).toBe('-netconport 2121');
@@ -58,18 +62,6 @@ describe('GameConsole', () => {
     // a changed address reconnects
     target.port = await fakeConsole();
     expect(await console.send('echo moved', 200)).toEqual(['moved']);
-    console.disconnect();
-  });
-
-  const lan = Object.values(os.networkInterfaces()).flat().find((i) => i && i.family === 'IPv4' && !i.internal)?.address;
-  it.skipIf(!lan)('finds a console that only listens on the LAN address', async () => {
-    const server = net.createServer((socket) => socket.on('data', () => socket.write('pong\n')));
-    servers.push(server);
-    await new Promise<void>((r) => server.listen(0, lan, () => r()));
-    const port = (server.address() as net.AddressInfo).port;
-    const console = new GameConsole(() => ({ host: '127.0.0.1', port }));
-    expect(await console.send('ping', 200)).toEqual(['pong']);
-    expect(console.status()).toMatchObject({ connected: true, actualHost: lan });
     console.disconnect();
   });
 
