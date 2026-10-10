@@ -1,0 +1,51 @@
+# Builds the Windows installer when a GitHub release is published and
+# attaches it to that release. Tag format: v1.2.3 (sets the app version).
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to build and upload to (e.g. v0.1.0)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      # Electron 43 requires Node >= 22.12 to install.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Set app version from tag
+        shell: bash
+        run: npm version "${TAG#v}" --no-git-tag-version --allow-same-version -w @tacam/desktop
+
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+      - name: Build installer
+        working-directory: apps/desktop
+        run: npm run build && npx electron-builder --win nsis --publish never
+
+      - name: Upload installer to release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" apps/desktop/release/*.exe --clobber
