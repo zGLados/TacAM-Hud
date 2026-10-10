@@ -11,6 +11,8 @@ Hand-over state for the next session. Latest release: **v0.1.11** (round win pro
 
 - Phase 3: #15 win probability **done**, released in v0.1.11. Next candidate #14 tournaments; cameras, OBS replays and the auto observer only after tests with real hardware/CS2.
 
+- **Background: camera paths in CS2.** Needs a console bridge to the observer client (`-netconport`, telnet; `settings.telnet` exists but is unused). Plan: saved camera positions per map (`getpos` → `spec_goto`), smooth paths via `spec_lerpto` if CS2 still has it, else HLAE `mirv_campath` (insecure mode, observer PC only). First the owner tests which commands work as a GOTV spectator (`getpos`, `spec_mode`, `spec_goto`, `spec_lerpto`, `spec_player`). The same bridge is the base for the auto observer (#17).
+
 ## Decided / not planned
 
 - From zGLados/wartescreen: fixed OBS URL per scene, background videos, "upcoming matches" and "player to watch" are done. FACEIT import (tournaments rarely run on FACEIT) and a veto animation are not planned.
