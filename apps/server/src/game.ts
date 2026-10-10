@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import os from 'node:os';
+import { execFile, spawn } from 'node:child_process';
 import { defaultSteamPaths } from './gsiInstall.js';
 
 /**
@@ -66,19 +67,49 @@ export class GameConsole {
 
   status() {
     const { host, port } = this.target();
-    return { host, port, connected: !!this.socket && !this.socket.destroyed, error: this.lastError, lines: this.lines.slice(-200) };
+    const connected = !!this.socket && !this.socket.destroyed;
+    return { host, port, actualHost: connected ? this.actualHost : null, connected, error: connected ? null : this.lastError, lines: this.lines.slice(-200) };
   }
 
   private connectedTo = '';
 
-  private connect(): Promise<void> {
+  /** Host the console actually answered on (may differ from the setting, see connect). */
+  private actualHost: string | null = null;
+
+  private async connect(): Promise<void> {
     const { host, port } = this.target();
     // Settings changed: drop the connection to the old address.
     if (this.socket && this.connectedTo !== `${host}:${port}`) this.disconnect();
-    if (this.socket && !this.socket.destroyed) return Promise.resolve();
+    if (this.socket && !this.socket.destroyed) return;
     if (this.connecting) return this.connecting;
     this.connectedTo = `${host}:${port}`;
-    this.connecting = new Promise<void>((resolve, reject) => {
+    // Some setups bind the console to the PC's LAN address instead of 127.0.0.1,
+    // so a refused loopback connection also tries the local IPv4 addresses.
+    const candidates = isLoopback(host) ? [host, ...localIPv4()] : [host];
+    this.connecting = (async () => {
+      let lastError: Error | null = null;
+      for (const candidate of candidates) {
+        try {
+          await this.open(candidate, port);
+          this.actualHost = candidate;
+          return;
+        } catch (error) {
+          lastError = error as Error;
+        }
+      }
+      this.lastError =
+        candidates.length > 1
+          ? `Nothing listens on port ${port} (tried ${candidates.join(', ')}) – start CS2 with -netconport ${port}`
+          : lastError?.message ?? 'Connection failed';
+      throw new Error(this.lastError);
+    })().finally(() => {
+      this.connecting = null;
+    });
+    return this.connecting;
+  }
+
+  private open(host: string, port: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       const socket = net.connect({ host, port });
       socket.setEncoding('utf8');
       socket.setTimeout(2000);
@@ -100,10 +131,7 @@ export class GameConsole {
       socket.once('close', () => {
         if (this.socket === socket) this.socket = null;
       });
-    }).finally(() => {
-      this.connecting = null;
     });
-    return this.connecting;
   }
 
   private onData(chunk: string) {
@@ -129,4 +157,53 @@ export class GameConsole {
     this.socket?.destroy();
     this.socket = null;
   }
+}
+
+const isLoopback = (host: string) => host === '127.0.0.1' || host === 'localhost' || host === '::1';
+
+function localIPv4() {
+  return Object.values(os.networkInterfaces())
+    .flat()
+    .filter((i) => i && i.family === 'IPv4' && !i.internal)
+    .map((i) => i!.address);
+}
+
+const run = (file: string, args: string[]) =>
+  new Promise<string>((resolve) => execFile(file, args, { windowsHide: true, timeout: 8000, maxBuffer: 4 * 1024 * 1024 }, (_e, stdout) => resolve(String(stdout ?? ''))));
+
+/** Local addresses in LISTENING state for `port` from `netstat -ano -p tcp` output. */
+export function listeningAddresses(netstat: string, port: number) {
+  return netstat
+    .split(/\r?\n/)
+    .map((l) => l.trim().split(/\s+/))
+    .filter((cols) => cols.length >= 4 && /^LISTEN/i.test(cols[3]) && cols[1].endsWith(`:${port}`))
+    .map((cols) => cols[1]);
+}
+
+export interface ConsoleDiagnosis {
+  supported: boolean;
+  cs2Running: boolean;
+  /** Command line of the running cs2.exe (shows whether -netconport arrived). */
+  commandLine: string | null;
+  netconPort: number | null;
+  /** Addresses something listens on for the configured port, e.g. 0.0.0.0:2020. */
+  listening: string[];
+}
+
+/** Windows only: is CS2 running, with which options, and who listens on the console port? */
+export async function diagnoseConsole(port: number): Promise<ConsoleDiagnosis> {
+  if (process.platform !== 'win32') return { supported: false, cs2Running: false, commandLine: null, netconPort: null, listening: [] };
+  const commandLine =
+    (
+      await run('powershell.exe', [
+        '-NoProfile',
+        '-NonInteractive',
+        '-Command',
+        "Get-CimInstance Win32_Process | Where-Object Name -eq 'cs2.exe' | Select-Object -ExpandProperty CommandLine",
+      ])
+    ).trim() || null;
+  const netstat = await run('netstat.exe', ['-ano', '-p', 'tcp']);
+  const listening = listeningAddresses(netstat, port);
+  const match = commandLine?.match(/-netconport\s+(\d+)/);
+  return { supported: true, cs2Running: !!commandLine, commandLine, netconPort: match ? Number(match[1]) : null, listening };
 }

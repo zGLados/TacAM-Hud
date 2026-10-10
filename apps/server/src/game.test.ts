@@ -1,6 +1,7 @@
 import net from 'node:net';
+import os from 'node:os';
 import { afterEach, describe, expect, it } from 'vitest';
-import { GameConsole, parseLaunchOptions, withNetconPort } from './game.js';
+import { GameConsole, listeningAddresses, parseLaunchOptions, withNetconPort } from './game.js';
 
 let servers: net.Server[] = [];
 afterEach(() => {
@@ -53,11 +54,40 @@ describe('GameConsole', () => {
     console.disconnect();
   });
 
+  const lan = Object.values(os.networkInterfaces()).flat().find((i) => i && i.family === 'IPv4' && !i.internal)?.address;
+  it.skipIf(!lan)('finds a console that only listens on the LAN address', async () => {
+    const server = net.createServer((socket) => socket.on('data', () => socket.write('pong\n')));
+    servers.push(server);
+    await new Promise<void>((r) => server.listen(0, lan, () => r()));
+    const port = (server.address() as net.AddressInfo).port;
+    const console = new GameConsole(() => ({ host: '127.0.0.1', port }));
+    expect(await console.send('ping', 200)).toEqual(['pong']);
+    expect(console.status()).toMatchObject({ connected: true, actualHost: lan });
+    console.disconnect();
+  });
+
   it('explains how to fix a refused connection', async () => {
     const port = await fakeConsole();
     servers[0].close();
     await new Promise((r) => setTimeout(r, 50));
     const console = new GameConsole(() => ({ host: '127.0.0.1', port }));
     await expect(console.send('getpos')).rejects.toThrow(`-netconport ${port}`);
+  });
+});
+
+describe('console diagnosis', () => {
+  it('finds the addresses listening on the console port in netstat output', () => {
+    const netstat = [
+      '',
+      'Active Connections',
+      '',
+      '  Proto  Local Address          Foreign Address        State           PID',
+      '  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       1032',
+      '  TCP    192.168.1.20:2020      0.0.0.0:0              LISTENING       8812',
+      '  TCP    127.0.0.1:20200        0.0.0.0:0              LISTENING       4410',
+      '  TCP    192.168.1.20:2020      192.168.1.5:51544      ESTABLISHED     8812',
+    ].join('\r\n');
+    expect(listeningAddresses(netstat, 2020)).toEqual(['192.168.1.20:2020']);
+    expect(listeningAddresses(netstat, 2121)).toEqual([]);
   });
 });

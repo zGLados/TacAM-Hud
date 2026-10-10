@@ -32,7 +32,7 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 | `POST /live/quick-setup` `{ left, right, reassign, setMatch }` | Live tab quick setup (`left`/`right`: `{ teamId }` or `{ name, shortName }`) |
 | `GET /actions` | Trigger actions (id, group, label) |
 | `POST /game/launch` | Start CS2 via Steam with the launch options |
-| `GET /game/console[?connect=1]`, `POST /game/console` `{ command }` | CS2 console over -netconport: state + recent lines, send a command |
+| `GET /game/console[?connect=1]`, `POST /game/console` `{ command }`, `GET /game/console/diagnose` | CS2 console over -netconport: state + recent lines, send a command, Windows diagnosis |
 | `GET /huds`, `POST /huds/import` (zip body), `DELETE /huds/:dir` | Imported HUDs |
 | `GET` / `PUT /huds/:dir/panel`, `POST /huds/:dir/action` `{ action, data? }`, `POST /huds/:dir/keybind` `{ action }` | Settings panel, panel actions and keybinds of an imported HUD |
 | LHM paths (`/match`, `/match/current`, `/teams/:id`, `/teams/logo/:id`, `/players/avatar/steamid/:id`, `/game-maps/cs2`, …) | Data for imported HUDs, see features.md |

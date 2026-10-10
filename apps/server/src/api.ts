@@ -14,7 +14,7 @@ import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from '
 import { loginHandler, statusHandler } from './auth.js';
 import { isAccelerator, triggerStatus, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 import { captainVetoRoutes } from './captainVeto.js';
-import { GameConsole, GameLaunchError, launchCs2, withNetconPort } from './game.js';
+import { diagnoseConsole, GameConsole, GameLaunchError, launchCs2, withNetconPort } from './game.js';
 import { matchzyConfig } from './matchzy.js';
 import { buildHudConfig, emitHudAction, emitHudConfig, emitHudPanelAction, emitKeybindAction, emitRefresh, type PanelSection } from './lhm.js';
 import { getHud, hudFile, HudImportError, importHudZip, listHuds, removeHud } from './huds.js';
@@ -456,6 +456,7 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
     if (req.query.connect) await gameConsole.send('echo TacAM HUD connected', 200).catch(() => {});
     res.json(gameConsole.status());
   });
+  api.get('/game/console/diagnose', async (_req, res) => res.json(await diagnoseConsole(store.doc('settings').telnet.port)));
   api.post(
     '/game/console',
     h(async (req, res) => {

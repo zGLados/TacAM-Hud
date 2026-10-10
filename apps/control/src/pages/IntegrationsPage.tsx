@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Navigate, useParams } from 'react-router-dom';
 import { SCENE_IDS, SCENE_LABELS, type ObsSettings, type ObsStatus } from '@tacam/shared';
-import { api, useData, type GameConsoleStatus, type Settings } from '../api';
+import { api, useData, type ConsoleDiagnosis, type GameConsoleStatus, type Settings } from '../api';
 import { Card, ConfirmButton, copyText, Field, Group, PageHeader, Toggle, useRun } from '../components/ui';
 import { SignalsPanel } from './SignalsPage';
 
@@ -237,12 +237,23 @@ const CONSOLE_TESTS: { label: string; command: string }[] = [
   { label: 'Player 3', command: 'spec_player 3' },
 ];
 
+/** Plain-language result of the Windows console check (game.ts diagnoseConsole). */
+function explainDiagnosis(d: ConsoleDiagnosis, port: number) {
+  if (!d.supported) return 'The check only works on Windows.';
+  if (!d.cs2Running) return 'CS2 is not running.';
+  if (d.netconPort === null) return 'CS2 runs without -netconport: the launch option did not arrive. Close CS2 completely and use “Start CS2”, or add -netconport to the launch options in Steam.';
+  if (d.netconPort !== port) return `CS2 was started with -netconport ${d.netconPort}, but TacAM uses port ${port}. Set the port to ${d.netconPort}.`;
+  if (!d.listening.length) return `CS2 runs with -netconport ${port}, but nothing listens on the port yet – join a match or demo, then connect again.`;
+  return `CS2 listens on ${d.listening.join(', ')}. If “Connect” still fails, use that address as host.`;
+}
+
 /** Console of CS2 via -netconport: connection state, test commands, output. */
 function GameConsoleCard({ settings, onSaved }: { settings: Settings; onSaved: () => void }) {
   const run = useRun();
   const [status, setStatus] = useState<GameConsoleStatus | null>(null);
   const [command, setCommand] = useState('');
   const [target, setTarget] = useState(settings.telnet);
+  const [diagnosis, setDiagnosis] = useState<ConsoleDiagnosis | null | undefined>(null);
   useEffect(() => {
     const load = () => api.game.console().then(setStatus).catch(() => {});
     load();
@@ -281,9 +292,15 @@ function GameConsoleCard({ settings, onSaved }: { settings: Settings; onSaved: (
         </button>
         {status && (
           <span className={`status_pill ${status.connected ? 'ok' : 'off'}`}>
-            {status.connected ? `Connected to ${status.host}:${status.port}` : status.error ?? 'Not connected'}
+            {status.connected ? `Connected to ${status.actualHost ?? status.host}:${status.port}` : status.error ?? 'Not connected'}
           </span>
         )}
+      </div>
+      <div className="row wrap">
+        <button className="button small ghost" onClick={async () => setDiagnosis(await run(api.game.diagnose))}>
+          Diagnose
+        </button>
+        {diagnosis && <span className="muted small">{explainDiagnosis(diagnosis, settings.telnet.port)}</span>}
       </div>
       <Group label="Tests for camera control">
         <div className="row wrap">

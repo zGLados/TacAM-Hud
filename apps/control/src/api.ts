@@ -63,9 +63,19 @@ export interface Settings {
 export interface GameConsoleStatus {
   host: string;
   port: number;
+  /** Address that answered (the LAN address when 127.0.0.1 did not). */
+  actualHost: string | null;
   connected: boolean;
   error: string | null;
   lines: { at: number; text: string }[];
+}
+
+export interface ConsoleDiagnosis {
+  supported: boolean;
+  cs2Running: boolean;
+  commandLine: string | null;
+  netconPort: number | null;
+  listening: string[];
 }
 
 /** Imported HUD (apps/server/src/huds.ts). */
@@ -151,6 +161,7 @@ export const api = {
     launch: () => request<{ ok: boolean; args: string[] }>('POST', '/game/launch'),
     console: (connect = false) => request<GameConsoleStatus>('GET', `/game/console${connect ? '?connect=1' : ''}`),
     send: (command: string) => request<{ lines: string[] }>('POST', '/game/console', { command }),
+    diagnose: () => request<ConsoleDiagnosis>('GET', '/game/console/diagnose'),
   },
   huds: {
     list: () => request<ImportedHud[]>('GET', '/huds'),
