@@ -9,12 +9,16 @@ afterEach(() => {
   servers = [];
 });
 
+const received: string[] = [];
+
 /** Minimal stand-in for the CS2 netcon: answers commands like the game console. */
 async function fakeConsole() {
   const server = net.createServer((socket) => {
     socket.setEncoding('utf8');
     socket.on('data', (data: string) => {
       for (const line of data.split('\n').filter(Boolean)) {
+        received.push(line);
+        if (line.startsWith('engine_no_focus_sleep')) continue;
         if (line === 'getpos') socket.write('setpos 1.000000 2.000000 3.000000;setang 4.000000 5.000000 0.000000\r\n');
         else if (line.startsWith('echo ')) socket.write(`${line.slice(5)}\n`);
         else socket.write(`Unknown command "${line.split(' ')[0]}"\n`);
@@ -47,6 +51,7 @@ describe('GameConsole', () => {
     expect(await console.send('spec_lerpto 1 2 3', 200)).toEqual(['Unknown command "spec_lerpto"']);
     expect(console.status()).toMatchObject({ connected: true, error: null });
     expect(console.status().lines.map((l) => l.text)).toContain('] getpos');
+    expect(received).toContain('engine_no_focus_sleep 0');
 
     // a changed address reconnects
     target.port = await fakeConsole();

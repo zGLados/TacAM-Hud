@@ -68,7 +68,7 @@ export function SettingsPage() {
             </a>
           </div>
           <p className="muted small">Restart CS2 after installing. The config sends to port {settings.gsiPort} and contains a secret token.</p>
-          <Field label="CS2 launch options" hint={`For “Start CS2”. -netconport ${draft.telnet.port} (console for camera control) is added if missing. On Windows the console also needs -tools (Workshop Tools DLC).`}>
+          <Field label="CS2 launch options" hint={`For “Start CS2”. -netconport ${draft.telnet.port} (console for camera control) is added if missing. On Windows the console also needs -tools (Workshop Tools DLC). TacAM sets engine_no_focus_sleep 0 on connect, so CS2 keeps running when unfocused.`}>
             <input value={draft.launchOptions} onChange={(e) => set({ launchOptions: e.target.value })} placeholder="-novid -netconport 2020" />
           </Field>
           <div className="row">

@@ -92,6 +92,9 @@ export class GameConsole {
         try {
           await this.open(candidate, port);
           this.actualHost = candidate;
+          // Keep rendering at full speed while the observer works in another window
+          // (TacAM, OBS); with -tools the game otherwise appears to freeze when unfocused.
+          this.socket?.write('engine_no_focus_sleep 0\n');
           return;
         } catch (error) {
           lastError = error as Error;
