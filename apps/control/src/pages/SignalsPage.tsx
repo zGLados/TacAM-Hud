@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SIGNAL_EVENTS, type SignalEvent, type SignalLogEntry, type SignalOutput, type SignalRule } from '@tacam/shared';
 import { api, useData, type Settings } from '../api';
-import { Card, Field, PageHeader, Toggle, useRun } from '../components/ui';
+import { Card, Field, Toggle, useRun } from '../components/ui';
 
 const EVENT_LABELS: Record<SignalEvent, string> = {
   roundStart: 'Round start (freezetime)',
@@ -148,7 +148,7 @@ function RuleEditor({ rule, onChange, onRemove }: { rule: SignalRule; onChange: 
   );
 }
 
-export function SignalsPage() {
+export function SignalsPanel() {
   const run = useRun();
   const { data: settings, reload } = useData<Settings | null>(api.settings.get, null);
   const [rules, setRules] = useState<SignalRule[] | null>(null);
@@ -169,20 +169,20 @@ export function SignalsPage() {
 
   return (
     <>
-      <PageHeader
-        title="Signals"
-        description="Game events trigger actions automatically: TacAM actions (overlays, scenes …), HTTP requests for Bitfocus Companion or webhooks, OBS scenes and replays."
-        actions={
-          <>
-            <button className="button ghost" onClick={add}>
-              + Signal
-            </button>
-            <button className="button primary" disabled={!dirty} onClick={save}>
-              {dirty ? 'Save' : 'Saved'}
-            </button>
-          </>
-        }
-      />
+      <div className="tab_header">
+        <p className="muted">
+          Game events trigger actions automatically: TacAM actions (overlays, scenes …), HTTP requests for Bitfocus Companion or webhooks, OBS
+          scenes and replays.
+        </p>
+        <div className="row">
+          <button className="button ghost" onClick={add}>
+            + Signal
+          </button>
+          <button className="button primary" disabled={!dirty} onClick={save}>
+            {dirty ? 'Save' : 'Saved'}
+          </button>
+        </div>
+      </div>
       <Card>
         {rules.length ? (
           <div className="stack">

@@ -76,7 +76,7 @@ The installed app checks GitHub for a newer release on startup (and via *TacAM H
 
 ### Keyboard shortcuts (desktop app)
 
-Defaults below. Every action (scenes, overlays, HUD elements, team swaps) can get its own global shortcut under **Settings → Keyboard shortcuts**; the same actions are available as URLs for Stream Deck / Bitfocus Companion (**Settings → Stream Deck / Companion**).
+Defaults below. Every action (scenes, overlays, HUD elements, team swaps) can get its own global shortcut under **Integrations → Keyboard shortcuts**; the same actions are available as URLs for Stream Deck / Bitfocus Companion (**Integrations → Stream Deck / Companion**).
 
 | Shortcut | Action |
 | --- | --- |

@@ -9,19 +9,34 @@ import { TeamsPage } from './pages/TeamsPage';
 import { MatchesPage } from './pages/MatchesPage';
 import { StatsPage } from './pages/StatsPage';
 import { ThemePage } from './pages/ThemePage';
-import { SignalsPage } from './pages/SignalsPage';
+import { IntegrationsPage } from './pages/IntegrationsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
-const NAV = [
-  { to: '/live', label: 'Live' },
-  { to: '/director', label: 'Director' },
-  { to: '/stats', label: 'Stats' },
-  { to: '/matches', label: 'Matches' },
-  { to: '/teams', label: 'Teams' },
-  { to: '/players', label: 'Players' },
-  { to: '/theme', label: 'Theme' },
-  { to: '/signals', label: 'Signals' },
-  { to: '/settings', label: 'Settings' },
+const NAV: { group: string; items: { to: string; label: string }[] }[] = [
+  {
+    group: 'Broadcast',
+    items: [
+      { to: '/live', label: 'Live' },
+      { to: '/director', label: 'Director' },
+      { to: '/stats', label: 'Stats' },
+    ],
+  },
+  {
+    group: 'Data',
+    items: [
+      { to: '/matches', label: 'Matches' },
+      { to: '/teams', label: 'Teams' },
+      { to: '/players', label: 'Players' },
+    ],
+  },
+  {
+    group: 'Setup',
+    items: [
+      { to: '/theme', label: 'Theme' },
+      { to: '/integrations', label: 'Integrations' },
+      { to: '/settings', label: 'Settings' },
+    ],
+  },
 ];
 
 function Login({ onSuccess }: { onSuccess: () => void }) {
@@ -66,10 +81,15 @@ function Shell() {
           TacAM <span>HUD</span>
         </div>
         <nav>
-          {NAV.map((item) => (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => `nav_link ${isActive ? 'active' : ''}`}>
-              {item.label}
-            </NavLink>
+          {NAV.map(({ group, items }) => (
+            <div key={group} className="nav_group">
+              <div className="nav_group_title">{group}</div>
+              {items.map((item) => (
+                <NavLink key={item.to} to={item.to} className={({ isActive }) => `nav_link ${isActive ? 'active' : ''}`}>
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
         <div className="sidebar_footer">
@@ -87,7 +107,9 @@ function Shell() {
           <Route path="/teams" element={<TeamsPage />} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/theme" element={<ThemePage />} />
-          <Route path="/signals" element={<SignalsPage />} />
+          <Route path="/integrations" element={<Navigate to="/integrations/obs" replace />} />
+          <Route path="/integrations/:tab" element={<IntegrationsPage />} />
+          <Route path="/signals" element={<Navigate to="/integrations/signals" replace />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/live" replace />} />
         </Routes>

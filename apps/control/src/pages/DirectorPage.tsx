@@ -6,7 +6,7 @@ import { HudMonitor } from '../components/HudMonitor';
 
 const SCENES: { id: SceneId; label: string; hint: string }[] = [
   { id: 'live', label: 'Live HUD', hint: 'Regular in-game HUD' },
-  { id: 'starting', label: 'Starting Soon', hint: 'Countdown, Teams & Veto' },
+  { id: 'starting', label: 'Starting Soon', hint: 'Teams & veto, optional countdown' },
   { id: 'brb', label: 'Be Right Back', hint: 'Short break' },
   { id: 'pause', label: 'Technical pause', hint: 'Score & stats' },
   { id: 'halftime', label: 'Halftime', hint: 'Score, round history, stats' },
@@ -44,14 +44,9 @@ const sceneLabel = (id: SceneId) => SCENES.find((s) => s.id === id)?.label ?? id
 function ScenePanel() {
   const run = useRun();
   const scene = useLive((s) => s.scene);
-  const { config, save: saveConfig } = useConfigEditor();
-  const { data: players } = useData(api.players.list, []);
-  const [message, setMessage] = useState('');
-  const [minutes, setMinutes] = useState(10);
   const [confirm, setConfirm] = useConfirmSceneChanges();
   // Scene queued for the next "Take" (preview/program like a vision mixer).
   const [preview, setPreview] = useState<SceneId | null>(null);
-  useEffect(() => setMessage(scene?.message ?? ''), [scene?.message]);
   // Drop the queued scene once it is on air (also when the automation switched to it).
   useEffect(() => {
     if (preview && preview === scene?.active) setPreview(null);
@@ -122,6 +117,23 @@ function ScenePanel() {
           </div>
         </>
       )}
+    </Card>
+  );
+}
+
+/** Texts and values used by the scenes: player to watch, headline, countdown. */
+function SceneContentPanel() {
+  const run = useRun();
+  const scene = useLive((s) => s.scene);
+  const { config, save: saveConfig } = useConfigEditor();
+  const { data: players } = useData(api.players.list, []);
+  const [message, setMessage] = useState('');
+  const [minutes, setMinutes] = useState(10);
+  useEffect(() => setMessage(scene?.message ?? ''), [scene?.message]);
+  if (!scene) return null;
+  const save = (patch: Partial<SceneState>) => run(() => api.scene.save({ ...scene, ...patch }));
+  return (
+    <Card title="Scene content">
       {config && (
         <Field label="Player to Watch" hint="Player for the “Player to Watch” scene">
           <select value={config.playerToWatch ?? ''} onChange={(e) => saveConfig({ playerToWatch: e.target.value || null })}>
@@ -145,7 +157,7 @@ function ScenePanel() {
         </button>
       </div>
       <div className="row wrap">
-        <Field label="Countdown (minutes)">
+        <Field label="Countdown for Starting Soon (minutes)">
           <input type="number" min={1} max={180} value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} />
         </Field>
         <button className="button" onClick={() => save({ countdownTo: Date.now() + minutes * 60_000 })}>
@@ -155,6 +167,7 @@ function ScenePanel() {
           Remove countdown
         </button>
       </div>
+      {scene.countdownTo && <p className="muted small">Countdown running until {new Date(scene.countdownTo).toLocaleTimeString()} (shown on Starting Soon).</p>}
     </Card>
   );
 }
@@ -389,19 +402,49 @@ function MatchControls() {
   );
 }
 
+const SECTIONS = [
+  { id: 'scenes', label: 'Scenes' },
+  { id: 'hud', label: 'HUD' },
+  { id: 'overlays', label: 'Overlays' },
+  { id: 'content', label: 'Content' },
+  { id: 'match', label: 'Match' },
+];
+
 export function DirectorPage() {
+  const jump = (id: string) => document.getElementById(`director-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   return (
     <>
       <PageHeader title="Director" description="Control scenes and the HUD live – also works from a second device (Settings → LAN access)." />
-      <ScenePanel />
+      <nav className="jump_bar">
+        {SECTIONS.map((s) => (
+          <button key={s.id} className="jump_link" onClick={() => jump(s.id)}>
+            {s.label}
+          </button>
+        ))}
+      </nav>
+      <section id="director-scenes" className="director_section">
+        <ScenePanel />
+      </section>
       <div className="grid two">
-        <HudControls />
-        <OverlayPanel />
-        <TriviaPanel />
-        <PreviewPanel />
-        <MatchControls />
+        <section id="director-hud" className="director_section">
+          <HudControls />
+        </section>
+        <section id="director-overlays" className="director_section">
+          <OverlayPanel />
+        </section>
       </div>
-      <SideBoxPanel />
+      <section id="director-content" className="director_section">
+        <div className="grid two">
+          <SceneContentPanel />
+          <TriviaPanel />
+          <PreviewPanel />
+        </div>
+        <div className="director_spacer" />
+        <SideBoxPanel />
+      </section>
+      <section id="director-match" className="director_section">
+        <MatchControls />
+      </section>
     </>
   );
 }
