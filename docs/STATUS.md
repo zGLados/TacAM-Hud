@@ -1,10 +1,11 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.1.6**, the Windows installer with in-app updater and the first build with Node 22, npm 11 and Vite 8.
+Hand-over state for the next session. Latest release: **v0.1.7** (LHM roadmap phase 1).
 
 ## Open tasks
 
-- LHM roadmap ([lhm-roadmap.md](lhm-roadmap.md)): **phase 1 done** (#1–#7), not released yet. Phases 2 and 3 are proposals, to be decided.
+- LHM roadmap ([lhm-roadmap.md](lhm-roadmap.md)): **phase 1 done** (#1–#7) and released in v0.1.7. Phases 2 and 3 are proposals, to be decided.
+- Still to confirm on Windows with v0.1.7: global shortcuts (defaults + re-registering after a change), Stream Deck trigger URLs (Elgato "Website" action in background mode), overlays and "keep team sides" in a real match, a real wingman game.
 
 ## Decided / not planned
 
@@ -12,8 +13,8 @@ Hand-over state for the next session. Latest release: **v0.1.6**, the Windows in
 
 ## Releases
 
-- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.6).
-- Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.7).
+- Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 → 0.1.7 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies
 
