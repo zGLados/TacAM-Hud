@@ -27,6 +27,23 @@ export interface MultiLayerMap {
   file: string;
 }
 
+/**
+ * First non-transparent pixel row of each radar image (of 1024). Used to place
+ * the visible map directly below the map strip regardless of the image padding.
+ */
+export const RADAR_CONTENT_TOP: Record<string, number> = {
+  de_ancient: 72,
+  de_anubis: 26,
+  de_cache: 175,
+  de_dust2: 21,
+  de_inferno: 53,
+  de_mirage: 159,
+  de_nuke: 29,
+  de_overpass: 13,
+  de_train: 129,
+  de_vertigo: 34,
+};
+
 export type RadarMap = SingleLayerMap | MultiLayerMap;
 
 const single = (x: number, y: number, pxPerUX: number, pxPerUY: number, file: string): SingleLayerMap => ({

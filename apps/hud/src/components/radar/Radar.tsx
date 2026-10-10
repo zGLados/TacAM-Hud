@@ -1,7 +1,10 @@
 import type { Bomb, CSGO, Grenade, Player } from 'csgogsi';
 import { normalizeMapName } from '@tacam/shared';
 import { GSI } from '../../state/store';
-import { RADAR_MAPS, type RadarMap, type RadarTransform } from './maps';
+import { RADAR_CONTENT_TOP, RADAR_MAPS, type RadarMap, type RadarTransform } from './maps';
+
+/** Space between the map strip and the visible radar image. */
+const RADAR_GAP = 6;
 
 const PLAYER_SIZE = 70;
 const SMOKE_SIZE = 50;
@@ -184,7 +187,11 @@ function BombMarker({ bomb, map }: { bomb: Bomb | null; map: RadarMap }) {
 export function Radar({ game, size }: { game: CSGO; size: number }) {
   const mapName = normalizeMapName(game.map.name);
   const offset = (size - (size * size) / 1024) / 2;
-  const style = { width: size, height: size, transform: `scale(${size / 1024})`, top: -offset, left: -offset };
+  // The map is drawn 1.15× larger around its center (radar.css), so it starts
+  // 0.075·size above the box; shift it so the image content starts GAP below the strip.
+  const contentTop = RADAR_CONTENT_TOP[mapName] ?? 0;
+  const marginTop = RADAR_GAP + 0.075 * size - (contentTop * 1.15 * size) / 1024;
+  const style = { width: size, height: size, transform: `scale(${size / 1024})`, top: -offset, left: -offset, marginTop };
   const map = RADAR_MAPS[mapName];
   if (!map) {
     return (

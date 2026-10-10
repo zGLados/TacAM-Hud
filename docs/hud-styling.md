@@ -32,6 +32,7 @@ The HUD keeps the values and layout of the TacAM skin, but with its own descript
 ## Intentional differences from the skin
 
 - The kill feed sits at `top: 155px` instead of `93px` (it overlapped the sponsors).
+- The radar starts directly below the map strip: `Radar.tsx` sets `margin-top` per map from the transparent padding of each radar image (`RADAR_CONTENT_TOP` in `radar/maps.ts`) instead of the skin's fixed 35 px.
 - The economy box sits next to the money box (there is no room in the column above it).
 - Removed because they had no effect or were unused in the skin: scout prediction bar, camera container, `round-thingy`, `.no-bo`, zeus/secondary weapon rules.
 - Trivia and player spotlight are stacked in one center column (`.center-stack`) instead of overlapping; alone they keep the skin's positions (130 px / 220 px).
