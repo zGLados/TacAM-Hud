@@ -14,6 +14,8 @@ export interface TriggerAction {
   group: 'Scenes' | 'HUD' | 'Overlays' | 'Teams';
   label: string;
   run: () => void;
+  /** For toggles and scenes: whether the action's state is currently on (button feedback in Companion). */
+  isActive?: () => boolean;
 }
 
 type VisibilityKey = keyof HudConfig['visibility'];
@@ -26,12 +28,14 @@ export function createActions(store: Store, live: LiveHub, io: HudServer): Trigg
   const hudAction = (type: HudAction['type']) => () => io.emit('action', { type });
   const toggleVisibility = (key: VisibilityKey) => () =>
     patchConfig({ visibility: { ...config().visibility, [key]: !config().visibility[key] } });
+  const visible = (key: VisibilityKey) => () => config().visibility[key];
 
   const sceneActions: TriggerAction[] = SCENE_IDS.map((id) => ({
     id: `scene-${id}`,
     group: 'Scenes',
     label: `Scene: ${SCENE_LABELS[id]}`,
     run: () => store.setDoc('scene', { ...store.doc('scene'), active: id }),
+    isActive: () => store.doc('scene').active === id,
   }));
 
   return [
@@ -41,40 +45,45 @@ export function createActions(store: Store, live: LiveHub, io: HudServer): Trigg
       group: 'Scenes',
       label: 'Automatic scenes on/off',
       run: () => store.setDoc('scene', { ...store.doc('scene'), auto: !store.doc('scene').auto }),
+      isActive: () => store.doc('scene').auto,
     },
     { id: 'hud-toggle', group: 'HUD', label: 'Show/hide the HUD', run: hudAction('toggleHud') },
     { id: 'hud-refresh', group: 'HUD', label: 'Reload all HUDs', run: () => io.emit('refresh') },
     { id: 'radar-bigger', group: 'HUD', label: 'Radar bigger', run: hudAction('radarBigger') },
     { id: 'radar-smaller', group: 'HUD', label: 'Radar smaller', run: hudAction('radarSmaller') },
     { id: 'radar-enlarge-toggle', group: 'HUD', label: 'Enlarged radar on/off', run: hudAction('toggleRadarView') },
-    { id: 'radar-toggle', group: 'HUD', label: 'Radar on/off', run: toggleVisibility('radar') },
-    { id: 'killfeed-toggle', group: 'HUD', label: 'Own kill feed on/off', run: toggleVisibility('killfeed') },
-    { id: 'round-history-toggle', group: 'HUD', label: 'Round history on/off', run: toggleVisibility('roundHistory') },
-    { id: 'economy-toggle', group: 'HUD', label: 'Economy box on/off', run: toggleVisibility('economy') },
-    { id: 'sponsors-toggle', group: 'HUD', label: 'Sponsors on/off', run: toggleVisibility('sponsors') },
+    { id: 'radar-toggle', group: 'HUD', label: 'Radar on/off', run: toggleVisibility('radar'), isActive: visible('radar') },
+    { id: 'killfeed-toggle', group: 'HUD', label: 'Own kill feed on/off', run: toggleVisibility('killfeed'), isActive: visible('killfeed') },
+    { id: 'round-history-toggle', group: 'HUD', label: 'Round history on/off', run: toggleVisibility('roundHistory'), isActive: visible('roundHistory') },
+    { id: 'economy-toggle', group: 'HUD', label: 'Economy box on/off', run: toggleVisibility('economy'), isActive: visible('economy') },
+    { id: 'sponsors-toggle', group: 'HUD', label: 'Sponsors on/off', run: toggleVisibility('sponsors'), isActive: visible('sponsors') },
     {
       id: 'side-boxes-toggle',
       group: 'Overlays',
       label: 'Side boxes on/off',
       run: () => patchConfig({ sideBoxes: { ...config().sideBoxes, hidden: !config().sideBoxes.hidden } }),
+      isActive: () => !config().sideBoxes.hidden,
     },
     {
       id: 'trivia-toggle',
       group: 'Overlays',
       label: 'Trivia on/off',
       run: () => patchConfig({ trivia: { ...config().trivia, visible: !config().trivia.visible } }),
+      isActive: () => config().trivia.visible,
     },
     {
       id: 'player-preview-toggle',
       group: 'Overlays',
       label: 'Player preview on/off',
       run: () => patchConfig({ playerPreview: { ...config().playerPreview, visible: !config().playerPreview.visible } }),
+      isActive: () => config().playerPreview.visible,
     },
     {
       id: 'match-preview-toggle',
       group: 'Overlays',
       label: 'Match preview on/off',
       run: () => patchConfig({ matchPreview: { ...config().matchPreview, visible: !config().matchPreview.visible } }),
+      isActive: () => config().matchPreview.visible,
     },
     ...(['scoreboard', 'economy', 'comparison'] as const).map(
       (overlay): TriggerAction => ({
@@ -82,15 +91,23 @@ export function createActions(store: Store, live: LiveHub, io: HudServer): Trigg
         group: 'Overlays',
         label: `${OVERLAY_LABELS[overlay]} on/off`,
         run: () => patchConfig({ overlay: config().overlay === overlay ? 'none' : overlay }),
+        isActive: () => config().overlay === overlay,
       })
     ),
     { id: 'overlay-off', group: 'Overlays', label: 'Hide center overlay', run: () => patchConfig({ overlay: 'none' }) },
-    { id: 'swap-teams', group: 'Teams', label: 'Swap teams left/right', run: () => patchConfig({ swapTeams: !config().swapTeams }) },
+    {
+      id: 'swap-teams',
+      group: 'Teams',
+      label: 'Swap teams left/right',
+      run: () => patchConfig({ swapTeams: !config().swapTeams }),
+      isActive: () => config().swapTeams,
+    },
     {
       id: 'keep-sides-toggle',
       group: 'Teams',
       label: 'Keep team sides after halftime on/off',
       run: () => patchConfig({ keepTeamSides: !config().keepTeamSides }),
+      isActive: () => config().keepTeamSides,
     },
     {
       id: 'swap-map-sides',
@@ -105,6 +122,13 @@ export function createActions(store: Store, live: LiveHub, io: HudServer): Trigg
       },
     },
   ];
+}
+
+/** State for Companion feedback: scene, overlay and every action with an on/off state. */
+export function triggerStatus(store: Store, actions: TriggerAction[]) {
+  const active: Record<string, boolean> = {};
+  for (const action of actions) if (action.isActive) active[action.id] = action.isActive();
+  return { scene: store.doc('scene').active, overlay: store.doc('hudConfig').overlay, active };
 }
 
 /** Shortcuts of earlier versions (same as JTs-Hud / TacAM skin). */

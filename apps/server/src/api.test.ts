@@ -230,6 +230,15 @@ describe('API', () => {
     await fetch(`${base}/trigger/swap-teams`, { method: 'POST', headers: { 'x-tacam-key': key } });
     expect(server.store.doc('hudConfig').swapTeams).toBe(!swapped);
 
+    const status = await (await fetch(`${base}/trigger-status?key=${key}`)).json();
+    expect(status.scene).toBe('brb');
+    expect(status.active['scene-brb']).toBe(true);
+    expect(status.active['scene-live']).toBe(false);
+    expect(status.active['swap-teams']).toBe(!swapped);
+    expect(await (await fetch(`${base}/trigger-status/scene-brb?key=${key}&format=text`)).text()).toBe('1');
+    expect((await fetch(`${base}/trigger-status?key=wrong`)).status).toBe(403);
+    expect((await fetch(`${base}/trigger-status/hud-refresh?key=${key}`)).status).toBe(404); // no state
+
     // a new key invalidates the old URLs
     const { actionKey } = await (await fetch(`${base}/settings/action-key`, json('POST'))).json();
     expect(actionKey).not.toBe(key);

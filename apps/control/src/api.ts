@@ -56,6 +56,8 @@ export interface TriggerActionInfo {
   id: string;
   group: string;
   label: string;
+  /** Has an on/off state for button feedback (/api/trigger-status/<id>). */
+  hasState: boolean;
 }
 
 export type PlayerInput = Omit<PlayerProfile, 'id'>;

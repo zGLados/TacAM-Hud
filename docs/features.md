@@ -51,7 +51,7 @@ With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnoti
 
 ## Stream Deck / Companion (trigger URLs)
 
-`apps/server/src/actions.ts` defines one-click actions (scenes, HUD toggles, overlays, swap teams, swap map sides) as `/api/trigger/<id>?key=<actionKey>`, callable with GET or POST because many button tools can only open a URL. The key lives in the settings, is required even for local requests (so a web page in the browser cannot fire actions against 127.0.0.1) and can be renewed under Settings → Stream Deck / Companion, which also lists all URLs. From another computer the server needs LAN access.
+`apps/server/src/actions.ts` defines one-click actions (scenes, HUD toggles, overlays, swap teams, swap map sides) as `/api/trigger/<id>?key=<actionKey>`, callable with GET or POST because many button tools can only open a URL. The key lives in the settings, is required even for local requests (so a web page in the browser cannot fire actions against 127.0.0.1) and can be renewed under Settings → Stream Deck / Companion, which also lists all URLs. From another computer the server needs LAN access. For button feedback, actions with an on/off state (scenes, toggles, overlays) report it via `/api/trigger-status/<id>?key=…&format=text` (`1`/`0`, e.g. for a Companion feedback that polls the URL) and `/api/trigger-status?key=…` (JSON with scene, overlay and all states); the settings page has a “State” button per action.
 
 ## Captain veto
 

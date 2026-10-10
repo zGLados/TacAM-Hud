@@ -12,7 +12,7 @@ import type { HudServer } from './io.js';
 import { DemoMatch, seedDemoData } from './demo.js';
 import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from './gsiInstall.js';
 import { loginHandler, statusHandler } from './auth.js';
-import { isAccelerator, TriggerError, validActionKey, type TriggerAction } from './actions.js';
+import { isAccelerator, triggerStatus, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 import { captainVetoRoutes } from './captainVeto.js';
 
 const str = z.string().trim();
@@ -329,7 +329,20 @@ export function createApi({ store, live, io, actions, uploadsDir, gsiPort, demo 
 
   // --- trigger URLs (Stream Deck / Companion) -----------------------------
 
-  api.get('/actions', (_req, res) => res.json(actions.map(({ id, group, label }) => ({ id, group, label }))));
+  api.get('/actions', (_req, res) => res.json(actions.map(({ id, group, label, isActive }) => ({ id, group, label, hasState: !!isActive }))));
+  // Button feedback for Companion: poll the whole state or one action ("1"/"0" as plain text with ?format=text).
+  api.get('/trigger-status', (req, res) => {
+    if (!validActionKey(store, req.query.key ?? req.headers['x-tacam-key'])) return res.status(403).json({ error: 'Invalid or missing key' });
+    res.json(triggerStatus(store, actions));
+  });
+  api.get('/trigger-status/:id', (req, res) => {
+    if (!validActionKey(store, req.query.key ?? req.headers['x-tacam-key'])) return res.status(403).json({ error: 'Invalid or missing key' });
+    const action = actions.find((a) => a.id === req.params.id);
+    if (!action?.isActive) return res.status(404).json({ error: `No state for action: ${req.params.id}` });
+    const active = action.isActive();
+    if (req.query.format === 'text') return res.type('text/plain').send(active ? '1' : '0');
+    res.json({ id: action.id, active });
+  });
   // GET as well: many button tools can only open a URL. The key is required even
   // for local requests, so a web page in the browser cannot trigger actions.
   api.all('/trigger/:id', (req, res) => {

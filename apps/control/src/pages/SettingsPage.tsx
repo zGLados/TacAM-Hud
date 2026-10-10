@@ -113,6 +113,7 @@ function TriggerUrls({ settings, onKeyChange }: { settings: Settings; onKeyChang
   const hosts = ['127.0.0.1', ...(settings.lanAccess ? settings.addresses : [])];
   const [host, setHost] = useState(hosts[0]);
   const url = (id: string) => `http://${host}:${port}/api/trigger/${id}?key=${settings.actionKey}`;
+  const stateUrl = (id: string) => `http://${host}:${port}/api/trigger-status/${id}?key=${settings.actionKey}&format=text`;
   const groups = [...new Set(actions.map((a) => a.group))];
   return (
     <Card
@@ -126,7 +127,8 @@ function TriggerUrls({ settings, onKeyChange }: { settings: Settings; onKeyChang
     >
       <p className="muted small">
         Each action is a URL (GET or POST). In Bitfocus Companion use the “Generic HTTP” module, on a Stream Deck any “open URL” / API
-        plugin. The key in the URL is secret: anyone with it can trigger the actions.
+        plugin. The key in the URL is secret: anyone with it can trigger the actions. “State” copies a URL that returns 1 or 0 (e.g. scene is
+        live, overlay is on) for button feedback in Companion; <code>/api/trigger-status?key=…</code> returns everything as JSON.
       </p>
       <Field label="Address used in the URLs" hint={settings.lanAccess ? undefined : 'Enable LAN access to use the buttons from another computer.'}>
         <select value={host} onChange={(e) => setHost(e.target.value)}>
@@ -148,10 +150,15 @@ function TriggerUrls({ settings, onKeyChange }: { settings: Settings; onKeyChang
                   <tr key={a.id}>
                     <td className="nowrap">{a.label}</td>
                     <td className="mono small trigger_url">{url(a.id)}</td>
-                    <td className="right">
+                    <td className="right nowrap">
                       <button className="button small" onClick={() => run(() => copyText(url(a.id)), 'Copied')}>
                         Copy
-                      </button>
+                      </button>{' '}
+                      {a.hasState && (
+                        <button className="button small ghost" title="Returns 1 or 0" onClick={() => run(() => copyText(stateUrl(a.id)), 'State URL copied')}>
+                          State
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
