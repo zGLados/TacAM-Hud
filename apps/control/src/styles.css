@@ -916,3 +916,12 @@ input[type='range'] {
 .monitor_label.live {
   color: var(--primary-hover);
 }
+
+.trigger_table td {
+  padding: 6px 8px;
+}
+
+.trigger_url {
+  word-break: break-all;
+  color: var(--muted);
+}

@@ -193,6 +193,38 @@ describe('API', () => {
     expect([live.left.name, live.right.name]).toEqual(['Beta', 'Alpha']);
   });
 
+  it('keeps a newly added random default across restarts', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tacam-store-'));
+    const file = path.join(dir, 'db.json');
+    const { Store } = await import('./store.js');
+    new Store(dir);
+    const db = JSON.parse(fs.readFileSync(file, 'utf8'));
+    delete db.settings.actionKey; // database from a version without the field
+    fs.writeFileSync(file, JSON.stringify(db));
+    const first = new Store(dir).doc('settings').actionKey;
+    expect(new Store(dir).doc('settings').actionKey).toBe(first);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('runs trigger actions only with the action key', async () => {
+    const key = server.store.doc('settings').actionKey;
+    expect((await fetch(`${base}/trigger/scene-brb`)).status).toBe(403);
+    expect((await fetch(`${base}/trigger/scene-brb?key=wrong`, json('POST'))).status).toBe(403);
+    expect((await fetch(`${base}/trigger/nope?key=${key}`)).status).toBe(404);
+
+    expect((await fetch(`${base}/trigger/scene-brb?key=${key}`)).status).toBe(200);
+    expect((await (await fetch(`${base}/scene`)).json()).active).toBe('brb');
+    const swapped = server.store.doc('hudConfig').swapTeams;
+    await fetch(`${base}/trigger/swap-teams`, { method: 'POST', headers: { 'x-tacam-key': key } });
+    expect(server.store.doc('hudConfig').swapTeams).toBe(!swapped);
+
+    // a new key invalidates the old URLs
+    const { actionKey } = await (await fetch(`${base}/settings/action-key`, json('POST'))).json();
+    expect(actionKey).not.toBe(key);
+    expect((await fetch(`${base}/trigger/scene-live?key=${key}`)).status).toBe(403);
+    expect((await fetch(`${base}/trigger/scene-live?key=${actionKey}`)).status).toBe(200);
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

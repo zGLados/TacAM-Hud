@@ -37,11 +37,17 @@ With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnoti
 
 ## HUD configuration ("panel")
 
-`HudConfig`: trivia, side boxes (title/subtitle/logo), player and match preview, swap teams, radar size, visibility of individual elements, team logo as avatar. Changes reach all HUDs immediately via Socket.io. HUD actions (`radarBigger`, `radarSmaller`, `toggleRadarView`, `toggleHud`) are transient and come from shortcuts or buttons.
+`HudConfig`: trivia, side boxes (title/subtitle/logo), player and match preview, swap teams, keep team sides after halftime, radar size, visibility of individual elements, team logo as avatar. Changes reach all HUDs immediately via Socket.io. HUD actions (`radarBigger`, `radarSmaller`, `toggleRadarView`, `toggleHud`) are transient and come from shortcuts or buttons.
 
 ## Theme editor
 
 `Theme.colors` → CSS variables `--color-<key>` (`primary`, `panel`, `panel-strong`, `ct`, `t`, `money`, `bomb`, `defuse`, `border`, `text`, `text-muted`), plus `--radius`, `--hud-font`, sponsors (rotation, interval; each logo can be replaced, renamed and reordered), the brand logo in the top right corner (own toggle, optional grayscale) and the tournament logo. On the first start the default sponsors and the TacAM logo are copied into the uploads (`apps/server/src/defaultMedia.ts`), so they are regular entries that can be replaced or removed; removed defaults do not come back. The preview in the editor receives unsaved changes via `postMessage` (`tacam:theme-preview`, same origin only); OBS only sees saved themes.
+
+**Keep team sides after halftime** (`keepTeamSides`): CS2 always shows CT on the left, so teams change HUD sides at halftime. With the option on, `LiveHub` remembers per map which team (database profile, else CS team name) was on the left and sends `flip: true` in the update once it appears on the right. Only the display flips; the observer slot numbers stay the in-game ones. Coaches marked in the player database are removed from the GSI data before teams and sides are resolved, also as spectated player.
+
+## Stream Deck / Companion (trigger URLs)
+
+`apps/server/src/actions.ts` defines one-click actions (scenes, HUD toggles, overlays, swap teams, swap map sides) as `/api/trigger/<id>?key=<actionKey>`, callable with GET or POST because many button tools can only open a URL. The key lives in the settings, is required even for local requests (so a web page in the browser cannot fire actions against 127.0.0.1) and can be renewed under Settings → Stream Deck / Companion, which also lists all URLs. From another computer the server needs LAN access.
 
 ## Production control from a second device
 

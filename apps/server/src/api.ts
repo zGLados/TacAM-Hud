@@ -12,6 +12,7 @@ import type { HudServer } from './io.js';
 import { DemoMatch, seedDemoData } from './demo.js';
 import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from './gsiInstall.js';
 import { loginHandler, statusHandler } from './auth.js';
+import { createActions, TriggerError, validActionKey } from './actions.js';
 
 const str = z.string().trim();
 const nullableStr = z.string().trim().nullable();
@@ -319,6 +320,28 @@ export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOpt
     res.json({ ok: true });
   });
 
+  // --- trigger URLs (Stream Deck / Companion) -----------------------------
+
+  const actions = createActions(store, live, io);
+  api.get('/actions', (_req, res) => res.json(actions.map(({ id, group, label }) => ({ id, group, label }))));
+  // GET as well: many button tools can only open a URL. The key is required even
+  // for local requests, so a web page in the browser cannot trigger actions.
+  api.all('/trigger/:id', (req, res) => {
+    if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).end();
+    if (!validActionKey(store, req.query.key ?? req.headers['x-tacam-key'])) {
+      return res.status(403).json({ error: 'Invalid or missing key' });
+    }
+    const action = actions.find((a) => a.id === req.params.id);
+    if (!action) return res.status(404).json({ error: `Unknown action: ${req.params.id}` });
+    try {
+      action.run();
+    } catch (error) {
+      const status = error instanceof TriggerError ? error.status : 500;
+      return res.status(status).json({ error: (error as Error).message });
+    }
+    res.json({ ok: true, action: action.id });
+  });
+
   api.get('/theme', (_req, res) => res.json(store.doc('theme')));
   api.put(
     '/theme',
@@ -369,6 +392,11 @@ export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOpt
       res.json(store.setDoc('settings', { ...store.doc('settings'), ...body }));
     })
   );
+  api.post('/settings/action-key', (_req, res) => {
+    // Invalidates all trigger URLs handed out so far.
+    const settings = store.setDoc('settings', { ...store.doc('settings'), actionKey: randomUUID().replace(/-/g, '') });
+    res.json({ actionKey: settings.actionKey });
+  });
   api.post(
     '/settings/install-gsi',
     h((_req, res) => {

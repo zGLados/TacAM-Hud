@@ -5,8 +5,8 @@ Hand-over state for the next session. Latest release: **v0.1.6**, the Windows in
 ## Open tasks
 
 - **In progress: LHM roadmap phase 1** ([lhm-roadmap.md](lhm-roadmap.md)), order #1 → #6 → #7 → #2 → #3 → #4 → #5, one commit per feature, release at the end.
-  - Done: #1 keep team sides after halftime.
-  - Next: #6 REST actions for Stream Deck/Companion.
+  - Done: #1 keep team sides after halftime, #6 trigger URLs for Stream Deck/Companion.
+  - Next: #7 wingman / 1v1.
 
 ## Decided / not planned
 

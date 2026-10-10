@@ -43,10 +43,18 @@ export interface Settings {
   lanAccess: boolean;
   accessPin: string;
   telnet: { host: string; port: number };
+  actionKey: string;
   gsiPort: number;
   cs2CfgDir: string | null;
   gsiInstalled: boolean;
   addresses: string[];
+}
+
+/** A trigger URL action, see apps/server/src/actions.ts. */
+export interface TriggerActionInfo {
+  id: string;
+  group: string;
+  label: string;
 }
 
 export type PlayerInput = Omit<PlayerProfile, 'id'>;
@@ -111,6 +119,10 @@ export const api = {
     get: () => request<Settings>('GET', '/settings'),
     save: (s: Pick<Settings, 'steamPath' | 'lanAccess' | 'accessPin' | 'telnet'>) => request<Settings>('PUT', '/settings', s),
     installGsi: () => request<{ file: string }>('POST', '/settings/install-gsi'),
+    newActionKey: () => request<{ actionKey: string }>('POST', '/settings/action-key'),
+  },
+  actions: {
+    list: () => request<TriggerActionInfo[]>('GET', '/actions'),
   },
   demo: {
     status: () => request<{ running: boolean }>('GET', '/demo'),

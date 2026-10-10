@@ -22,6 +22,8 @@ export interface Settings {
   /** PIN required for non-local access. Empty = no LAN access allowed. */
   accessPin: string;
   telnet: { host: string; port: number };
+  /** Secret for `/api/trigger/<action>` URLs (Stream Deck, Companion). */
+  actionKey: string;
   /** Default sponsors/brand logo were copied into uploads (see defaultMedia.ts). */
   defaultMediaSeeded: boolean;
 }
@@ -46,6 +48,7 @@ const defaults = (): Database => ({
     lanAccess: false,
     accessPin: '',
     telnet: { host: '127.0.0.1', port: 2020 },
+    actionKey: randomUUID().replace(/-/g, ''),
     defaultMediaSeeded: false,
   },
   hudConfig: DEFAULT_HUD_CONFIG,
@@ -94,7 +97,11 @@ export class Store extends EventEmitter {
       return fresh;
     }
     const stored = JSON.parse(fs.readFileSync(this.file, 'utf8'));
-    return mergeDefaults(defaults(), stored);
+    // Write back right away: new fields may carry random defaults (e.g. actionKey)
+    // that must stay the same across restarts.
+    this.data = mergeDefaults(defaults(), stored);
+    this.flush();
+    return this.data;
   }
 
   flush() {

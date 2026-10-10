@@ -164,6 +164,20 @@ export const SCENE_IDS = [
 
 export type SceneId = (typeof SCENE_IDS)[number];
 
+/** Display names of the scenes (control panel, trigger URLs). */
+export const SCENE_LABELS: Record<SceneId, string> = {
+  live: 'Live HUD',
+  starting: 'Starting Soon',
+  brb: 'Be Right Back',
+  pause: 'Technical pause',
+  halftime: 'Halftime',
+  veto: 'Map veto',
+  scoreboard: 'Scoreboard',
+  matchEnd: 'Match end',
+  upcoming: 'Upcoming matches',
+  playerToWatch: 'Player to Watch',
+};
+
 export interface SceneState {
   active: SceneId;
   /** Let the server switch scenes based on game phase (pause, halftime, game over). */

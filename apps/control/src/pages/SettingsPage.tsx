@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, useData, type Settings } from '../api';
-import { Card, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
+import { Card, ConfirmButton, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
 
 const OBS_SCENES: [string, string][] = [
   ['live', 'In-game HUD only'],
@@ -37,6 +37,65 @@ function CopyField({ label, value }: { label: string; value: string }) {
         </button>
       </div>
     </Field>
+  );
+}
+
+/** Trigger URLs for Stream Deck / Bitfocus Companion, see apps/server/src/actions.ts. */
+function TriggerUrls({ settings, onKeyChange }: { settings: Settings; onKeyChange: () => void }) {
+  const run = useRun();
+  const { data: actions } = useData(api.actions.list, []);
+  const port = window.location.port || '1349';
+  // Other devices only reach the server with LAN access (it listens on 127.0.0.1 otherwise).
+  const hosts = ['127.0.0.1', ...(settings.lanAccess ? settings.addresses : [])];
+  const [host, setHost] = useState(hosts[0]);
+  const url = (id: string) => `http://${host}:${port}/api/trigger/${id}?key=${settings.actionKey}`;
+  const groups = [...new Set(actions.map((a) => a.group))];
+  return (
+    <Card
+      title="Stream Deck / Companion"
+      className="span_two"
+      actions={
+        <ConfirmButton className="small ghost" onConfirm={async () => (await run(api.settings.newActionKey, 'New key – old URLs no longer work')) && onKeyChange()}>
+          New key
+        </ConfirmButton>
+      }
+    >
+      <p className="muted small">
+        Each action is a URL (GET or POST). In Bitfocus Companion use the “Generic HTTP” module, on a Stream Deck any “open URL” / API
+        plugin. The key in the URL is secret: anyone with it can trigger the actions.
+      </p>
+      <Field label="Address used in the URLs" hint={settings.lanAccess ? undefined : 'Enable LAN access to use the buttons from another computer.'}>
+        <select value={host} onChange={(e) => setHost(e.target.value)}>
+          {hosts.map((h) => (
+            <option key={h} value={h}>
+              {h === '127.0.0.1' ? '127.0.0.1 (this computer)' : h}
+            </option>
+          ))}
+        </select>
+      </Field>
+      {groups.map((group) => (
+        <details key={group}>
+          <summary className="small">{group}</summary>
+          <table className="table trigger_table">
+            <tbody>
+              {actions
+                .filter((a) => a.group === group)
+                .map((a) => (
+                  <tr key={a.id}>
+                    <td className="nowrap">{a.label}</td>
+                    <td className="mono small trigger_url">{url(a.id)}</td>
+                    <td className="right">
+                      <button className="button small" onClick={() => run(() => copyText(url(a.id)), 'Copied')}>
+                        Copy
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </details>
+      ))}
+    </Card>
   );
 }
 
@@ -123,6 +182,8 @@ export function SettingsPage() {
             Without LAN access the server only listens on this computer (127.0.0.1). Changes to LAN access take effect after restarting the app.
           </p>
         </Card>
+
+        <TriggerUrls settings={settings} onKeyChange={reload} />
       </div>
     </>
   );
