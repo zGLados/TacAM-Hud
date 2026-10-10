@@ -9,6 +9,7 @@ import { TeamsPage } from './pages/TeamsPage';
 import { MatchesPage } from './pages/MatchesPage';
 import { StatsPage } from './pages/StatsPage';
 import { ThemePage } from './pages/ThemePage';
+import { SignalsPage } from './pages/SignalsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 const NAV = [
@@ -19,6 +20,7 @@ const NAV = [
   { to: '/teams', label: 'Teams' },
   { to: '/players', label: 'Players' },
   { to: '/theme', label: 'Theme' },
+  { to: '/signals', label: 'Signals' },
   { to: '/settings', label: 'Settings' },
 ];
 
@@ -85,6 +87,7 @@ function Shell() {
           <Route path="/teams" element={<TeamsPage />} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/theme" element={<ThemePage />} />
+          <Route path="/signals" element={<SignalsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/live" replace />} />
         </Routes>

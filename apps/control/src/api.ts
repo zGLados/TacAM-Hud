@@ -15,6 +15,8 @@ import type {
   Theme,
   ObsSettings,
   ObsStatus,
+  SignalLogEntry,
+  SignalRule,
 } from '@tacam/shared';
 
 export class ApiError extends Error {
@@ -48,6 +50,7 @@ export interface Settings {
   actionKey: string;
   keybinds: Record<string, string>;
   obs: ObsSettings;
+  signals: SignalRule[];
   gsiPort: number;
   cs2CfgDir: string | null;
   gsiInstalled: boolean;
@@ -131,7 +134,12 @@ export const api = {
     newActionKey: () => request<{ actionKey: string }>('POST', '/settings/action-key'),
     saveKeybinds: (keybinds: Record<string, string>) => request<Record<string, string>>('PUT', '/settings/keybinds', keybinds),
     saveObs: (obs: ObsSettings) => request<ObsSettings>('PUT', '/settings/obs', obs),
+    saveSignals: (signals: SignalRule[]) => request<SignalRule[]>('PUT', '/settings/signals', signals),
     obsStatus: () => request<ObsStatus>('GET', '/obs'),
+  },
+  signals: {
+    log: () => request<SignalLogEntry[]>('GET', '/signals/log'),
+    test: (rule: SignalRule) => request<{ ok: boolean; message: string }>('POST', '/signals/test', rule),
   },
   actions: {
     list: () => request<TriggerActionInfo[]>('GET', '/actions'),

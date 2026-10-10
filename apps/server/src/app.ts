@@ -9,6 +9,7 @@ import { LiveHub } from './live.js';
 import { createApi } from './api.js';
 import { createActions, type TriggerAction } from './actions.js';
 import { ObsBridge } from './obs.js';
+import { SignalEngine } from './signals.js';
 import { DemoMatch } from './demo.js';
 import { seedDefaultMedia } from './defaultMedia.js';
 import { authMiddleware, isAuthorized } from './auth.js';
@@ -56,6 +57,8 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   const demo = new DemoMatch((raw) => live.ingest(raw, true));
   const actions = createActions(store, live, io);
   const obs = new ObsBridge(store);
+  const signals = new SignalEngine(store, actions, obs, (side) => live.displaySlot(side));
+  live.onEvents = (events) => signals.handle(events);
 
   // --- realtime ----------------------------------------------------------
 
@@ -102,7 +105,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   // --- HTTP --------------------------------------------------------------
 
   app.use(authMiddleware(store));
-  app.use('/api', createApi({ store, live, io, actions, obs, uploadsDir, gsiPort, demo }));
+  app.use('/api', createApi({ store, live, io, actions, obs, signals, uploadsDir, gsiPort, demo }));
   app.use(
     '/uploads',
     express.static(uploadsDir, {

@@ -296,6 +296,50 @@ describe('API', () => {
     expect(server.store.get('matches', match.id)!.vetos).toHaveLength(7);
   });
 
+  it('fires signals on game events (action and HTTP request)', async () => {
+    const { createServer } = await import('node:http');
+    const hits: string[] = [];
+    const receiver = createServer((req, res) => {
+      hits.push(`${req.method} ${req.url}`);
+      res.end('ok');
+    });
+    await new Promise<void>((r) => receiver.listen(0, '127.0.0.1', () => r()));
+    const url = `http://127.0.0.1:${(receiver.address() as { port: number }).port}/api/location/1/0/2/press`;
+    const rules = [
+      { id: 'a', enabled: true, event: 'roundEnd', filter: 'CT', output: { kind: 'action', action: 'overlay-scoreboard' }, delay: 0 },
+      { id: 'b', enabled: true, event: 'roundEnd', filter: null, output: { kind: 'http', method: 'POST', url }, delay: 0 },
+      { id: 'c', enabled: true, event: 'roundEnd', filter: 'T', output: { kind: 'http', method: 'GET', url: `${url}?t` }, delay: 0 },
+      { id: 'd', enabled: false, event: 'roundEnd', filter: null, output: { kind: 'http', method: 'GET', url: `${url}?off` }, delay: 0 },
+    ];
+    expect((await fetch(`${base}/settings/signals`, json('PUT', [{ ...rules[0], output: { kind: 'action', action: 'nope' } }]))).status).toBe(400);
+    expect((await fetch(`${base}/settings/signals`, json('PUT', rules))).status).toBe(200);
+    await fetch(`${base}/hud/config`, json('PUT', { ...server.store.doc('hudConfig'), overlay: 'none' }));
+
+    const team = { score: 3, consecutive_round_losses: 0, timeouts_remaining: 1, matches_won_this_series: 0 };
+    const gsi = (round: object) => ({
+      auth: { token: server.store.doc('settings').gsiToken },
+      provider: { name: 'Counter-Strike: Global Offensive', appid: 730, version: 1, steamid: '1', timestamp: 1 },
+      map: { mode: 'competitive', name: 'de_nuke', phase: 'live', round: 6, team_ct: team, team_t: team, num_matches_to_win_series: 0, current_spectators: 0, souvenirs_total: 0, round_wins: {} },
+      round,
+      allplayers: {},
+      phase_countdowns: { phase: 'live', phase_ends_in: '10.0' },
+    });
+    await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', gsi({ phase: 'live' })));
+    await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', gsi({ phase: 'over', win_team: 'CT' })));
+    await new Promise((r) => setTimeout(r, 300));
+
+    expect(server.store.doc('hudConfig').overlay).toBe('scoreboard');
+    expect(hits).toEqual(['POST /api/location/1/0/2/press']); // T filter and disabled rule did not fire
+    const log = await (await fetch(`${base}/signals/log`)).json();
+    expect(log.map((e: { ruleId: string; ok: boolean }) => `${e.ruleId}:${e.ok}`).sort()).toEqual(['a:true', 'b:true']);
+
+    const test = await (await fetch(`${base}/signals/test`, json('POST', rules[2]))).json();
+    expect(test.ok).toBe(true);
+    expect(hits).toHaveLength(2);
+    receiver.close();
+    await fetch(`${base}/settings/signals`, json('PUT', []));
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

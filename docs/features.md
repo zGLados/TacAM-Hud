@@ -61,6 +61,10 @@ Matches → *Captain veto* starts a veto session for a match (`apps/server/src/c
 
 `apps/server/src/obs.ts` connects to OBS via obs-websocket v5 (OBS 28+, Tools → WebSocket Server Settings) with `obs-websocket-js` (JSON variant). Settings → OBS WebSocket holds URL, password and a mapping TacAM scene → OBS scene; whenever the TacAM scene changes (click, automation, trigger URL), the mapped OBS scene becomes the program scene. Unmapped scenes leave OBS alone. The bridge reconnects every 5 s while enabled and reports its state and the OBS scene list (`GET /api/obs`). `ObsBridge.call()` sends any other request (used by later features such as signals or replays). Tests run against a small fake obs-websocket server (`obs.test.ts`), including the password challenge.
 
+## Signals (game events → actions)
+
+GSI has no events, so `detectGameEvents()` (`apps/server/src/signals.ts`) derives them from two consecutive updates: round start/live/end (with winner), bomb planted/defused/exploded, ace, match point (`winsNeeded()` incl. overtime), tactical timeout, technical pause, halftime and match end. Rules in `settings.signals` (page **Signals**) filter by side (CT/T) or displayed team (left/right, honoring flip and swap), wait an optional delay and run an output: a TacAM action from `actions.ts`, an HTTP request (Bitfocus Companion `POST /api/location/<page>/<row>/<column>/press`, webhooks), an OBS scene or *save replay buffer* via the OBS bridge. The last 30 fired signals with their result are listed on the page; *Test* fires one rule right away. Events also fire in the demo match.
+
 ## Keyboard shortcuts (desktop app)
 
 `settings.keybinds` maps action ids from `actions.ts` to Electron accelerators (`""` = unbound; keys are never deleted because loading merges defaults back in). The desktop app registers them as global shortcuts and re-registers on every settings change; defaults are the earlier fixed keys (Alt+V/B/N/O/F). The editor (Settings → Keyboard shortcuts) records a key combination, requires a modifier, and the server rejects invalid accelerators and duplicates. `Alt+H` (overlay window) stays a menu accelerator of the app window.

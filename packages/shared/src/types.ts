@@ -171,6 +171,50 @@ export const SCENE_IDS = [
 
 export type SceneId = (typeof SCENE_IDS)[number];
 
+/** Game events that can fire signals (apps/server/src/signals.ts). */
+export const SIGNAL_EVENTS = [
+  'roundStart',
+  'roundLive',
+  'roundEnd',
+  'bombPlanted',
+  'bombDefused',
+  'bombExploded',
+  'ace',
+  'matchPoint',
+  'timeout',
+  'pause',
+  'halftime',
+  'matchEnd',
+] as const;
+export type SignalEvent = (typeof SIGNAL_EVENTS)[number];
+
+export type SignalOutput =
+  /** e.g. Bitfocus Companion: POST http://<companion>:8000/api/location/<page>/<row>/<column>/press */
+  | { kind: 'http'; method: 'GET' | 'POST'; url: string }
+  /** Any trigger action id (actions.ts), e.g. overlay-scoreboard. */
+  | { kind: 'action'; action: string }
+  | { kind: 'obsScene'; scene: string }
+  | { kind: 'obsReplay' };
+
+export interface SignalRule {
+  id: string;
+  enabled: boolean;
+  event: SignalEvent;
+  /** Only when the event belongs to this side/team (winner, planting team, ace player's team …); null = any. */
+  filter: 'CT' | 'T' | 'left' | 'right' | null;
+  output: SignalOutput;
+  /** Seconds to wait before the output fires. */
+  delay: number;
+}
+
+export interface SignalLogEntry {
+  at: number;
+  ruleId: string;
+  event: SignalEvent;
+  ok: boolean;
+  message: string;
+}
+
 /** OBS connection via obs-websocket v5 (settings). */
 export interface ObsSettings {
   enabled: boolean;

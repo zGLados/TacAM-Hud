@@ -15,6 +15,7 @@ import {
 } from '@tacam/shared';
 import type { Store } from './store.js';
 import type { HudServer } from './io.js';
+import { detectGameEvents, type GameEvent } from './signals.js';
 
 export const uploadUrl = (file: string | null) => (file ? `/uploads/${encodeURIComponent(file)}` : null);
 
@@ -60,6 +61,8 @@ export class LiveHub {
   /** Team shown on the left when `keepTeamSides` took effect on this map. */
   private sideAnchor: { map: string; leftKey: string } | null = null;
   private flip = false;
+  /** Receives game events derived from consecutive updates (signals). */
+  onEvents: ((events: GameEvent[]) => void) | null = null;
 
   constructor(
     private store: Store,
@@ -259,12 +262,21 @@ export class LiveHub {
     }
 
     this.autoScene(data);
+    this.onEvents?.(detectGameEvents(this.last, data, rules));
     this.last = data;
 
     if (Date.now() - this.lastSummaryAt > 500) {
       this.lastSummaryAt = Date.now();
       this.io.to('control').emit('live', this.summary());
     }
+  }
+
+  /** Where a side is shown right now (left/right), honoring the halftime flip and the swap switch. */
+  displaySlot(side: Side): 'left' | 'right' | null {
+    if (!this.last) return null;
+    const team = side === 'CT' ? this.last.map.team_ct : this.last.map.team_t;
+    const swapped = this.flip !== this.store.doc('hudConfig').swapTeams;
+    return swapped ? (team.orientation === 'left' ? 'right' : 'left') : team.orientation;
   }
 
   summary(): LiveSummary | null {

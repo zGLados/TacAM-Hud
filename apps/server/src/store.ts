@@ -14,6 +14,7 @@ import {
   type TeamProfile,
   type Theme,
   type ObsSettings,
+  type SignalRule,
 } from '@tacam/shared';
 
 export interface Settings {
@@ -32,6 +33,8 @@ export interface Settings {
    */
   keybinds: Record<string, string>;
   obs: ObsSettings;
+  /** Game event → output rules (signals.ts). */
+  signals: SignalRule[];
   /** Default sponsors/brand logo were copied into uploads (see defaultMedia.ts). */
   defaultMediaSeeded: boolean;
 }
@@ -59,6 +62,7 @@ const defaults = (): Database => ({
     actionKey: randomUUID().replace(/-/g, ''),
     keybinds: { ...DEFAULT_KEYBINDS },
     obs: { enabled: false, url: 'ws://127.0.0.1:4455', password: '', sceneMap: {} },
+    signals: [],
     defaultMediaSeeded: false,
   },
   hudConfig: DEFAULT_HUD_CONFIG,

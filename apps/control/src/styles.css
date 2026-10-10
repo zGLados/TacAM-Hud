@@ -934,3 +934,42 @@ input[type='range'] {
 .trigger_table .row {
   justify-content: flex-end;
 }
+
+/* signals page */
+.signal_rule {
+  padding: 12px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.signal_rule.is-off {
+  opacity: 0.55;
+}
+.signal_rule_row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+.signal_rule_row + .signal_rule_row {
+  margin-top: 8px;
+}
+.signal_rule_row .field {
+  margin: 0;
+}
+.signal_rule_row .field:has(.grow) {
+  flex: 1;
+  min-width: 260px;
+}
+.signal_rule_row input[type='number'] {
+  width: 90px;
+}
+.signal_rule_buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+td.bad {
+  color: var(--t);
+}

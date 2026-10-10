@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
-import { HUD_OVERLAYS, SCENE_IDS, THEME_COLOR_KEYS, type HudBootstrap } from '@tacam/shared';
+import { HUD_OVERLAYS, SCENE_IDS, SIGNAL_EVENTS, THEME_COLOR_KEYS, type HudBootstrap } from '@tacam/shared';
 import type { Store } from './store.js';
 import type { LiveHub } from './live.js';
 import type { HudServer } from './io.js';
@@ -15,6 +15,7 @@ import { loginHandler, statusHandler } from './auth.js';
 import { isAccelerator, triggerStatus, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 import { captainVetoRoutes } from './captainVeto.js';
 import type { ObsBridge } from './obs.js';
+import type { SignalEngine } from './signals.js';
 
 const str = z.string().trim();
 const nullableStr = z.string().trim().nullable();
@@ -151,12 +152,13 @@ export interface ApiOptions {
   io: HudServer;
   actions: TriggerAction[];
   obs: ObsBridge;
+  signals: SignalEngine;
   uploadsDir: string;
   gsiPort: number;
   demo: DemoMatch;
 }
 
-export function createApi({ store, live, io, actions, obs, uploadsDir, gsiPort, demo }: ApiOptions) {
+export function createApi({ store, live, io, actions, obs, signals, uploadsDir, gsiPort, demo }: ApiOptions) {
   const api = express.Router();
   api.use(express.json({ limit: '1mb' }));
 
@@ -431,6 +433,29 @@ export function createApi({ store, live, io, actions, obs, uploadsDir, gsiPort, 
     })
   );
   api.get('/obs', (_req, res) => res.json(obs.status()));
+
+  const signalRule = z.object({
+    id: str.min(1).max(64),
+    enabled: z.boolean(),
+    event: z.enum(SIGNAL_EVENTS),
+    filter: z.enum(['CT', 'T', 'left', 'right']).nullable(),
+    output: z.discriminatedUnion('kind', [
+      z.object({ kind: z.literal('http'), method: z.enum(['GET', 'POST']), url: z.string().url('Invalid URL').regex(/^https?:/, 'Only http(s) URLs') }),
+      z.object({ kind: z.literal('action'), action: z.string().refine((id) => actions.some((a) => a.id === id), 'Unknown action') }),
+      z.object({ kind: z.literal('obsScene'), scene: str.min(1) }),
+      z.object({ kind: z.literal('obsReplay') }),
+    ]),
+    delay: z.number().min(0).max(60),
+  });
+  api.put(
+    '/settings/signals',
+    h((req, res) => res.json(store.setDoc('settings', { ...store.doc('settings'), signals: z.array(signalRule).max(100).parse(req.body) }).signals))
+  );
+  api.get('/signals/log', (_req, res) => res.json(signals.recent()));
+  api.post(
+    '/signals/test',
+    h(async (req, res) => res.json(await signals.fire(signalRule.parse(req.body))))
+  );
   api.put(
     '/settings/obs',
     h((req, res) => {
