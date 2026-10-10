@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CSGO, Player } from 'csgogsi';
 import { StatsTracker, classifyBuy, computeRating, inferKills } from './stats.js';
-import { formatRoundLabel, roundRules } from './format.js';
+import { formatRoundLabel, roundRules, sideInRound } from './format.js';
 
 type PlayerInit = {
   steamid: string;
@@ -298,5 +298,22 @@ describe('roundRules', () => {
     expect(roundRules(undefined, null).regulationMR).toBe(12);
     expect(formatRoundLabel(7, 8)).toBe('Round 8/16');
     expect(formatRoundLabel(16, 8)).toBe('OT 1 (1/6)');
+  });
+});
+
+describe('sideInRound', () => {
+  const mr12 = roundRules('competitive');
+  it('swaps sides every half, including overtime halves', () => {
+    // a team on T in round 14 (second half) was CT in the first half
+    expect(sideInRound('T', 14, 3, mr12)).toBe('CT');
+    expect(sideInRound('T', 14, 13, mr12)).toBe('T');
+    expect(sideInRound('T', 14, 24, mr12)).toBe('T');
+    // overtime: rounds 25–27 are one half, 28–30 the next
+    expect(sideInRound('CT', 26, 25, mr12)).toBe('CT');
+    expect(sideInRound('CT', 26, 28, mr12)).toBe('T');
+    expect(sideInRound('CT', 26, 24, mr12)).toBe('T');
+    // wingman: rounds 1–8 and 9–16 are the halves
+    expect(sideInRound('CT', 9, 8, roundRules('scrimcomp2v2'))).toBe('T');
+    expect(sideInRound('CT', 9, 16, roundRules('scrimcomp2v2'))).toBe('CT');
   });
 });

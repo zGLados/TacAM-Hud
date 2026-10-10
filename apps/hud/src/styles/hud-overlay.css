@@ -9,6 +9,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  color: var(--color-text);
   animation: overlay-fade-in 0.3s ease-out;
 }
 
@@ -94,4 +95,158 @@
 }
 .scoreboard__table td.is-bad {
   color: var(--color-primary-light);
+}
+
+/* economy graph */
+.economy-graph {
+  width: 1040px;
+  padding: 12px 16px 8px;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+}
+.economy-graph__header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 6px;
+}
+.economy-graph__title {
+  flex: 1;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.economy-graph__legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.economy-graph__legend::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background-color: var(--color-ct);
+}
+.economy-graph__legend[data-side='T']::before {
+  background-color: var(--color-t);
+}
+.economy-graph__chart {
+  display: block;
+  overflow: visible;
+}
+.economy-graph__grid {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+.economy-graph__half {
+  stroke: var(--color-text-muted);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+.economy-graph__axis {
+  fill: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+/* bars use the side the team plays now, so a team keeps one color across halves */
+.economy-graph__bar {
+  fill: var(--color-ct);
+  opacity: 0.55;
+}
+.economy-graph__bar[data-side='T'] {
+  fill: var(--color-t);
+}
+.economy-graph__bar.is-winner {
+  opacity: 1;
+}
+
+/* player comparison */
+.player-comparison {
+  width: 900px;
+  padding: 16px 20px;
+  gap: 8px;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+}
+.player-comparison__header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.player-comparison__player {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.player-comparison__player[data-align='right'] {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+.player-comparison__avatar {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border-bottom: 4px solid var(--color-ct);
+}
+.player-comparison__player[data-side='T'] .player-comparison__avatar {
+  border-bottom-color: var(--color-t);
+}
+.player-comparison__name {
+  font-size: 28px;
+  font-weight: 800;
+}
+.player-comparison__team {
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.player-comparison__vs {
+  padding: 0 18px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-muted);
+}
+.player-comparison__row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.player-comparison__value {
+  width: 90px;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.player-comparison__value.is-better {
+  color: var(--color-text);
+}
+.player-comparison__stat {
+  flex: 1;
+}
+.player-comparison__label {
+  margin-bottom: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.player-comparison__bar {
+  display: flex;
+  height: 8px;
+  gap: 2px;
+}
+.player-comparison__fill {
+  background-color: var(--color-ct);
+  transition: width 0.4s ease-out;
+}
+.player-comparison__fill[data-side='T'] {
+  background-color: var(--color-t);
 }

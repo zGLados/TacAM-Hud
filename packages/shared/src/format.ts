@@ -33,6 +33,19 @@ export function roundRules(mode: string | undefined, override?: number | null): 
   return { regulationMR, overtimeMR: 3 };
 }
 
+/** Index of the half a round (1-based) belongs to; overtime halves continue the count. */
+export function halfIndex(round: number, rules: RoundRules): number {
+  const regulation = rules.regulationMR * 2;
+  if (round <= regulation) return round <= rules.regulationMR ? 0 : 1;
+  return 2 + Math.floor((round - regulation - 1) / rules.overtimeMR);
+}
+
+/** Side a team played in `round`, given the side it plays in `currentRound` (sides swap every half). */
+export function sideInRound(currentSide: 'CT' | 'T', currentRound: number, round: number, rules: RoundRules): 'CT' | 'T' {
+  const swaps = Math.abs(halfIndex(round, rules) - halfIndex(currentRound, rules));
+  return swaps % 2 === 0 ? currentSide : currentSide === 'CT' ? 'T' : 'CT';
+}
+
 /** "de_mirage" or "workshop/123/de_mirage" → "de_mirage" */
 export function normalizeMapName(name: string): string {
   return name.substring(name.lastIndexOf('/') + 1);

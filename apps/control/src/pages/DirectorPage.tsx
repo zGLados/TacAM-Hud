@@ -232,8 +232,11 @@ const OVERLAYS: { id: HudOverlay; label: string }[] = [
   { id: 'comparison', label: 'Player comparison' },
 ];
 
+const NO_PLAYERS: { steamid: string; name: string }[] = [];
+
 function OverlayPanel() {
   const { config, save } = useConfigEditor();
+  const livePlayers = useLive((s) => s.summary?.players) ?? NO_PLAYERS;
   if (!config) return null;
   return (
     <Card title="Overlays">
@@ -244,7 +247,27 @@ function OverlayPanel() {
           </button>
         ))}
       </div>
-      <p className="muted small">Shown in the center of the live HUD, one at a time. Also available as Stream Deck actions.</p>
+      <div className="grid two">
+        {(['left', 'right'] as const).map((slot) => (
+          <Field key={slot} label={slot === 'left' ? 'Compare: player 1' : 'Compare: player 2'}>
+            <select
+              value={config.comparison[slot] ?? ''}
+              onChange={(e) => save({ comparison: { ...config.comparison, [slot]: e.target.value || null } })}
+            >
+              <option value="">—</option>
+              {livePlayers.map((p) => (
+                <option key={p.steamid} value={p.steamid}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+        ))}
+      </div>
+      <p className="muted small">
+        Shown in the center of the live HUD, one at a time. The comparison uses the players of the running game. Also available as Stream
+        Deck actions.
+      </p>
     </Card>
   );
 }
