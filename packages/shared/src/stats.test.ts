@@ -246,6 +246,16 @@ describe('StatsTracker', () => {
     expect(snap.rounds).toEqual([]);
   });
 
+  it('starts over when a different game is played on the same map', () => {
+    const t = new StatsTracker();
+    playRound(t, 0, { aK: 0, bD: 0 }, 0);
+    const others: PlayerInit[] = [{ steamid: 'x', side: 'CT' }, { steamid: 'y', side: 'T' }];
+    t.update(game(5, 'live', others), 100);
+    const ids = t.snapshot().players.map((p) => p.steamid);
+    expect(ids).not.toContain('a');
+    expect(t.snapshot().rounds).toEqual([]);
+  });
+
   it('resets on map change', () => {
     const t = new StatsTracker();
     t.update(game(0, 'live', [{ steamid: 'a', side: 'CT' }]), 0);

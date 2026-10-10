@@ -21,7 +21,9 @@ export const uploadUrl = (file: string | null) => (file ? `/uploads/${encodeURIC
 const AUTO_SCENES: SceneId[] = ['live', 'pause', 'halftime', 'matchEnd'];
 
 export class LiveHub {
-  private gsi = new CSGOGSI();
+  private gsi = this.createGsi();
+  /** Where the current data comes from; switching resets the session. */
+  private source: 'demo' | 'game' | null = null;
   readonly tracker = new StatsTracker();
   last: CSGO | null = null;
   lastRaw: CSGORaw | null = null;
@@ -36,11 +38,30 @@ export class LiveHub {
     private store: Store,
     private io: HudServer
   ) {
-    // CS2 uses MR12 with MR3 overtime; csgogsi still defaults to MR15.
-    this.gsi.regulationMR = 12;
-    this.gsi.overtimeMR = 3;
-    this.gsi.on('matchEnd', (score: Score) => this.onMatchEnd(score));
     setInterval(() => this.broadcastStatus(), 2000).unref();
+  }
+
+  private createGsi() {
+    const gsi = new CSGOGSI();
+    // CS2 uses MR12 with MR3 overtime; csgogsi still defaults to MR15.
+    gsi.regulationMR = 12;
+    gsi.overtimeMR = 3;
+    gsi.on('matchEnd', (score: Score) => this.onMatchEnd(score));
+    return gsi;
+  }
+
+  /**
+   * Forgets everything about the previous game (stats, kill feed, parser state)
+   * and makes HUDs reload, e.g. when real CS2 data replaces the demo match.
+   */
+  private resetSession() {
+    this.gsi = this.createGsi();
+    this.tracker.reset(null);
+    this.killfeed = [];
+    this.last = null;
+    this.lastRoundsCount = 0;
+    this.io.emit('stats', this.tracker.snapshot());
+    this.io.emit('refresh');
   }
 
   get status(): GsiStatus {
@@ -132,6 +153,10 @@ export class LiveHub {
   }
 
   ingest(raw: CSGORaw, demo = false) {
+    const source = demo ? 'demo' : 'game';
+    if (this.source && this.source !== source) this.resetSession();
+    this.source = source;
+
     const coaches = new Set(
       this.store
         .list('players')

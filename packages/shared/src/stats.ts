@@ -176,7 +176,10 @@ export class StatsTracker {
   update(cur: CSGO, now = Date.now()): KillFeedEntry[] {
     const prev = this.prev;
     // Going back in rounds (backup restore, mp_restartgame) is handled per round below.
-    if (cur.map.name !== this.mapName || (prev && prev.map.phase !== 'warmup' && cur.map.phase === 'warmup')) {
+    // None of the current players are known: a different game on the same map
+    // (e.g. the observer switched servers without a warmup in between).
+    const differentGame = this.totals.size > 0 && cur.players.length > 0 && !cur.players.some((p) => this.totals.has(p.steamid));
+    if (cur.map.name !== this.mapName || differentGame || (prev && prev.map.phase !== 'warmup' && cur.map.phase === 'warmup')) {
       this.reset(cur.map.name);
     }
     this.prev = cur;
