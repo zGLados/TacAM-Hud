@@ -97,10 +97,9 @@ export class GameConsole {
           lastError = error as Error;
         }
       }
-      this.lastError =
-        candidates.length > 1
-          ? `Nothing listens on port ${port} (tried ${candidates.join(', ')}) – start CS2 with -netconport ${port}`
-          : lastError?.message ?? 'Connection failed';
+      // CS2 bug on Windows: -netconport only opens the port together with -tools (Workshop Tools).
+      const hint = process.platform === 'win32' ? `start CS2 with -tools -netconport ${port} (Workshop Tools needed)` : `start CS2 with -netconport ${port}`;
+      this.lastError = candidates.length > 1 ? `Nothing listens on port ${port} (tried ${candidates.join(', ')}) – ${hint}` : lastError?.message ?? 'Connection failed';
       throw new Error(this.lastError);
     })().finally(() => {
       this.connecting = null;
