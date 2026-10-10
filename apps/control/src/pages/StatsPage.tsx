@@ -29,15 +29,15 @@ export function StatsPage() {
   return (
     <>
       <PageHeader
-        title="Statistik"
-        description={`Live berechnet aus den GSI-Daten${stats.map ? ` · ${prettyMapName(stats.map)}` : ''}. Rating nach HLTV 1.0, KAST inkl. Trades (5 s).`}
+        title="Stats"
+        description={`Calculated live from the GSI data${stats.map ? ` · ${prettyMapName(stats.map)}` : ''}. Rating: HLTV 1.0, KAST incl. trades (5 s).`}
       />
       {(['CT', 'T'] as const).map((side) => (
         <Card key={side} title={<span className={`side_${side}`}>{teamName(side)}</span>}>
           <table className="table">
             <thead>
               <tr>
-                <th>Spieler</th>
+                <th>Player</th>
                 {COLUMNS.map((c) => (
                   <th key={c.key} className="right">
                     {c.label}
@@ -68,14 +68,14 @@ export function StatsPage() {
           </table>
         </Card>
       ))}
-      <Card title="Rundenverlauf & Economy">
+      <Card title="Round history & economy">
         <table className="table">
           <thead>
             <tr>
-              <th>Runde</th>
-              <th>Sieger</th>
-              <th>Art</th>
-              <th>Bombe</th>
+              <th>Round</th>
+              <th>Winner</th>
+              <th>Type</th>
+              <th>Bomb</th>
               <th className="right">CT Equipment</th>
               <th className="right">T Equipment</th>
             </tr>
@@ -86,7 +86,7 @@ export function StatsPage() {
                 <td>{r.round}</td>
                 <td className={r.winner ? `side_${r.winner}` : ''}>{r.winner ?? '—'}</td>
                 <td className="muted">{r.outcome?.replace(/^(ct|t)_win_/, '') ?? '—'}</td>
-                <td>{r.bombPlanted ? 'gelegt' : ''}</td>
+                <td>{r.bombPlanted ? 'planted' : ''}</td>
                 <td className="right">{r.economy.CT ? `$${r.economy.CT.equipment} · ${BUY[r.economy.CT.buy]}` : '—'}</td>
                 <td className="right">{r.economy.T ? `$${r.economy.T.equipment} · ${BUY[r.economy.T.buy]}` : '—'}</td>
               </tr>
@@ -94,7 +94,7 @@ export function StatsPage() {
             {!stats.rounds.length && (
               <tr>
                 <td colSpan={6} className="muted center">
-                  Noch keine abgeschlossenen Runden.
+                  No finished rounds yet.
                 </td>
               </tr>
             )}

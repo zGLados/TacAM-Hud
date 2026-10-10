@@ -10,34 +10,34 @@ function TeamForm({ initial, onClose }: { initial: TeamProfile | null; onClose: 
   const [team, setTeam] = useState<TeamInput>(initial ?? emptyTeam);
   const set = (patch: Partial<TeamInput>) => setTeam((t) => ({ ...t, ...patch }));
   const save = async () => {
-    const ok = await run(() => (initial ? api.teams.update(initial.id, team) : api.teams.create(team)), 'Team gespeichert');
+    const ok = await run(() => (initial ? api.teams.update(initial.id, team) : api.teams.create(team)), 'Team saved');
     if (ok) onClose();
   };
   return (
     <Modal
-      title={initial ? `${initial.name} bearbeiten` : 'Neues Team'}
+      title={initial ? `Edit ${initial.name}` : 'New team'}
       onClose={onClose}
       footer={
         <>
           <button className="button ghost" onClick={onClose}>
-            Abbrechen
+            Cancel
           </button>
           <button className="button primary" onClick={save}>
-            Speichern
+            Save
           </button>
         </>
       }
     >
       <div className="form_with_image">
-        <ImageUpload value={team.logo} onChange={(logo) => set({ logo })} label="Logo" />
+        <ImageUpload value={team.logo} onChange={(logo) => set({ logo })} label="Choose logo" />
         <div className="stack grow">
           <Field label="Name">
             <input value={team.name} onChange={(e) => set({ name: e.target.value })} autoFocus />
           </Field>
-          <Field label="Kürzel" hint="Für Veto-Karten und schmale Anzeigen">
+          <Field label="Short name" hint="For veto cards and narrow displays">
             <input value={team.shortName} maxLength={8} onChange={(e) => set({ shortName: e.target.value })} />
           </Field>
-          <Field label="Land">
+          <Field label="Country">
             <CountrySelect value={team.country} onChange={(country) => set({ country })} />
           </Field>
         </div>
@@ -56,7 +56,7 @@ export function TeamsPage() {
     <>
       <PageHeader
         title="Teams"
-        description="Logo und Name erscheinen in Matchbar, Szenen und Veto."
+        description="Logo and name appear in the match bar, scenes and veto."
         actions={
           <button className="button primary" onClick={() => setEditing('new')}>
             + Team
@@ -78,14 +78,14 @@ export function TeamsPage() {
                 </div>
               </div>
               <div className="roster">
-                {roster.length ? roster.map((p) => <span key={p.id} className="chip">{p.username}</span>) : <span className="muted small">Keine Spieler</span>}
+                {roster.length ? roster.map((p) => <span key={p.id} className="chip">{p.username}</span>) : <span className="muted small">No players</span>}
               </div>
               <div className="row">
                 <button className="button small" onClick={() => setEditing(t)}>
-                  Bearbeiten
+                  Edit
                 </button>
-                <ConfirmButton className="small danger" onConfirm={() => run(() => api.teams.remove(t.id), 'Team gelöscht')}>
-                  Löschen
+                <ConfirmButton className="small danger" onConfirm={() => run(() => api.teams.remove(t.id), 'Team deleted')}>
+                  Delete
                 </ConfirmButton>
               </div>
             </Card>
@@ -93,7 +93,7 @@ export function TeamsPage() {
         })}
         {!teams.length && (
           <Card>
-            <p className="muted">Noch keine Teams angelegt.</p>
+            <p className="muted">No teams yet.</p>
           </Card>
         )}
       </div>

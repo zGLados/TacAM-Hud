@@ -30,7 +30,7 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 
 Static paths: `/hud/`, `/control/`, `/uploads/<file>`.
 
-Error messages in API responses are currently German because they are shown directly in the control panel.
+Error messages in API responses are English and shown directly in the control panel.
 
 ## Socket.io
 

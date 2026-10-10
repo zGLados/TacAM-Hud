@@ -3,15 +3,15 @@ import { api, useData, type Settings } from '../api';
 import { Card, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
 
 const OBS_SCENES: [string, string][] = [
-  ['live', 'Nur In-Game-HUD'],
+  ['live', 'In-game HUD only'],
   ['starting', 'Starting Soon'],
   ['brb', 'Be Right Back'],
-  ['pause', 'Technische Pause'],
-  ['halftime', 'Halbzeit'],
-  ['veto', 'Map-Veto'],
+  ['pause', 'Technical pause'],
+  ['halftime', 'Halftime'],
+  ['veto', 'Map veto'],
   ['scoreboard', 'Scoreboard'],
-  ['matchEnd', 'Match-Ende'],
-  ['upcoming', 'Kommende Matches'],
+  ['matchEnd', 'Match end'],
+  ['upcoming', 'Upcoming matches'],
   ['playerToWatch', 'Player to Watch'],
 ];
 
@@ -32,8 +32,8 @@ function CopyField({ label, value }: { label: string; value: string }) {
     <Field label={label}>
       <div className="row">
         <input value={value} readOnly onFocus={(e) => e.target.select()} />
-        <button className="button small" onClick={() => run(() => copyText(value), 'Kopiert')}>
-          Kopieren
+        <button className="button small" onClick={() => run(() => copyText(value), 'Copied')}>
+          Copy
         </button>
       </div>
     </Field>
@@ -55,20 +55,20 @@ export function SettingsPage() {
     const restartNeeded = draft.lanAccess !== settings.lanAccess;
     const ok = await run(
       () => api.settings.save({ steamPath: draft.steamPath || null, lanAccess: draft.lanAccess, accessPin: draft.accessPin, telnet: draft.telnet }),
-      restartNeeded ? 'Gespeichert – LAN-Zugriff wird nach einem Neustart der App aktiv' : 'Gespeichert'
+      restartNeeded ? 'Saved – LAN access takes effect after restarting the app' : 'Saved'
     );
     if (ok) reload();
   };
 
   return (
     <>
-      <PageHeader title="Einstellungen" actions={<button className="button primary" onClick={save}>Speichern</button>} />
+      <PageHeader title="Settings" actions={<button className="button primary" onClick={save}>Save</button>} />
       <div className="grid two">
         <Card title="CS2 Game State Integration">
           <div className="status_row">
-            <span className={`status_pill ${settings.gsiInstalled ? 'ok' : 'off'}`}>{settings.gsiInstalled ? 'Config installiert' : 'Config fehlt'}</span>
+            <span className={`status_pill ${settings.gsiInstalled ? 'ok' : 'off'}`}>{settings.gsiInstalled ? 'Config installed' : 'Config missing'}</span>
           </div>
-          <Field label="Steam-Ordner" hint={settings.cs2CfgDir ? `CS2 gefunden: ${settings.cs2CfgDir}` : 'Leer lassen für automatische Suche'}>
+          <Field label="Steam folder" hint={settings.cs2CfgDir ? `CS2 found: ${settings.cs2CfgDir}` : 'Leave empty to search automatically'}>
             <input value={draft.steamPath ?? ''} placeholder="C:\Program Files (x86)\Steam" onChange={(e) => set({ steamPath: e.target.value })} />
           </Field>
           <div className="row wrap">
@@ -78,28 +78,28 @@ export function SettingsPage() {
                 await save();
                 const result = await run(api.settings.installGsi);
                 if (result) {
-                  toast(`Installiert: ${result.file}`);
+                  toast(`Installed: ${result.file}`);
                   reload();
                 }
               }}
             >
-              GSI-Config installieren
+              Install GSI config
             </button>
             <a className="button ghost" href="/api/settings/gsi-config">
-              Config herunterladen
+              Download config
             </a>
           </div>
-          <p className="muted small">Nach der Installation CS2 neu starten. Die Config sendet an Port {settings.gsiPort} und enthält ein geheimes Token.</p>
+          <p className="muted small">Restart CS2 after installing. The config sends to port {settings.gsiPort} and contains a secret token.</p>
         </Card>
 
-        <Card title="OBS / Browser-Quelle">
-          <CopyField label="HUD-URL (1920×1080, transparent)" value={`${origin}/hud/`} />
-          <p className="muted small">In OBS als Browser-Quelle mit 1920×1080 einfügen. „Eigenes CSS“ leer lassen.</p>
+        <Card title="OBS / browser source">
+          <CopyField label="HUD URL (1920×1080, transparent)" value={`${origin}/hud/`} />
+          <p className="muted small">Add it in OBS as a 1920×1080 browser source. Leave “Custom CSS” empty.</p>
           <details>
-            <summary className="small">Feste URL pro Szene (Szenenwechsel direkt in OBS)</summary>
+            <summary className="small">Fixed URL per scene (switch scenes in OBS)</summary>
             <p className="muted small">
-              Jede OBS-Szene bekommt ihre eigene Browser-Quelle. Diese URLs ignorieren die Szenenwahl im Control-Panel;
-              „Nur In-Game-HUD“ blendet nie eine Vollbild-Szene ein.
+              Each OBS scene gets its own browser source. These URLs ignore the scene chosen in the control panel;
+              “In-game HUD only” never shows a full-screen scene.
             </p>
             {OBS_SCENES.map(([id, label]) => (
               <CopyField key={id} label={label} value={`${origin}/hud/?scene=${id}`} />
@@ -107,20 +107,20 @@ export function SettingsPage() {
           </details>
         </Card>
 
-        <Card title="Zugriff von anderen Geräten" className="span_two">
-          <Toggle checked={draft.lanAccess} onChange={(lanAccess) => set({ lanAccess })} label="LAN-Zugriff erlauben (Regie auf Tablet/zweitem PC)" />
-          <Field label="PIN" hint="4–12 Ziffern. Wird auf anderen Geräten einmalig abgefragt.">
+        <Card title="Access from other devices" className="span_two">
+          <Toggle checked={draft.lanAccess} onChange={(lanAccess) => set({ lanAccess })} label="Allow LAN access (director on a tablet / second PC)" />
+          <Field label="PIN" hint="4–12 digits. Asked once on other devices.">
             <input value={draft.accessPin} inputMode="numeric" onChange={(e) => set({ accessPin: e.target.value.replace(/\D/g, '') })} />
           </Field>
           {settings.lanAccess && settings.addresses.length > 0 && (
             <div className="stack">
               {settings.addresses.map((ip) => (
-                <CopyField key={ip} label={`Control-Panel über ${ip}`} value={`http://${ip}:${port}/control/`} />
+                <CopyField key={ip} label={`Control panel via ${ip}`} value={`http://${ip}:${port}/control/`} />
               ))}
             </div>
           )}
           <p className="muted small">
-            Ohne LAN-Zugriff lauscht der Server nur auf diesem Rechner (127.0.0.1). Änderungen am LAN-Zugriff werden nach einem Neustart der App wirksam.
+            Without LAN access the server only listens on this computer (127.0.0.1). Changes to LAN access take effect after restarting the app.
           </p>
         </Card>
       </div>

@@ -24,12 +24,12 @@ At map end (csgogsi event `matchEnd`) the server writes score and winner into th
 `SceneState { active, auto, message, countdownTo }`. Scenes: `live`, `starting`, `brb`, `pause`, `halftime`, `veto`, `scoreboard`, `matchEnd`, `upcoming`, `playerToWatch`. With `auto`, the server switches between `live` ↔ `pause` (game phase `paused`), `halftime` (map phase `intermission`, or `paused` at a half break as with `mp_halftime_pausematch`) and `matchEnd` (`gameover`), but only while one of these scenes is active. It only switches when the game phase changes, so a scene the producer picks by hand stays until the next phase change. Full-screen scenes hide the in-game HUD.
 
 - **Upcoming matches** (`upcoming`): up to 5 matches that are neither current nor finished, sorted by `startTime` (unscheduled last), with teams, format and title. Reloads every 30 s.
-- **Player to watch** (`playerToWatch`): the player set in `HudConfig.playerToWatch` (Regie page) with avatar, real name, team and live match stats (rating, K–D, ADR, KAST, HS, opening kills).
+- **Player to watch** (`playerToWatch`): the player set in `HudConfig.playerToWatch` (Director page) with avatar, real name, team and live match stats (rating, K–D, ADR, KAST, HS, opening kills).
 - **Background videos**: `Theme.backgroundVideos` play muted in random order behind starting soon, BRB and upcoming matches, with a lighter tint over them. Uploaded via `POST /api/uploads/video` (MP4/WebM, max 500 MB); OBS can play H.264, Playwright's headless shell cannot.
 
-**Preview/program on the Regie page:** with "Szenenwechsel bestätigen" (default on, stored per device), clicking a scene only queues it. The queued scene is shown in a preview monitor (`/hud/?scene=<id>`) next to the live output, and goes on air with "Übernehmen" ("Verwerfen" drops it). With the switch off, a click switches immediately.
+**Preview/program on the Director page:** with "Confirm scene changes" (default on, stored per device), clicking a scene only queues it. The queued scene is shown in a preview monitor (`/hud/?scene=<id>`) next to the live output, and goes on air with "Take" ("Discard" drops it). With the switch off, a click switches immediately.
 
-**Fixed OBS URL per scene:** `/hud/?scene=<id>` always shows that scene and ignores the scene chosen in the control panel, so every OBS scene can have its own browser source and scenes are switched in OBS. `/hud/?scene=live` shows only the in-game HUD and never a full-screen scene. The URLs are listed in the control panel under Einstellungen → OBS.
+**Fixed OBS URL per scene:** `/hud/?scene=<id>` always shows that scene and ignores the scene chosen in the control panel, so every OBS scene can have its own browser source and scenes are switched in OBS. `/hud/?scene=live` shows only the in-game HUD and never a full-screen scene. The URLs are listed in the control panel under Settings → OBS / browser source.
 
 ## Kill feed
 
@@ -49,7 +49,7 @@ Settings → enable LAN access + PIN, restart the app. The control panel shows t
 
 ## Demo match
 
-`apps/server/src/demo.ts` simulates a complete match on de_mirage (buying, movement, kills, bomb, defuse, halftime, game over) as real GSI payloads. *Demo-Daten anlegen* creates matching teams, players and a BO3. Real GSI data stops the demo automatically.
+`apps/server/src/demo.ts` simulates a complete match on de_mirage (buying, movement, kills, bomb, defuse, halftime, game over) as real GSI payloads. *Create demo data* creates matching teams, players and a BO3. Real GSI data stops the demo automatically.
 
 ## Known limitations
 

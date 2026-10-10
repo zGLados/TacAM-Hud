@@ -5,17 +5,17 @@ import { HudMonitor } from '../components/HudMonitor';
 import { Card, ColorInput, ConfirmButton, Field, ImageUpload, PageHeader, Toggle, useRun } from '../components/ui';
 
 const COLOR_LABELS: Record<ThemeColorKey, string> = {
-  primary: 'Akzentfarbe',
-  panel: 'Panel-Hintergrund',
-  'panel-strong': 'Haupt-Panel',
-  ct: 'CT-Farbe',
-  t: 'T-Farbe',
-  money: 'Geld',
-  bomb: 'Bomben-Timer',
+  primary: 'Accent',
+  panel: 'Panel background',
+  'panel-strong': 'Main panel',
+  ct: 'CT color',
+  t: 'T color',
+  money: 'Money',
+  bomb: 'Bomb timer',
   defuse: 'Defuse',
-  border: 'Rahmen / Balken',
+  border: 'Borders / bars',
   text: 'Text',
-  'text-muted': 'Text gedämpft',
+  'text-muted': 'Muted text',
 };
 
 /** One rotating sponsor: replace the logo in place, rename, reorder or remove it. */
@@ -38,20 +38,20 @@ function SponsorItem({
   const input = useRef<HTMLInputElement>(null);
   return (
     <div className="sponsor_item">
-      <img src={uploadUrl(sponsor.file)!} alt={sponsor.label} title="Klicken zum Ersetzen" onClick={() => input.current?.click()} />
+      <img src={uploadUrl(sponsor.file)!} alt={sponsor.label} title="Click to replace" onClick={() => input.current?.click()} />
       <input value={sponsor.label} placeholder="Name" onChange={(e) => onChange({ ...sponsor, label: e.target.value })} />
       <div className="row">
-        <button className="button small" onClick={() => onMove(-1)} disabled={first} aria-label="Nach vorne">
+        <button className="button small" onClick={() => onMove(-1)} disabled={first} aria-label="Move left">
           ←
         </button>
         <button className="button small" onClick={() => input.current?.click()}>
-          Ersetzen
+          Replace
         </button>
-        <button className="button small" onClick={() => onMove(1)} disabled={last} aria-label="Nach hinten">
+        <button className="button small" onClick={() => onMove(1)} disabled={last} aria-label="Move right">
           →
         </button>
       </div>
-      <button className="icon_button" onClick={onRemove} aria-label="Entfernen">
+      <button className="icon_button" onClick={onRemove} aria-label="Remove">
         ×
       </button>
       <input
@@ -77,10 +77,10 @@ function BackgroundVideos({ videos, onChange }: { videos: Theme['backgroundVideo
   const input = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   return (
-    <Card title="Hintergrundvideos">
+    <Card title="Background videos">
       <p className="muted">
-        Laufen in zufälliger Reihenfolge hinter Starting Soon, Be Right Back und Kommende Matches (ohne Ton). MP4 oder WebM bis 500 MB,
-        am besten 1920×1080 und wenige MBit/s, damit OBS flüssig bleibt.
+        Play in random order behind starting soon, be right back and upcoming matches (muted). MP4 or WebM up to 500 MB,
+        ideally 1920×1080 at a few Mbit/s so OBS stays smooth.
       </p>
       <div className="stack">
         {videos.map((video, i) => (
@@ -91,7 +91,7 @@ function BackgroundVideos({ videos, onChange }: { videos: Theme['backgroundVideo
               placeholder="Name"
               onChange={(e) => onChange(videos.map((v, j) => (j === i ? { ...v, label: e.target.value } : v)))}
             />
-            <button className="icon_button" onClick={() => onChange(videos.filter((_, j) => j !== i))} aria-label="Entfernen">
+            <button className="icon_button" onClick={() => onChange(videos.filter((_, j) => j !== i))} aria-label="Remove">
               ×
             </button>
           </div>
@@ -99,7 +99,7 @@ function BackgroundVideos({ videos, onChange }: { videos: Theme['backgroundVideo
       </div>
       <div className="row">
         <button className="button" disabled={uploading} onClick={() => input.current?.click()}>
-          {uploading ? 'Wird hochgeladen…' : 'Video hochladen'}
+          {uploading ? 'Uploading…' : 'Upload video'}
         </button>
       </div>
       <input
@@ -112,7 +112,7 @@ function BackgroundVideos({ videos, onChange }: { videos: Theme['backgroundVideo
           e.target.value = '';
           if (!file) return;
           setUploading(true);
-          const result = await run(() => api.uploadVideo(file), 'Video hochgeladen – Speichern nicht vergessen');
+          const result = await run(() => api.uploadVideo(file), 'Video uploaded – don’t forget to save');
           setUploading(false);
           if (result) {
             const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -130,7 +130,7 @@ function ThemePreview({ reloadKey, theme }: { reloadKey: number; theme: Theme })
   // Push the unsaved theme into the preview; only the iframe sees it, not OBS.
   const post = () => frame.current?.contentWindow?.postMessage({ type: 'tacam:theme-preview', theme }, window.location.origin);
   useEffect(post, [theme]);
-  return <HudMonitor key={reloadKey} src="/hud/" title="HUD-Vorschau" iframeRef={frame} onLoad={() => setTimeout(post, 500)} />;
+  return <HudMonitor key={reloadKey} src="/hud/" title="HUD preview" iframeRef={frame} onLoad={() => setTimeout(post, 500)} />;
 }
 
 export function ThemePage() {
@@ -142,7 +142,7 @@ export function ThemePage() {
   const set = (patch: Partial<Theme>) => setTheme((t) => ({ ...t, ...patch }));
   const dirty = JSON.stringify(theme) !== JSON.stringify(saved);
   const save = async () => {
-    const stored = await run(() => api.theme.save(theme), 'Theme gespeichert – HUD aktualisiert');
+    const stored = await run(() => api.theme.save(theme), 'Theme saved – HUD updated');
     if (!stored) return;
     // The saved state is the new baseline for "dirty", otherwise the button compares against the old one.
     setSaved(stored);
@@ -152,22 +152,28 @@ export function ThemePage() {
   return (
     <>
       <PageHeader
-        title="Theme-Editor"
-        description="Farben, Logos und Sponsoren ändern, ohne CSS anzufassen. Änderungen erscheinen sofort im HUD."
+        title="Theme editor"
+        description="Change colors, logos and sponsors without touching CSS. The preview shows changes immediately."
         actions={
           <>
-            <ConfirmButton className="ghost" onConfirm={() => setTheme(DEFAULT_THEME)}>
-              TacAM-Standard
+            <ConfirmButton
+              className="ghost"
+              // Only the look; sponsors, logos and videos are kept.
+              onConfirm={() =>
+                set({ colors: DEFAULT_THEME.colors, borderRadius: DEFAULT_THEME.borderRadius, fontFamily: DEFAULT_THEME.fontFamily })
+              }
+            >
+              Default colors
             </ConfirmButton>
             <button className="button primary" disabled={!dirty} onClick={save}>
-              {dirty ? 'Speichern' : 'Gespeichert'}
+              {dirty ? 'Save' : 'Saved'}
             </button>
           </>
         }
       />
       <div className="theme_layout">
         <div className="stack">
-          <Card title="Farben">
+          <Card title="Colors">
             <div className="color_grid">
               {THEME_COLOR_KEYS.map((key) => (
                 <Field key={key} label={COLOR_LABELS[key]}>
@@ -176,28 +182,28 @@ export function ThemePage() {
               ))}
             </div>
             <div className="grid two">
-              <Field label={`Eckenradius: ${theme.borderRadius}px`}>
+              <Field label={`Corner radius: ${theme.borderRadius}px`}>
                 <input type="range" min={0} max={20} value={theme.borderRadius} onChange={(e) => set({ borderRadius: Number(e.target.value) })} />
               </Field>
-              <Field label="Schriftart" hint="Muss im OBS-Browser verfügbar sein; Montserrat ist eingebaut">
+              <Field label="Font" hint="Must be available in the OBS browser; Montserrat is built in">
                 <input value={theme.fontFamily} onChange={(e) => set({ fontFamily: e.target.value })} />
               </Field>
             </div>
           </Card>
 
-          <Card title="Turnier">
+          <Card title="Tournament">
             <div className="form_with_image">
-              <ImageUpload value={theme.tournamentLogo} onChange={(tournamentLogo) => set({ tournamentLogo })} label="Turnierlogo" />
-              <Field label="Turniername" hint="Erscheint über den Szenen-Titeln">
+              <ImageUpload value={theme.tournamentLogo} onChange={(tournamentLogo) => set({ tournamentLogo })} label="Choose tournament logo" />
+              <Field label="Tournament name" hint="Shown above the scene titles">
                 <input value={theme.tournamentName} onChange={(e) => set({ tournamentName: e.target.value })} />
               </Field>
             </div>
           </Card>
 
-          <Card title="Sponsoren" actions={<Toggle checked={theme.showSponsors} onChange={(showSponsors) => set({ showSponsors })} label="Anzeigen" />}>
+          <Card title="Sponsors" actions={<Toggle checked={theme.showSponsors} onChange={(showSponsors) => set({ showSponsors })} label="Show" />}>
             <p className="muted">
-              Rotieren oben rechts neben dem Logo. Logo anklicken oder „Ersetzen“ tauscht es aus, die Pfeile ändern die Reihenfolge, ×
-              entfernt es. Danach speichern.
+              Rotate in the top right corner next to the logo. Click a logo or “Replace” to swap it, the arrows change the order, ×
+              removes it. Save afterwards.
             </p>
             <div className="sponsor_list">
               {theme.sponsors.map((s, i) => (
@@ -217,26 +223,26 @@ export function ThemePage() {
               ))}
               <ImageUpload
                 value={null}
-                label="Sponsor hinzufügen"
+                label="Add sponsor"
                 onChange={(file) => file && set({ sponsors: [...theme.sponsors, { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, file, label: '' }] })}
               />
             </div>
-            <Field label={`Wechsel alle ${theme.sponsorInterval} Sekunden`}>
+            <Field label={`Switch every ${theme.sponsorInterval} seconds`}>
               <input type="range" min={3} max={60} value={theme.sponsorInterval} onChange={(e) => set({ sponsorInterval: Number(e.target.value) })} />
             </Field>
           </Card>
 
           <Card
-            title="Logo oben rechts"
-            actions={<Toggle checked={theme.showBrandLogo} onChange={(showBrandLogo) => set({ showBrandLogo })} label="Anzeigen" />}
+            title="Logo top right"
+            actions={<Toggle checked={theme.showBrandLogo} onChange={(showBrandLogo) => set({ showBrandLogo })} label="Show" />}
           >
-            <p className="muted">Steht ganz rechts oben im HUD, unabhängig von den Sponsoren. Standard ist das TacAM-Logo.</p>
+            <p className="muted">Sits in the top right corner of the HUD, independent of the sponsors. The default is the TacAM logo.</p>
             <div className="form_with_image">
-              <ImageUpload value={theme.brandLogo} onChange={(brandLogo) => set({ brandLogo })} label="Logo" />
+              <ImageUpload value={theme.brandLogo} onChange={(brandLogo) => set({ brandLogo })} label="Choose logo" />
               <Toggle
                 checked={theme.brandLogoGrayscale}
                 onChange={(brandLogoGrayscale) => set({ brandLogoGrayscale })}
-                label="Graustufig und gedämpft (TacAM-Stil)"
+                label="Grayscale and muted (TacAM style)"
               />
             </div>
           </Card>
@@ -244,9 +250,9 @@ export function ThemePage() {
           <BackgroundVideos videos={theme.backgroundVideos} onChange={(backgroundVideos) => set({ backgroundVideos })} />
         </div>
 
-        <Card title="Vorschau" className="preview_card">
+        <Card title="Preview" className="preview_card">
           <ThemePreview reloadKey={previewKey} theme={theme} />
-          <p className="muted small">Die Vorschau zeigt Änderungen sofort, OBS erst nach dem Speichern. Für Live-Daten das Demo-Match im Live-Tab starten.</p>
+          <p className="muted small">The preview shows changes immediately, OBS only after saving. Start the demo match in the Live tab for live data.</p>
         </Card>
       </div>
     </>

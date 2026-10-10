@@ -3,7 +3,7 @@
   "productName": "TacAM HUD",
   "version": "0.1.0",
   "private": true,
-  "description": "TacAM HUD Manager – CS2 Broadcast-HUD",
+  "description": "TacAM HUD manager – CS2 broadcast HUD",
   "author": "TacAM",
   "license": "GPL-3.0-only",
   "engines": {

@@ -102,7 +102,7 @@ export function Modal({ title, onClose, children, footer }: { title: string; onC
       <div className="modal" role="dialog" aria-label={title}>
         <header className="modal_header">
           <h2>{title}</h2>
-          <button className="icon_button" onClick={onClose} aria-label="Schließen">
+          <button className="icon_button" onClick={onClose} aria-label="Close">
             ×
           </button>
         </header>
@@ -129,29 +129,29 @@ export function ConfirmButton({ onConfirm, children, className = 'danger' }: { o
         }
       }}
     >
-      {armed ? 'Wirklich?' : children}
+      {armed ? 'Sure?' : children}
     </button>
   );
 }
 
 // --- images -------------------------------------------------------------------
 
-export function ImageUpload({ value, onChange, label = 'Bild' }: { value: string | null; onChange: (file: string | null) => void; label?: string }) {
+export function ImageUpload({ value, onChange, label = 'Choose image' }: { value: string | null; onChange: (file: string | null) => void; label?: string }) {
   const run = useRun();
   const input = useRef<HTMLInputElement>(null);
   const url = uploadUrl(value);
   return (
     <div className="image_upload">
       <div className="image_preview" onClick={() => input.current?.click()}>
-        {url ? <img src={url} alt={label} /> : <span className="muted">{label} wählen</span>}
+        {url ? <img src={url} alt={label} /> : <span className="muted">{label}</span>}
       </div>
       <div className="image_upload_actions">
         <button type="button" className="button small" onClick={() => input.current?.click()}>
-          Hochladen
+          Upload
         </button>
         {value && (
           <button type="button" className="button small ghost" onClick={() => onChange(null)}>
-            Entfernen
+            Remove
           </button>
         )}
       </div>
@@ -200,7 +200,7 @@ export function ColorInput({ value, onChange }: { value: string; onChange: (v: s
   return (
     <div className="color_input">
       <span className="color_swatch" style={{ background: value }}>
-        <input type="color" value={hex} onChange={(e) => onChange(toRgba(e.target.value, alpha))} aria-label="Farbe" />
+        <input type="color" value={hex} onChange={(e) => onChange(toRgba(e.target.value, alpha))} aria-label="Color" />
       </span>
       <input
         type="range"
@@ -209,7 +209,7 @@ export function ColorInput({ value, onChange }: { value: string; onChange: (v: s
         step={0.01}
         value={alpha}
         onChange={(e) => onChange(toRgba(hex, Number(e.target.value)))}
-        aria-label="Deckkraft"
+        aria-label="Opacity"
       />
       <span className="color_value">{Math.round(alpha * 100)}%</span>
     </div>
@@ -219,14 +219,14 @@ export function ColorInput({ value, onChange }: { value: string; onChange: (v: s
 // --- misc -----------------------------------------------------------------------
 
 export const COUNTRIES: [string, string][] = [
-  ['DE', 'Deutschland'], ['AT', 'Österreich'], ['CH', 'Schweiz'], ['DK', 'Dänemark'], ['FR', 'Frankreich'],
-  ['GB', 'Großbritannien'], ['NL', 'Niederlande'], ['BE', 'Belgien'], ['PL', 'Polen'], ['CZ', 'Tschechien'],
-  ['SE', 'Schweden'], ['NO', 'Norwegen'], ['FI', 'Finnland'], ['ES', 'Spanien'], ['PT', 'Portugal'],
-  ['IT', 'Italien'], ['UA', 'Ukraine'], ['RU', 'Russland'], ['BR', 'Brasilien'], ['US', 'USA'],
-  ['CA', 'Kanada'], ['AU', 'Australien'], ['TR', 'Türkei'], ['RS', 'Serbien'], ['HR', 'Kroatien'],
-  ['BA', 'Bosnien'], ['SK', 'Slowakei'], ['HU', 'Ungarn'], ['RO', 'Rumänien'], ['BG', 'Bulgarien'],
-  ['LT', 'Litauen'], ['LV', 'Lettland'], ['EE', 'Estland'], ['KZ', 'Kasachstan'], ['MN', 'Mongolei'],
-  ['IL', 'Israel'], ['AR', 'Argentinien'], ['CN', 'China'], ['EU', 'Europa'],
+  ['AR', 'Argentina'], ['AU', 'Australia'], ['AT', 'Austria'], ['BE', 'Belgium'], ['BA', 'Bosnia'],
+  ['BR', 'Brazil'], ['BG', 'Bulgaria'], ['CA', 'Canada'], ['CN', 'China'], ['HR', 'Croatia'],
+  ['CZ', 'Czechia'], ['DK', 'Denmark'], ['EE', 'Estonia'], ['EU', 'Europe'], ['FI', 'Finland'],
+  ['FR', 'France'], ['DE', 'Germany'], ['HU', 'Hungary'], ['IL', 'Israel'], ['IT', 'Italy'],
+  ['KZ', 'Kazakhstan'], ['LV', 'Latvia'], ['LT', 'Lithuania'], ['MN', 'Mongolia'], ['NL', 'Netherlands'],
+  ['NO', 'Norway'], ['PL', 'Poland'], ['PT', 'Portugal'], ['RO', 'Romania'], ['RU', 'Russia'],
+  ['RS', 'Serbia'], ['SK', 'Slovakia'], ['ES', 'Spain'], ['SE', 'Sweden'], ['CH', 'Switzerland'],
+  ['TR', 'Turkey'], ['UA', 'Ukraine'], ['GB', 'United Kingdom'], ['US', 'USA'],
 ];
 
 export function CountrySelect({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) {

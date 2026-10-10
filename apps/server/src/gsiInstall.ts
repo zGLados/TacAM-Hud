@@ -82,7 +82,7 @@ export function findCs2CfgDir(steamPath: string | null): string | null {
 export function installGsiConfig(steamPath: string | null, port: number, token: string) {
   const dir = findCs2CfgDir(steamPath);
   if (!dir) {
-    throw new Error('CS2 wurde nicht gefunden. Bitte den Steam-Ordner in den Einstellungen setzen.');
+    throw new Error('CS2 was not found. Please set the Steam folder in the settings.');
   }
   const file = path.join(dir, GSI_CFG_NAME);
   fs.writeFileSync(file, gsiConfig(port, token));

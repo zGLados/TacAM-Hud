@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript everywhere. The user communicates in German; control panel UI texts are German, the HUD (broadcast) is English.
+CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript everywhere. The user communicates in German; all UI texts (control panel, desktop app, API errors, HUD) are English.
 
 ## Structure
 
@@ -18,7 +18,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 
 ## Conventions
 
-- **Documentation and code comments are English.** Comments are sparse and explain the why. UI texts in the control panel and API error messages stay German unless decided otherwise.
+- **Documentation and code comments are English.** Comments are sparse and explain the why. UI texts are English as well (control panel, desktop app, API error messages, HUD).
 - Node 18 in the dev setup: do not add packages that need Node ≥ 20 (exception: Electron, the desktop app needs Node ≥ 22.12).
 - HUD CSS: BEM in kebab-case, `data-side`/`data-align`/`data-state`, states `is-*`; no IDs; colors only via `--color-*` variables (see `docs/hud-styling.md`). New elements get their own file in `styles/` + an import in `styles/index.css`.
 - Theme colors = `THEME_COLOR_KEYS` in `shared/types.ts`; the HUD sets `--color-<key>`. Add new keys to the control panel as well (`ThemePage` labels).

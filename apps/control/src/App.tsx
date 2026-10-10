@@ -13,13 +13,13 @@ import { SettingsPage } from './pages/SettingsPage';
 
 const NAV = [
   { to: '/live', label: 'Live' },
-  { to: '/director', label: 'Regie' },
-  { to: '/stats', label: 'Statistik' },
+  { to: '/director', label: 'Director' },
+  { to: '/stats', label: 'Stats' },
   { to: '/matches', label: 'Matches' },
   { to: '/teams', label: 'Teams' },
-  { to: '/players', label: 'Spieler' },
+  { to: '/players', label: 'Players' },
   { to: '/theme', label: 'Theme' },
-  { to: '/settings', label: 'Einstellungen' },
+  { to: '/settings', label: 'Settings' },
 ];
 
 function Login({ onSuccess }: { onSuccess: () => void }) {
@@ -35,18 +35,18 @@ function Login({ onSuccess }: { onSuccess: () => void }) {
             await api.auth.login(pin);
             onSuccess();
           } catch {
-            setError('PIN falsch oder LAN-Zugriff deaktiviert');
+            setError('Wrong PIN or LAN access disabled');
           }
         }}
       >
         <div className="brand big">
           TacAM <span>HUD</span>
         </div>
-        <p className="muted">Zugriff von einem anderen Gerät – bitte PIN eingeben.</p>
+        <p className="muted">Access from another device – please enter the PIN.</p>
         <input value={pin} onChange={(e) => setPin(e.target.value)} inputMode="numeric" placeholder="PIN" autoFocus />
         {error && <p className="error">{error}</p>}
         <button className="button primary" type="submit">
-          Anmelden
+          Sign in
         </button>
       </form>
     </div>
@@ -73,7 +73,7 @@ function Shell() {
         <div className="sidebar_footer">
           <div className={`dot ${connected ? 'ok' : 'off'}`}>Server</div>
           <div className={`dot ${gsi ? 'ok' : 'off'}`}>CS2 / GSI</div>
-          {scene && scene !== 'live' && <div className="dot warn">Szene: {scene}</div>}
+          {scene && scene !== 'live' && <div className="dot warn">Scene: {scene}</div>}
         </div>
       </aside>
       <main className="content">

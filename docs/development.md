@@ -18,7 +18,7 @@ Isolated test server: `TACAM_DATA_DIR=./.data HUD_PORT=13490 GSI_PORT=23490 npx 
 ## Conventions
 
 - Documentation and code comments are written in English.
-- UI texts of the control panel and API error messages are German; the broadcast HUD is English.
+- All UI texts (control panel, desktop app, API error messages, HUD) are English.
 
 ## Versions
 

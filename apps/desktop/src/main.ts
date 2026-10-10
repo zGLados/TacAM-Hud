@@ -67,18 +67,18 @@ function buildMenu() {
       {
         label: 'TacAM HUD',
         submenu: [
-          { label: 'HUD-URL kopieren (OBS)', click: () => clipboard.writeText(`${baseUrl()}/hud/`) },
-          { label: 'HUD im Browser öffnen', click: () => shell.openExternal(`${baseUrl()}/hud/`) },
-          { label: 'HUD-Overlay-Fenster ein/aus', accelerator: 'Alt+H', click: toggleOverlay },
+          { label: 'Copy HUD URL (OBS)', click: () => clipboard.writeText(`${baseUrl()}/hud/`) },
+          { label: 'Open HUD in browser', click: () => shell.openExternal(`${baseUrl()}/hud/`) },
+          { label: 'Toggle HUD overlay window', accelerator: 'Alt+H', click: toggleOverlay },
           { type: 'separator' },
-          { label: 'Datenordner öffnen', click: () => shell.openPath(app.getPath('userData')) },
+          { label: 'Open data folder', click: () => shell.openPath(app.getPath('userData')) },
           { type: 'separator' },
-          { role: 'quit', label: 'Beenden' },
+          { role: 'quit', label: 'Quit' },
         ],
       },
       {
-        label: 'Ansicht',
-        submenu: [{ role: 'reload', label: 'Neu laden' }, { role: 'toggleDevTools' }, { type: 'separator' }, { role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' }],
+        label: 'View',
+        submenu: [{ role: 'reload', label: 'Reload' }, { role: 'toggleDevTools' }, { type: 'separator' }, { role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' }],
       },
     ])
   );
@@ -115,9 +115,9 @@ async function start() {
   } catch (error) {
     const err = error as NodeJS.ErrnoException;
     dialog.showErrorBox(
-      'TacAM HUD konnte nicht starten',
+      'TacAM HUD could not start',
       err.code === 'EADDRINUSE'
-        ? 'Port 1349 oder 23415 ist bereits belegt. Läuft TacAM HUD oder JTs-Hud schon?'
+        ? 'Port 1349 or 23415 is already in use. Is TacAM HUD or JTs-Hud already running?'
         : String(err.message ?? err)
     );
     app.quit();

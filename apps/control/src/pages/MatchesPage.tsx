@@ -66,11 +66,11 @@ function VetoRow({ veto, teams, matchTeams, onChange, onRemove }: { veto: Veto; 
         ))}
       </select>
       <select value={veto.side} disabled={veto.type === 'ban'} onChange={(e) => set({ side: e.target.value as Veto['side'] })}>
-        <option value="NO">Seite: —</option>
+        <option value="NO">Side: —</option>
         <option value="CT">Start CT</option>
         <option value="T">Start T</option>
       </select>
-      <Toggle checked={veto.reverseSide} onChange={(reverseSide) => set({ reverseSide })} label="Seiten tauschen" />
+      <Toggle checked={veto.reverseSide} onChange={(reverseSide) => set({ reverseSide })} label="Swap sides" />
       {veto.type !== 'ban' && (
         <>
           {matchTeams.map((id) => {
@@ -82,7 +82,7 @@ function VetoRow({ veto, teams, matchTeams, onChange, onRemove }: { veto: Veto; 
                 className="score_input"
                 type="number"
                 min={0}
-                title={`Runden ${team.name}`}
+                title={`Rounds ${team.name}`}
                 placeholder={team.shortName || team.name}
                 value={veto.score[id] ?? ''}
                 onChange={(e) => set({ score: { ...veto.score, [id]: Number(e.target.value) } })}
@@ -90,7 +90,7 @@ function VetoRow({ veto, teams, matchTeams, onChange, onRemove }: { veto: Veto; 
             );
           })}
           <select value={veto.winner ?? ''} onChange={(e) => set({ winner: e.target.value || null, mapEnd: !!e.target.value })}>
-            <option value="">Sieger: —</option>
+            <option value="">Winner: —</option>
             {options.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.shortName || t.name}
@@ -99,7 +99,7 @@ function VetoRow({ veto, teams, matchTeams, onChange, onRemove }: { veto: Veto; 
           </select>
         </>
       )}
-      <button className="icon_button" onClick={onRemove} aria-label="Veto entfernen">
+      <button className="icon_button" onClick={onRemove} aria-label="Remove veto">
         ×
       </button>
     </div>
@@ -111,12 +111,12 @@ function MatchForm({ initial, teams, onClose }: { initial: Match | null; teams: 
   const [match, setMatch] = useState<MatchInput>(initial ?? emptyMatch);
   const set = (patch: Partial<MatchInput>) => setMatch((m) => ({ ...m, ...patch }));
   const save = async () => {
-    const ok = await run(() => (initial ? api.matches.update(initial.id, match) : api.matches.create(match)), 'Match gespeichert');
+    const ok = await run(() => (initial ? api.matches.update(initial.id, match) : api.matches.create(match)), 'Match saved');
     if (ok) onClose();
   };
   const teamSelect = (side: 'left' | 'right') => (
     <div className="grid two">
-      <Field label={side === 'left' ? 'Team links' : 'Team rechts'}>
+      <Field label={side === 'left' ? 'Left team' : 'Right team'}>
         <select value={match[side].id ?? ''} onChange={(e) => set({ [side]: { ...match[side], id: e.target.value || null } })}>
           <option value="">—</option>
           {teams.map((t) => (
@@ -126,7 +126,7 @@ function MatchForm({ initial, teams, onClose }: { initial: Match | null; teams: 
           ))}
         </select>
       </Field>
-      <Field label="Gewonnene Maps">
+      <Field label="Maps won">
         <input type="number" min={0} max={3} value={match[side].wins} onChange={(e) => set({ [side]: { ...match[side], wins: Number(e.target.value) } })} />
       </Field>
     </div>
@@ -134,21 +134,21 @@ function MatchForm({ initial, teams, onClose }: { initial: Match | null; teams: 
 
   return (
     <Modal
-      title={initial ? 'Match bearbeiten' : 'Neues Match'}
+      title={initial ? 'Edit match' : 'New match'}
       onClose={onClose}
       footer={
         <>
           <button className="button ghost" onClick={onClose}>
-            Abbrechen
+            Cancel
           </button>
           <button className="button primary" onClick={save}>
-            Speichern
+            Save
           </button>
         </>
       }
     >
       <div className="grid two">
-        <Field label="Titel" hint="z. B. Upper Bracket Final">
+        <Field label="Title" hint="e.g. Upper Bracket Final">
           <input value={match.title} onChange={(e) => set({ title: e.target.value })} />
         </Field>
         <Field label="Format">
@@ -162,16 +162,16 @@ function MatchForm({ initial, teams, onClose }: { initial: Match | null; teams: 
       </div>
       {teamSelect('left')}
       {teamSelect('right')}
-      <Toggle checked={match.current} onChange={(current) => set({ current })} label="Aktuelles Match (wird im HUD verwendet)" />
+      <Toggle checked={match.current} onChange={(current) => set({ current })} label="Current match (used by the HUD)" />
 
       <div className="section_title">
-        <h3>Map-Veto</h3>
+        <h3>Map veto</h3>
         <div className="row">
           <button className="button small ghost" onClick={() => set({ vetos: vetoTemplate(match.matchType, match.left.id, match.right.id) })}>
-            Vorlage für {match.matchType.toUpperCase()}
+            Template for {match.matchType.toUpperCase()}
           </button>
           <button className="button small" onClick={() => set({ vetos: [...match.vetos, emptyVeto()] })}>
-            + Eintrag
+            + Entry
           </button>
         </div>
       </div>
@@ -186,7 +186,7 @@ function MatchForm({ initial, teams, onClose }: { initial: Match | null; teams: 
             onRemove={() => set({ vetos: match.vetos.filter((_, j) => j !== i) })}
           />
         ))}
-        {!match.vetos.length && <p className="muted">Noch kein Veto. Ergebnisse werden am Map-Ende automatisch eingetragen.</p>}
+        {!match.vetos.length && <p className="muted">No veto yet. Results are filled in automatically at the end of each map.</p>}
       </div>
     </Modal>
   );
@@ -203,7 +203,7 @@ export function MatchesPage() {
     <>
       <PageHeader
         title="Matches"
-        description="Das aktuelle Match liefert Teams, Serienstand und Veto für HUD und Szenen."
+        description="The current match provides teams, series score and veto for the HUD and scenes."
         actions={
           <button className="button primary" onClick={() => setEditing('new')}>
             + Match
@@ -242,13 +242,13 @@ export function MatchesPage() {
               </div>
               <div className="row">
                 <button className={`button small ${m.current ? 'primary' : ''}`} onClick={() => run(() => api.matches.toggleCurrent(m.id))}>
-                  {m.current ? '● Aktuell' : 'Als aktuell setzen'}
+                  {m.current ? '● Current' : 'Set as current'}
                 </button>
                 <button className="button small" onClick={() => setEditing(m)}>
-                  Bearbeiten
+                  Edit
                 </button>
-                <ConfirmButton className="small danger" onConfirm={() => run(() => api.matches.remove(m.id), 'Match gelöscht')}>
-                  Löschen
+                <ConfirmButton className="small danger" onConfirm={() => run(() => api.matches.remove(m.id), 'Match deleted')}>
+                  Delete
                 </ConfirmButton>
               </div>
             </Card>
@@ -256,7 +256,7 @@ export function MatchesPage() {
         })}
         {!matches.length && (
           <Card>
-            <p className="muted">Noch keine Matches.</p>
+            <p className="muted">No matches yet.</p>
           </Card>
         )}
       </div>

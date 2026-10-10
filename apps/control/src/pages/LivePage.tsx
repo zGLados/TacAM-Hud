@@ -22,21 +22,21 @@ function AddPlayerModal({ player, onClose }: { player: LivePlayerSummary; onClos
           isCoach: false,
           extra: {},
         }),
-      `${username} angelegt`
+      `${username} created`
     );
     if (created) onClose();
   };
   return (
     <Modal
-      title="Spieler anlegen"
+      title="Create player"
       onClose={onClose}
       footer={
         <>
           <button className="button ghost" onClick={onClose}>
-            Abbrechen
+            Cancel
           </button>
           <button className="button primary" onClick={save}>
-            Anlegen
+            Create
           </button>
         </>
       }
@@ -49,7 +49,7 @@ function AddPlayerModal({ player, onClose }: { player: LivePlayerSummary; onClos
       </Field>
       <Field label="Team">
         <select value={teamId} onChange={(e) => setTeamId(e.target.value)}>
-          <option value="">— kein Team —</option>
+          <option value="">— no team —</option>
           {teams.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
@@ -70,7 +70,7 @@ function TeamTable({ side, players, onAdd }: { side: 'left' | 'right'; players: 
         <thead>
           <tr>
             <th>#</th>
-            <th>Spieler</th>
+            <th>Player</th>
             <th>K</th>
             <th>A</th>
             <th>D</th>
@@ -97,10 +97,10 @@ function TeamTable({ side, players, onAdd }: { side: 'left' | 'right'; players: 
                 <td>${p.money}</td>
                 <td className="right">
                   {p.profileId ? (
-                    <span className="badge ok">bekannt</span>
+                    <span className="badge ok">known</span>
                   ) : (
                     <button className="button small" onClick={() => onAdd(p)}>
-                      + Anlegen
+                      + Create
                     </button>
                   )}
                 </td>
@@ -123,19 +123,19 @@ export function LivePage() {
     <>
       <PageHeader
         title="Live"
-        description="Aktueller Spielstand aus CS2. Unbekannte Spieler lassen sich direkt mit SteamID anlegen."
+        description="Current game state from CS2. Unknown players can be created right here with their SteamID."
         actions={
           <>
-            <button className="button ghost" onClick={() => run(api.demo.seed, 'Demo-Teams, -Spieler und -Match angelegt')}>
-              Demo-Daten anlegen
+            <button className="button ghost" onClick={() => run(api.demo.seed, 'Demo teams, players and match created')}>
+              Create demo data
             </button>
             {demo.running ? (
               <button className="button" onClick={async () => setDemo((await run(api.demo.stop)) ?? demo)}>
-                Demo stoppen
+                Stop demo
               </button>
             ) : (
               <button className="button primary" onClick={async () => setDemo((await run(api.demo.start)) ?? demo)}>
-                Demo-Match starten
+                Start demo match
               </button>
             )}
           </>
@@ -143,22 +143,21 @@ export function LivePage() {
       />
       <div className="status_row">
         <div className={`status_pill ${status?.connected ? 'ok' : 'off'}`}>
-          {status?.connected ? 'GSI verbunden' : 'Keine GSI-Daten'}
+          {status?.connected ? 'GSI connected' : 'No GSI data'}
         </div>
         {summary && (
           <>
             <div className="status_pill">{prettyMapName(summary.map)}</div>
-            <div className="status_pill">Runde {summary.round + 1}</div>
+            <div className="status_pill">Round {summary.round + 1}</div>
             <div className="status_pill">{summary.roundPhase ?? summary.mapPhase}</div>
           </>
         )}
-        {demo.running && <div className="status_pill warn">Demo läuft</div>}
+        {demo.running && <div className="status_pill warn">Demo running</div>}
       </div>
       {!summary ? (
         <Card>
           <p className="muted">
-            Noch keine Daten. Starte CS2 als Zuschauer (GSI-Config unter <b>Einstellungen</b> installieren) oder starte das
-            Demo-Match.
+            No data yet. Start CS2 as a spectator (install the GSI config under <b>Settings</b>) or start the demo match.
           </p>
         </Card>
       ) : (

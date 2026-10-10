@@ -53,11 +53,11 @@ npm start            # starts the server on http://localhost:1349
 
 - Control panel: <http://localhost:1349/control/>
 - HUD for OBS: <http://localhost:1349/hud/> (browser source 1920×1080, leave "Custom CSS" empty)
-- Testing without CS2: control panel → **Live** → *Demo-Daten anlegen* → *Demo-Match starten*
+- Testing without CS2: control panel → **Live** → *Create demo data* → *Start demo match*
 
 ### Connecting CS2
 
-1. Control panel → **Einstellungen** → *GSI-Config installieren* (the Steam folder is detected automatically, otherwise enter it).
+1. Control panel → **Settings** → *Install GSI config* (the Steam folder is detected automatically, otherwise enter it).
 2. Restart CS2 and join a match as spectator/GOTV.
 3. In the **Live** tab, create unknown players with one click and assign their teams.
 

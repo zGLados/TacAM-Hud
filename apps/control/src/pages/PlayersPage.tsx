@@ -22,49 +22,49 @@ function PlayerForm({ initial, teams, onClose }: { initial: PlayerProfile | null
   const save = async () => {
     const ok = await run(
       () => (initial ? api.players.update(initial.id, player) : api.players.create(player)),
-      initial ? 'Spieler gespeichert' : 'Spieler angelegt'
+      initial ? 'Player saved' : 'Player created'
     );
     if (ok) onClose();
   };
   return (
     <Modal
-      title={initial ? `${initial.username} bearbeiten` : 'Neuer Spieler'}
+      title={initial ? `Edit ${initial.username}` : 'New player'}
       onClose={onClose}
       footer={
         <>
           <button className="button ghost" onClick={onClose}>
-            Abbrechen
+            Cancel
           </button>
           <button className="button primary" onClick={save}>
-            Speichern
+            Save
           </button>
         </>
       }
     >
       <div className="form_with_image">
-        <ImageUpload value={player.avatar} onChange={(avatar) => set({ avatar })} label="Avatar" />
+        <ImageUpload value={player.avatar} onChange={(avatar) => set({ avatar })} label="Choose avatar" />
         <div className="stack grow">
-          <Field label="Name im HUD">
+          <Field label="Name in the HUD">
             <input value={player.username} onChange={(e) => set({ username: e.target.value })} autoFocus />
           </Field>
-          <Field label="SteamID64" hint="17 Ziffern, z. B. 76561198012345678">
+          <Field label="SteamID64" hint="17 digits, e.g. 76561198012345678">
             <input value={player.steamid} onChange={(e) => set({ steamid: e.target.value.trim() })} />
           </Field>
         </div>
       </div>
       <div className="grid two">
-        <Field label="Vorname">
+        <Field label="First name">
           <input value={player.firstName} onChange={(e) => set({ firstName: e.target.value })} />
         </Field>
-        <Field label="Nachname">
+        <Field label="Last name">
           <input value={player.lastName} onChange={(e) => set({ lastName: e.target.value })} />
         </Field>
-        <Field label="Land">
+        <Field label="Country">
           <CountrySelect value={player.country} onChange={(country) => set({ country })} />
         </Field>
         <Field label="Team">
           <select value={player.teamId ?? ''} onChange={(e) => set({ teamId: e.target.value || null })}>
-            <option value="">— kein Team —</option>
+            <option value="">— no team —</option>
             {teams.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
@@ -73,7 +73,7 @@ function PlayerForm({ initial, teams, onClose }: { initial: PlayerProfile | null
           </select>
         </Field>
       </div>
-      <Toggle checked={player.isCoach} onChange={(isCoach) => set({ isCoach })} label="Coach (wird im HUD ausgeblendet)" />
+      <Toggle checked={player.isCoach} onChange={(isCoach) => set({ isCoach })} label="Coach (hidden in the HUD)" />
     </Modal>
   );
 }
@@ -116,15 +116,15 @@ export function PlayersPage() {
   return (
     <>
       <PageHeader
-        title="Spieler"
-        description="Die SteamID verknüpft Profil, Avatar und Team mit den Live-Daten aus CS2."
+        title="Players"
+        description="The SteamID links profile, avatar and team to the live data from CS2."
         actions={
           <>
             <button className="button ghost" onClick={() => fileInput.current?.click()}>
-              CSV importieren
+              Import CSV
             </button>
             <button className="button primary" onClick={() => setEditing('new')}>
-              + Spieler
+              + Player
             </button>
           </>
         }
@@ -139,19 +139,19 @@ export function PlayersPage() {
           e.target.value = '';
           if (!file) return;
           const rows = parseCsv(await file.text(), teams);
-          if (!rows.length) return toast('Keine gültigen Zeilen (erste Spalte muss eine SteamID64 sein)', 'error');
+          if (!rows.length) return toast('No valid rows (the first column must be a SteamID64)', 'error');
           const result = await run(() => api.players.import(rows));
-          if (result) toast(`${result.created} angelegt, ${result.updated} aktualisiert`);
+          if (result) toast(`${result.created} created, ${result.updated} updated`);
         }}
       />
       <Card>
-        <input className="search" placeholder="Suchen…" value={filter} onChange={(e) => setFilter(e.target.value)} />
+        <input className="search" placeholder="Search…" value={filter} onChange={(e) => setFilter(e.target.value)} />
         <table className="table">
           <thead>
             <tr>
               <th />
               <th>Name</th>
-              <th>Echter Name</th>
+              <th>Real name</th>
               <th>SteamID</th>
               <th>Team</th>
               <th />
@@ -169,10 +169,10 @@ export function PlayersPage() {
                 <td>{teamName(p.teamId)}</td>
                 <td className="right nowrap">
                   <button className="button small" onClick={() => setEditing(p)}>
-                    Bearbeiten
+                    Edit
                   </button>{' '}
-                  <ConfirmButton className="small danger" onConfirm={() => run(() => api.players.remove(p.id), 'Spieler gelöscht')}>
-                    Löschen
+                  <ConfirmButton className="small danger" onConfirm={() => run(() => api.players.remove(p.id), 'Player deleted')}>
+                    Delete
                   </ConfirmButton>
                 </td>
               </tr>
@@ -180,13 +180,13 @@ export function PlayersPage() {
             {!visible.length && (
               <tr>
                 <td colSpan={6} className="muted center">
-                  Keine Spieler. Tipp: Im Live-Tab lassen sich Spieler direkt aus dem laufenden Spiel anlegen.
+                  No players yet. Tip: the Live tab creates players straight from the running game.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
-        <p className="muted small">CSV-Format: steamid;name;vorname;nachname;land;team (Team per Name oder Kürzel)</p>
+        <p className="muted small">CSV format: steamid;name;first name;last name;country;team (team by name or short name)</p>
       </Card>
       {editing && <PlayerForm initial={editing === 'new' ? null : editing} teams={teams} onClose={() => setEditing(null)} />}
     </>

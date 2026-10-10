@@ -17,7 +17,7 @@ const str = z.string().trim();
 const nullableStr = z.string().trim().nullable();
 
 const playerSchema = z.object({
-  steamid: str.regex(/^\d{17}$/, 'SteamID64 muss 17 Ziffern haben'),
+  steamid: str.regex(/^\d{17}$/, 'SteamID64 must have 17 digits'),
   username: str.min(1),
   firstName: str.default(''),
   lastName: str.default(''),
@@ -79,7 +79,7 @@ const hudConfigSchema = z.object({
 });
 
 // Colors end up in CSS custom properties: allow only color syntax, nothing that could break out.
-const cssColor = z.string().regex(/^(#[0-9a-fA-F]{3,8}|rgba?\([\d\s.,%]+\)|hsla?\([\d\s.,%deg]+\))$/, 'Ungültige Farbe');
+const cssColor = z.string().regex(/^(#[0-9a-fA-F]{3,8}|rgba?\([\d\s.,%]+\)|hsla?\([\d\s.,%deg]+\))$/, 'Invalid color');
 const themeSchema = z.object({
   colors: z.object(Object.fromEntries(THEME_COLOR_KEYS.map((k) => [k, cssColor])) as Record<(typeof THEME_COLOR_KEYS)[number], typeof cssColor>),
   borderRadius: z.number().min(0).max(30),
@@ -105,7 +105,7 @@ const sceneSchema = z.object({
 const settingsSchema = z.object({
   steamPath: nullableStr,
   lanAccess: z.boolean(),
-  accessPin: z.string().regex(/^(\d{4,12})?$/, 'PIN muss 4–12 Ziffern haben'),
+  accessPin: z.string().regex(/^(\d{4,12})?$/, 'PIN must have 4–12 digits'),
   telnet: z.object({ host: str.min(1), port: z.number().int().min(1).max(65535) }),
 });
 
@@ -183,7 +183,7 @@ export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOpt
       h((req, res) => {
         const body = schema.parse(req.body);
         if (name === 'players' && store.list('players').some((p) => p.steamid === (body as z.infer<typeof playerSchema>).steamid)) {
-          return res.status(409).json({ error: 'Spieler mit dieser SteamID existiert bereits' });
+          return res.status(409).json({ error: 'A player with this SteamID already exists' });
         }
         res.status(201).json(store.insert(name, body as never));
       })
@@ -265,7 +265,7 @@ export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOpt
   api.post('/matches/:id/reverse-current-map', (req, res) => {
     const match = store.get('matches', req.params.id);
     const mapName = live.last?.map.name;
-    if (!match || !mapName) return res.status(404).json({ error: 'Kein laufendes Match/Map' });
+    if (!match || !mapName) return res.status(404).json({ error: 'No running match/map' });
     const vetos = match.vetos.map((v) => (mapName.endsWith(v.mapName) ? { ...v, reverseSide: !v.reverseSide } : v));
     res.json(store.update('matches', match.id, { vetos }));
   });
@@ -289,9 +289,9 @@ export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOpt
         res.status(201).json({ file: req.file.filename, url: `/uploads/${req.file.filename}` });
       });
   };
-  api.post('/uploads', uploader(IMAGE_TYPES, 8 * 1024 * 1024, 'Nur Bilder (png, jpg, webp, gif, svg) bis 8 MB'));
+  api.post('/uploads', uploader(IMAGE_TYPES, 8 * 1024 * 1024, 'Images only (png, jpg, webp, gif, svg), up to 8 MB'));
   // Background videos for scenes; large on purpose, they are only read locally by the HUD.
-  api.post('/uploads/video', uploader(VIDEO_TYPES, 500 * 1024 * 1024, 'Nur Videos (mp4, webm) bis 500 MB'));
+  api.post('/uploads/video', uploader(VIDEO_TYPES, 500 * 1024 * 1024, 'Videos only (mp4, webm), up to 500 MB'));
   api.delete('/uploads/:file', (req, res) => {
     const file = path.join(uploadsDir, path.basename(req.params.file));
     if (fs.existsSync(file)) fs.unlinkSync(file);
@@ -363,7 +363,7 @@ export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOpt
     h((req, res) => {
       const body = settingsSchema.parse(req.body);
       if (body.lanAccess && !body.accessPin) {
-        return res.status(400).json({ error: 'Für LAN-Zugriff muss eine PIN gesetzt sein' });
+        return res.status(400).json({ error: 'LAN access requires a PIN' });
       }
       res.json(store.setDoc('settings', { ...store.doc('settings'), ...body }));
     })

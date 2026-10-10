@@ -5,16 +5,16 @@ import { Card, Field, ImageUpload, PageHeader, Toggle, useRun } from '../compone
 import { HudMonitor } from '../components/HudMonitor';
 
 const SCENES: { id: SceneId; label: string; hint: string }[] = [
-  { id: 'live', label: 'Live-HUD', hint: 'Normales In-Game-HUD' },
+  { id: 'live', label: 'Live HUD', hint: 'Regular in-game HUD' },
   { id: 'starting', label: 'Starting Soon', hint: 'Countdown, Teams & Veto' },
-  { id: 'brb', label: 'Be Right Back', hint: 'Kurze Unterbrechung' },
-  { id: 'pause', label: 'Technische Pause', hint: 'Score & Stats' },
-  { id: 'halftime', label: 'Halbzeit', hint: 'Score, Rundenverlauf, Stats' },
-  { id: 'veto', label: 'Map-Veto', hint: 'Bans, Picks, Decider' },
-  { id: 'scoreboard', label: 'Scoreboard', hint: 'Detaillierte Stats beider Teams' },
-  { id: 'matchEnd', label: 'Match-Ende', hint: 'Sieger, MVP & Stats' },
-  { id: 'upcoming', label: 'Kommende Matches', hint: 'Nächste Matches mit Startzeit' },
-  { id: 'playerToWatch', label: 'Player to Watch', hint: 'Spieler-Karte mit Match-Stats' },
+  { id: 'brb', label: 'Be Right Back', hint: 'Short break' },
+  { id: 'pause', label: 'Technical pause', hint: 'Score & stats' },
+  { id: 'halftime', label: 'Halftime', hint: 'Score, round history, stats' },
+  { id: 'veto', label: 'Map veto', hint: 'Bans, picks, decider' },
+  { id: 'scoreboard', label: 'Scoreboard', hint: 'Detailed stats of both teams' },
+  { id: 'matchEnd', label: 'Match end', hint: 'Winner, MVP & stats' },
+  { id: 'upcoming', label: 'Upcoming matches', hint: 'Next matches with start time' },
+  { id: 'playerToWatch', label: 'Player to Watch', hint: 'Player card with match stats' },
 ];
 
 const CONFIRM_KEY = 'tacam.confirmSceneChanges';
@@ -49,7 +49,7 @@ function ScenePanel() {
   const [message, setMessage] = useState('');
   const [minutes, setMinutes] = useState(10);
   const [confirm, setConfirm] = useConfirmSceneChanges();
-  // Scene queued for the next "Übernehmen" (preview/program like a vision mixer).
+  // Scene queued for the next "Take" (preview/program like a vision mixer).
   const [preview, setPreview] = useState<SceneId | null>(null);
   useEffect(() => setMessage(scene?.message ?? ''), [scene?.message]);
   // Drop the queued scene once it is on air (also when the automation switched to it).
@@ -70,11 +70,11 @@ function ScenePanel() {
 
   return (
     <Card
-      title="Szenen"
+      title="Scenes"
       actions={
         <>
-          <Toggle checked={confirm} onChange={setConfirm} label="Szenenwechsel bestätigen" />
-          <Toggle checked={scene.auto} onChange={(auto) => save({ auto })} label="Automatisch (Pause / Halbzeit / Match-Ende)" />
+          <Toggle checked={confirm} onChange={setConfirm} label="Confirm scene changes" />
+          <Toggle checked={scene.auto} onChange={(auto) => save({ auto })} label="Automatic (pause / halftime / match end)" />
         </>
       }
     >
@@ -86,7 +86,7 @@ function ScenePanel() {
             onClick={() => select(s.id)}
           >
             {scene.active === s.id && <span className="scene_badge live">Live</span>}
-            {preview === s.id && <span className="scene_badge queued">Vorschau</span>}
+            {preview === s.id && <span className="scene_badge queued">Preview</span>}
             <span className="scene_label">{s.label}</span>
             <span className="scene_hint">{s.hint}</span>
           </button>
@@ -101,22 +101,22 @@ function ScenePanel() {
                   <b>{sceneLabel(scene.active)}</b> → <b>{sceneLabel(preview)}</b>
                 </>
               ) : (
-                'Szene anklicken, um sie vorzumerken. Live geht sie erst mit „Übernehmen“.'
+                'Click a scene to queue it. It only goes live with “Take”.'
               )}
             </span>
             <div className="row">
               <button className="button ghost" disabled={!preview} onClick={() => setPreview(null)}>
-                Verwerfen
+                Discard
               </button>
               <button className="button primary take_button" disabled={!preview} onClick={() => preview && take(preview)}>
-                Übernehmen
+                Take
               </button>
             </div>
           </div>
           <div className="monitors">
             <div className="monitor">
-              <div className="monitor_label queued">Vorschau{preview ? `: ${sceneLabel(preview)}` : ''}</div>
-              <HudMonitor src={`/hud/?scene=${preview ?? scene.active}`} title="Vorschau" />
+              <div className="monitor_label queued">Preview{preview ? `: ${sceneLabel(preview)}` : ''}</div>
+              <HudMonitor src={`/hud/?scene=${preview ?? scene.active}`} title="Preview" />
             </div>
             <div className="monitor">
               <div className="monitor_label live">Live: {sceneLabel(scene.active)}</div>
@@ -126,7 +126,7 @@ function ScenePanel() {
         </>
       )}
       {config && (
-        <Field label="Player to Watch" hint="Spieler für die Szene „Player to Watch“">
+        <Field label="Player to Watch" hint="Player for the “Player to Watch” scene">
           <select value={config.playerToWatch ?? ''} onChange={(e) => saveConfig({ playerToWatch: e.target.value || null })}>
             <option value="">—</option>
             {[...players]
@@ -140,22 +140,22 @@ function ScenePanel() {
         </Field>
       )}
       <div className="row wrap">
-        <Field label="Text / Überschrift" hint="Ersetzt den Standardtitel der Szene">
-          <input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="z. B. Technische Probleme bei Team A" />
+        <Field label="Text / headline" hint="Replaces the default title of the scene">
+          <input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="e.g. Technical issues on team A" />
         </Field>
         <button className="button" onClick={() => save({ message })}>
-          Text übernehmen
+          Apply text
         </button>
       </div>
       <div className="row wrap">
-        <Field label="Countdown (Minuten)">
+        <Field label="Countdown (minutes)">
           <input type="number" min={1} max={180} value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} />
         </Field>
         <button className="button" onClick={() => save({ countdownTo: Date.now() + minutes * 60_000 })}>
-          Countdown starten
+          Start countdown
         </button>
         <button className="button ghost" onClick={() => save({ countdownTo: null })}>
-          Countdown entfernen
+          Remove countdown
         </button>
       </div>
     </Card>
@@ -176,20 +176,20 @@ function HudControls() {
   const vis = config.visibility;
   const setVis = (key: keyof HudConfig['visibility'], value: boolean) => save({ visibility: { ...vis, [key]: value } });
   return (
-    <Card title="HUD-Elemente">
+    <Card title="HUD elements">
       <div className="toggle_grid">
-        <Toggle checked={vis.hud} onChange={(v) => setVis('hud', v)} label="HUD sichtbar" />
+        <Toggle checked={vis.hud} onChange={(v) => setVis('hud', v)} label="HUD visible" />
         <Toggle checked={vis.radar} onChange={(v) => setVis('radar', v)} label="Radar" />
-        <Toggle checked={vis.killfeed} onChange={(v) => setVis('killfeed', v)} label="Eigener Killfeed (statt CS-Killfeed)" />
-        <Toggle checked={vis.roundHistory} onChange={(v) => setVis('roundHistory', v)} label="Rundenverlauf" />
-        <Toggle checked={vis.economy} onChange={(v) => setVis('economy', v)} label="Economy-Box" />
-        <Toggle checked={vis.sponsors} onChange={(v) => setVis('sponsors', v)} label="Sponsoren" />
-        <Toggle checked={config.swapTeams} onChange={(swapTeams) => save({ swapTeams })} label="Teams links/rechts tauschen" />
-        <Toggle checked={!config.sideBoxes.hidden} onChange={(v) => save({ sideBoxes: { ...config.sideBoxes, hidden: !v } })} label="Seitenboxen" />
+        <Toggle checked={vis.killfeed} onChange={(v) => setVis('killfeed', v)} label="Own kill feed (instead of the CS kill feed)" />
+        <Toggle checked={vis.roundHistory} onChange={(v) => setVis('roundHistory', v)} label="Round history" />
+        <Toggle checked={vis.economy} onChange={(v) => setVis('economy', v)} label="Economy box" />
+        <Toggle checked={vis.sponsors} onChange={(v) => setVis('sponsors', v)} label="Sponsors" />
+        <Toggle checked={config.swapTeams} onChange={(swapTeams) => save({ swapTeams })} label="Swap teams left/right" />
+        <Toggle checked={!config.sideBoxes.hidden} onChange={(v) => save({ sideBoxes: { ...config.sideBoxes, hidden: !v } })} label="Side boxes" />
       </div>
       <p className="muted small">
-        Bei echtem CS2 den Killfeed des Spiels nutzen: im Observer-Client <code>cl_draw_only_deathnotices 1</code> blendet das CS-HUD bis auf
-        den Killfeed aus. Der eigene Killfeed ist nur nötig, wenn das CS-HUD komplett aus ist; im Demo-Match wird er immer gezeigt.
+        With real CS2, use the game's kill feed: <code>cl_draw_only_deathnotices 1</code> in the observer client hides the CS HUD except
+        the kill feed. The own kill feed is only needed when the CS HUD is completely off; it is always shown in the demo match.
       </p>
       <div className="row wrap">
         <button className="button" onClick={() => run(() => api.hud.action('radarBigger'))}>
@@ -199,17 +199,17 @@ function HudControls() {
           Radar −
         </button>
         <button className="button" onClick={() => run(() => api.hud.action('toggleRadarView'))}>
-          Radar groß/klein
+          Radar large/small
         </button>
         <button className="button ghost" onClick={() => run(api.hud.refresh, 'HUD neu geladen')}>
-          HUD neu laden
+          Reload HUD
         </button>
       </div>
-      <Field label="Teamlogo als Spieler-Avatar">
+      <Field label="Team logo as player avatar">
         <select value={config.replaceAvatars} onChange={(e) => save({ replaceAvatars: e.target.value as HudConfig['replaceAvatars'] })}>
-          <option value="never">Nie</option>
-          <option value="if_missing">Nur wenn kein Avatar</option>
-          <option value="always">Immer</option>
+          <option value="never">Never</option>
+          <option value="if_missing">Only without avatar</option>
+          <option value="always">Always</option>
         </select>
       </Field>
     </Card>
@@ -226,15 +226,15 @@ function TriviaPanel() {
   }, [config?.trivia.title, config?.trivia.content]);
   if (!config) return null;
   return (
-    <Card title="Trivia" actions={<Toggle checked={config.trivia.visible} onChange={(visible) => save({ trivia: { ...config.trivia, visible } })} label="Anzeigen" />}>
-      <Field label="Titel">
+    <Card title="Trivia" actions={<Toggle checked={config.trivia.visible} onChange={(visible) => save({ trivia: { ...config.trivia, visible } })} label="Show" />}>
+      <Field label="Title">
         <input value={title} onChange={(e) => setTitle(e.target.value)} />
       </Field>
       <Field label="Text">
         <textarea rows={3} value={content} onChange={(e) => setContent(e.target.value)} />
       </Field>
       <button className="button primary" onClick={() => save({ trivia: { title, content, visible: true } })}>
-        Übernehmen & anzeigen
+        Apply & show
       </button>
     </Card>
   );
@@ -248,8 +248,8 @@ function PreviewPanel() {
   if (!config) return null;
   const teamName = (id: string | null) => teams.find((t) => t.id === id)?.name ?? '?';
   return (
-    <Card title="Vorschau-Einblendungen">
-      <Field label="Spieler-Vorschau">
+    <Card title="Preview overlays">
+      <Field label="Player preview">
         <select
           value={config.playerPreview.steamid ?? ''}
           onChange={(e) => save({ playerPreview: { ...config.playerPreview, steamid: e.target.value || null } })}
@@ -265,9 +265,9 @@ function PreviewPanel() {
       <Toggle
         checked={config.playerPreview.visible}
         onChange={(visible) => save({ playerPreview: { ...config.playerPreview, visible } })}
-        label="Spieler-Vorschau anzeigen"
+        label="Show player preview"
       />
-      <Field label="Nächstes Match">
+      <Field label="Next match">
         <select
           value={config.matchPreview.matchId ?? ''}
           onChange={(e) => save({ matchPreview: { ...config.matchPreview, matchId: e.target.value || null } })}
@@ -283,7 +283,7 @@ function PreviewPanel() {
       <Toggle
         checked={config.matchPreview.visible}
         onChange={(visible) => save({ matchPreview: { ...config.matchPreview, visible } })}
-        label="Match-Vorschau anzeigen"
+        label="Show match preview"
       />
     </Card>
   );
@@ -296,19 +296,19 @@ function SideBoxPanel() {
   if (!config || !draft) return null;
   const box = (side: 'left' | 'right') => (
     <div className="stack">
-      <h3>{side === 'left' ? 'Links' : 'Rechts'}</h3>
-      <Field label="Titel">
+      <h3>{side === 'left' ? 'Left' : 'Right'}</h3>
+      <Field label="Title">
         <input value={draft[side].title} onChange={(e) => setDraft({ ...draft, [side]: { ...draft[side], title: e.target.value } })} />
       </Field>
-      <Field label="Untertitel">
+      <Field label="Subtitle">
         <input value={draft[side].subtitle} onChange={(e) => setDraft({ ...draft, [side]: { ...draft[side], subtitle: e.target.value } })} />
       </Field>
       <ImageUpload value={draft[side].image} onChange={(image) => setDraft({ ...draft, [side]: { ...draft[side], image } })} label="Logo" />
     </div>
   );
   return (
-    <Card title="Seitenboxen (Freezetime)" actions={<button className="button primary" onClick={() => save({ sideBoxes: draft })}>Speichern</button>}>
-      <p className="muted">Erscheinen in der Freezetime über den Geldboxen, nur wenn ein Titel gesetzt ist.</p>
+    <Card title="Side boxes (freezetime)" actions={<button className="button primary" onClick={() => save({ sideBoxes: draft })}>Save</button>}>
+      <p className="muted">Shown above the money boxes during freezetime, only when a title is set.</p>
       <div className="grid two">
         {box('left')}
         {box('right')}
@@ -322,16 +322,16 @@ function MatchControls() {
   const { data: matches } = useData(api.matches.list, []);
   const current = matches.find((m) => m.current);
   return (
-    <Card title="Match & Statistik">
+    <Card title="Match & stats">
       <div className="row wrap">
-        <button className="button" disabled={!current} onClick={() => current && run(() => api.matches.reverseCurrentMap(current.id), 'Seiten der aktuellen Map getauscht')}>
-          Teams der aktuellen Map tauschen (Veto)
+        <button className="button" disabled={!current} onClick={() => current && run(() => api.matches.reverseCurrentMap(current.id), 'Sides of the current map swapped')}>
+          Swap teams of the current map (veto)
         </button>
-        <button className="button ghost" onClick={() => run(api.stats.reset, 'Statistik zurückgesetzt')}>
-          Statistik zurücksetzen
+        <button className="button ghost" onClick={() => run(api.stats.reset, 'Stats reset')}>
+          Reset stats
         </button>
       </div>
-      {!current && <p className="muted">Kein aktuelles Match gesetzt.</p>}
+      {!current && <p className="muted">No current match set.</p>}
     </Card>
   );
 }
@@ -339,7 +339,7 @@ function MatchControls() {
 export function DirectorPage() {
   return (
     <>
-      <PageHeader title="Regie" description="Szenen und HUD live steuern – funktioniert auch auf einem zweiten Gerät (Einstellungen → LAN-Zugriff)." />
+      <PageHeader title="Director" description="Control scenes and the HUD live – also works from a second device (Settings → LAN access)." />
       <ScenePanel />
       <div className="grid two">
         <HudControls />
