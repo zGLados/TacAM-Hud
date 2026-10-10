@@ -9,7 +9,7 @@ Hand-over state for the next session. Latest release: **v0.1.10** (HUD import in
 - LHM roadmap phase 2 **done** (#8–#12b): captain veto, Companion state URLs, OBS WebSocket, signals, quick setup + team CSV, MatchZy export. Released in v0.1.8; v0.1.9 reorganized the control panel (Integrations page, grouped navigation, Director jump bar). Phase 3 items are proposals.
 - Still to confirm on Windows with v0.1.7: global shortcuts (defaults + re-registering after a change), Stream Deck trigger URLs (Elgato "Website" action in background mode), overlays and "keep team sides" in a real match, a real wingman game.
 
-- Next candidates (phase 3, see lhm-roadmap.md): #15 win probability first, then #14 tournaments; cameras, OBS replays and the auto observer only after tests with real hardware/CS2.
+- Phase 3: #15 win probability **done** (not released yet). Next candidate #14 tournaments; cameras, OBS replays and the auto observer only after tests with real hardware/CS2.
 
 ## Decided / not planned
 

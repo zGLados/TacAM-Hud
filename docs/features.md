@@ -31,6 +31,10 @@ At map end (csgogsi event `matchEnd`) the server writes score and winner into th
 
 **Fixed OBS URL per scene:** `/hud/?scene=<id>` always shows that scene and ignores the scene chosen in the control panel, so every OBS scene can have its own browser source and scenes are switched in OBS. `/hud/?scene=live` shows only the in-game HUD and never a full-screen scene. The URLs are listed in the control panel under Settings → OBS / browser source.
 
+## Win probability (estimate)
+
+`ctWinProbability()` (`packages/shared/src/prediction.ts`) estimates the chance that CT wins the current round with fixed weights, not a trained model: man advantage, damage taken by the alive players, equipment of the alive players, and after a plant a retake penalty growing with the bomb clock (a defuse kit helps; if not even a defuse fits into the remaining time it drops to 1 %). In freezetime it compares buy power (money + equipment). Typical values: 5v4 ≈ 68 %, 1v3 ≈ 14 %, 3v3 after a plant 27 % → 12 % as the clock runs down. The HUD shows it as a bar under the match bar for the displayed left/right teams, only outside freezetime (where the round history sits). Off by default: Director → HUD elements → *Win probability*, or the trigger action `prediction-toggle`.
+
 ## Kill feed
 
 With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnotices 1` in the observer client to hide the CS HUD except for the kill feed. The own kill feed (`HudConfig.visibility.killfeed`, off by default) is only needed when the CS HUD is hidden completely; the demo match always shows it (`GsiUpdate.demo`).

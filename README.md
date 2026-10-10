@@ -4,7 +4,7 @@ CS2 broadcast HUD and HUD manager in the TacAM design. Inspired by [JTs-Hud](htt
 
 | Area | What it does |
 | --- | --- |
-| **HUD** (OBS browser source) | Match bar, team panels, spectated player, radar (10 maps incl. the updated Cache), kill feed, bomb/defuse timers, utility/money, map series, trivia, player/match preview, sponsors; scoreboard, economy graph and player comparison overlays; wingman; teams can keep their side after halftime |
+| **HUD** (OBS browser source) | Match bar, team panels, spectated player, radar (10 maps incl. the updated Cache), kill feed, bomb/defuse timers, utility/money, map series, trivia, player/match preview, sponsors; scoreboard, economy graph and player comparison overlays; round win probability (estimate); wingman; teams can keep their side after halftime |
 | **New: stats** | ADR, KAST (incl. trades), HS %, KPR, opening kills/deaths, clutches, multi-kills, HLTV 1.0 rating, round history, economy (buy classification) |
 | **New: scenes** | Starting soon (optional countdown), BRB, technical pause, halftime, map veto, scoreboard, match end with MVP, upcoming matches, player to watch; background videos; switched automatically, by click or via a fixed OBS URL per scene |
 | **New: web control** | Control panel in the browser, also on a tablet or second PC (LAN with PIN); Stream Deck / Companion URLs and configurable shortcuts; OBS scenes follow the TacAM scene (OBS WebSocket); signals: game events trigger overlays, Companion buttons, webhooks or OBS |

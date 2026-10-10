@@ -1,0 +1,56 @@
+/* Round win probability under the match bar (live phase only; freezetime shows the round history). */
+
+.win-probability {
+  position: fixed;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 560px;
+  padding: 4px 8px;
+  background-color: var(--color-panel);
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.win-probability.is-visible {
+  opacity: 1;
+}
+.win-probability__value {
+  width: 44px;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--color-text);
+}
+.win-probability__bar {
+  position: relative;
+  flex: 1;
+  display: flex;
+  height: 16px;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+.win-probability__fill {
+  height: 100%;
+  background-color: var(--color-ct);
+  transition: width 0.8s ease;
+}
+.win-probability__fill[data-side='T'] {
+  background-color: var(--color-t);
+}
+.win-probability__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}

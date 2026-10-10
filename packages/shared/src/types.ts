@@ -302,6 +302,8 @@ export interface HudConfig {
     roundHistory: boolean;
     economy: boolean;
     sponsors: boolean;
+    /** Round win probability bar under the match bar (heuristic, see prediction.ts). */
+    prediction: boolean;
   };
   /** Full-width overlay in the center of the live HUD (one at a time). */
   overlay: HudOverlay;
@@ -331,6 +333,7 @@ export const DEFAULT_HUD_CONFIG: HudConfig = {
     roundHistory: true,
     economy: true,
     sponsors: true,
+    prediction: false,
   },
   overlay: 'none',
   comparison: { left: null, right: null },

@@ -12,6 +12,7 @@ import { MapSeries } from './MapSeries';
 import { Sponsors } from './Sponsors';
 import { MatchTeaser, PhaseBanners, PlayerSpotlight, Trivia } from './Overlays';
 import { HudOverlay } from './HudOverlay';
+import { WinProbability } from './WinProbability';
 
 /** In-game HUD. Element placement follows the original TacAM layout. */
 export function Layout() {
@@ -38,6 +39,7 @@ export function Layout() {
       <MatchBar />
       <PhaseBanners game={game} />
       <SeriesBar />
+      {visibility.prediction && <WinProbability game={game} sides={sides} />}
       {visibility.roundHistory && (
         <RoundHistory rounds={rounds} left={sides.left} currentRound={round} show={freezetime && rounds.length > 0} />
       )}

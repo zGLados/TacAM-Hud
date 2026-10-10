@@ -194,6 +194,7 @@ function HudControls() {
         <Toggle checked={vis.roundHistory} onChange={(v) => setVis('roundHistory', v)} label="Round history" />
         <Toggle checked={vis.economy} onChange={(v) => setVis('economy', v)} label="Economy box" />
         <Toggle checked={vis.sponsors} onChange={(v) => setVis('sponsors', v)} label="Sponsors" />
+        <Toggle checked={vis.prediction} onChange={(v) => setVis('prediction', v)} label="Win probability (estimate)" />
         <Toggle checked={config.swapTeams} onChange={(swapTeams) => save({ swapTeams })} label="Swap teams left/right" />
         <Toggle
           checked={config.keepTeamSides}

@@ -59,6 +59,13 @@ export function createActions(store: Store, live: LiveHub, io: HudServer): Trigg
     { id: 'economy-toggle', group: 'HUD', label: 'Economy box on/off', run: toggleVisibility('economy'), isActive: visible('economy') },
     { id: 'sponsors-toggle', group: 'HUD', label: 'Sponsors on/off', run: toggleVisibility('sponsors'), isActive: visible('sponsors') },
     {
+      id: 'prediction-toggle',
+      group: 'HUD',
+      label: 'Win probability on/off',
+      run: toggleVisibility('prediction'),
+      isActive: visible('prediction'),
+    },
+    {
       id: 'side-boxes-toggle',
       group: 'Overlays',
       label: 'Side boxes on/off',

@@ -84,6 +84,7 @@ const hudConfigSchema = z.object({
     roundHistory: z.boolean(),
     economy: z.boolean(),
     sponsors: z.boolean(),
+    prediction: z.boolean(),
   }),
   replaceAvatars: z.enum(['never', 'if_missing', 'always']),
   playerToWatch: z.string().regex(/^\d{17}$/).nullable(),
