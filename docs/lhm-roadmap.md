@@ -61,6 +61,7 @@ Effort: S ≈ up to half a day, M ≈ 1–2 days, L ≈ several days. Value: how
 | 9 | **Signals (events → Companion/webhooks)** | M | Event rules in settings: event (round end, bomb planted, ace, clutch won, match point, halftime, match end) + filter (team, side) → action (HTTP request, Companion button press `POST /api/location/<page>/<row>/<col>/press`). Events come from `live.ts`/`StatsTracker`. |
 | 10 | **OBS WebSocket** | M | Connection to obs-websocket v5 (settings: host, port, password). Uses: switch OBS scenes along with TacAM scenes (mapping table), trigger Signals. Basis for 11 and 13. |
 | 11 | **Team import** + Quick setup | S | CSV import for teams (name, short name, country, logo file name); "Quick" dialog in the Live tab: assign both teams and fill players from live data in one step. |
+| 12b | **Companion status endpoint** | S | `GET /api/status?key=` with active scene, overlay and toggles, so Companion buttons can show state (feedback/variables via polling). Cheaper than a native Elgato plugin. |
 | 12 | **MatchZy config export** | S | Get5 is CS:GO-only; for CS2 use the MatchZy match JSON (same structure: teams, players with SteamID64, maps, sides). Button "Export server config" on the match. |
 
 ### Phase 3: larger features
