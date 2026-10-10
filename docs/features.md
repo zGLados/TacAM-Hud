@@ -21,7 +21,7 @@ At map end (csgogsi event `matchEnd`) the server writes score and winner into th
 
 ## Scenes
 
-`SceneState { active, auto, message, countdownTo }`. Scenes: `live`, `starting`, `brb`, `pause`, `halftime`, `veto`, `scoreboard`, `matchEnd`, `upcoming`, `playerToWatch`. With `auto`, the server switches between `live` ↔ `pause` (game phase `paused`), `halftime` (map phase `intermission`) and `matchEnd` (`gameover`), but only while one of these scenes is active; scenes picked by the producer stay. Full-screen scenes hide the in-game HUD.
+`SceneState { active, auto, message, countdownTo }`. Scenes: `live`, `starting`, `brb`, `pause`, `halftime`, `veto`, `scoreboard`, `matchEnd`, `upcoming`, `playerToWatch`. With `auto`, the server switches between `live` ↔ `pause` (game phase `paused`), `halftime` (map phase `intermission`, or `paused` at a half break as with `mp_halftime_pausematch`) and `matchEnd` (`gameover`), but only while one of these scenes is active. It only switches when the game phase changes, so a scene the producer picks by hand stays until the next phase change. Full-screen scenes hide the in-game HUD.
 
 - **Upcoming matches** (`upcoming`): up to 5 matches that are neither current nor finished, sorted by `startTime` (unscheduled last), with teams, format and title. Reloads every 30 s.
 - **Player to watch** (`playerToWatch`): the player set in `HudConfig.playerToWatch` (Regie page) with avatar, real name, team and live match stats (rating, K–D, ADR, KAST, HS, opening kills).

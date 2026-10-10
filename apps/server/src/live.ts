@@ -17,6 +17,13 @@ import type { HudServer } from './io.js';
 
 export const uploadUrl = (file: string | null) => (file ? `/uploads/${encodeURIComponent(file)}` : null);
 
+/** True when `round` completed rounds end a half (regulation or overtime). */
+export function isHalfBreak(round: number, regulationMR: number, overtimeMR: number) {
+  if (round === regulationMR) return true;
+  const overtime = round - 2 * regulationMR;
+  return overtime > 0 && overtime % overtimeMR === 0;
+}
+
 /** Scenes the automation is allowed to replace. Producer-chosen scenes are left alone. */
 const AUTO_SCENES: SceneId[] = ['live', 'pause', 'halftime', 'matchEnd'];
 
@@ -33,6 +40,8 @@ export class LiveHub {
   killfeed: KillFeedEntry[] = [];
   private lastSummaryAt = 0;
   private lastRoundsCount = 0;
+  /** Last scene the automation chose, to only react to phase changes. */
+  private lastAutoScene: SceneId | null = null;
 
   constructor(
     private store: Store,
@@ -60,6 +69,7 @@ export class LiveHub {
     this.killfeed = [];
     this.last = null;
     this.lastRoundsCount = 0;
+    this.lastAutoScene = null;
     this.io.emit('stats', this.tracker.snapshot());
     this.io.emit('refresh');
   }
@@ -242,18 +252,30 @@ export class LiveHub {
     };
   }
 
-  private autoScene(data: CSGO) {
-    const scene = this.store.doc('scene');
-    if (!scene.auto || !AUTO_SCENES.includes(scene.active)) return;
-    const phase = data.phase_countdowns.phase;
-    let next: SceneId = 'live';
-    if (data.map.phase === 'gameover') next = 'matchEnd';
-    else if (data.map.phase === 'intermission') next = 'halftime';
-    else if (phase === 'paused') next = 'pause';
-    if (next !== scene.active) {
-      const updated = this.store.setDoc('scene', { ...scene, active: next });
-      this.io.emit('scene', updated);
+  /** Scene the automation wants for the current game phase. */
+  private autoSceneFor(data: CSGO): SceneId {
+    if (data.map.phase === 'gameover') return 'matchEnd';
+    if (data.map.phase === 'intermission') return 'halftime';
+    if (data.phase_countdowns.phase === 'paused') {
+      // Tournament configs pause the match at halftime (mp_halftime_pausematch),
+      // then CS2 reports "paused" instead of "intermission".
+      return isHalfBreak(data.map.round, this.gsi.regulationMR, this.gsi.overtimeMR) ? 'halftime' : 'pause';
     }
+    return 'live';
+  }
+
+  /**
+   * Switches scenes only when the automatic target changes (edge-triggered),
+   * so a scene the producer picks by hand stays until the game phase changes.
+   */
+  private autoScene(data: CSGO) {
+    const next = this.autoSceneFor(data);
+    if (next === this.lastAutoScene) return;
+    this.lastAutoScene = next;
+    const scene = this.store.doc('scene');
+    if (!scene.auto || !AUTO_SCENES.includes(scene.active) || next === scene.active) return;
+    const updated = this.store.setDoc('scene', { ...scene, active: next });
+    this.io.emit('scene', updated);
   }
 
   /** Writes the map result into the current match's veto and series score. */

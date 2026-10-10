@@ -110,6 +110,36 @@ describe('API', () => {
     expect((await (await fetch(`${base}/demo`)).json()).running).toBe(false);
   });
 
+  it('shows halftime for a paused half break and keeps a scene picked by hand', async () => {
+    const team = { score: 6, consecutive_round_losses: 0, timeouts_remaining: 1, matches_won_this_series: 0 };
+    const gsi = (round: number, phase: string) => ({
+      auth: { token: server.store.doc('settings').gsiToken },
+      provider: { name: 'Counter-Strike: Global Offensive', appid: 730, version: 1, steamid: '1', timestamp: 1 },
+      map: { mode: 'competitive', name: 'de_inferno', phase: 'live', round, team_ct: team, team_t: team, num_matches_to_win_series: 0, current_spectators: 0, souvenirs_total: 0, round_wins: {} },
+      round: { phase: 'freezetime' },
+      allplayers: {},
+      phase_countdowns: { phase, phase_ends_in: '10.0' },
+    });
+    const send = (round: number, phase: string) => fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', gsi(round, phase)));
+    const scene = async () => (await (await fetch(`${base}/scene`)).json()).active;
+    await fetch(`${base}/scene`, json('PUT', { active: 'live', auto: true, message: '', countdownTo: null }));
+
+    await send(12, 'freezetime');
+    await send(12, 'paused'); // mp_halftime_pausematch: paused instead of intermission
+    expect(await scene()).toBe('halftime');
+
+    // the producer overrides the automation; further ticks must not undo it
+    await fetch(`${base}/scene`, json('PUT', { active: 'pause', auto: true, message: '', countdownTo: null }));
+    await send(12, 'paused');
+    await send(12, 'paused');
+    expect(await scene()).toBe('pause');
+
+    await send(12, 'live');
+    expect(await scene()).toBe('live');
+    await send(5, 'paused'); // a normal pause is still a pause
+    expect(await scene()).toBe('pause');
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);
