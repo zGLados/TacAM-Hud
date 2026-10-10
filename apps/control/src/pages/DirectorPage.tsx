@@ -58,11 +58,8 @@ function ScenePanel() {
   }, [preview, scene?.active]);
   if (!scene) return null;
   const save = (patch: Partial<SceneState>) => run(() => api.scene.save({ ...scene, ...patch }));
-  const take = (id: SceneId) =>
-    save({
-      active: id,
-      countdownTo: id === 'starting' && !scene.countdownTo ? Date.now() + minutes * 60_000 : scene.countdownTo,
-    });
+  // Starting Soon shows a countdown only when it is started explicitly (Countdown field below).
+  const take = (id: SceneId) => save({ active: id });
   const select = (id: SceneId) => {
     if (!confirm) return take(id);
     setPreview(id === scene.active ? null : id);
