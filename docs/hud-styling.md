@@ -23,7 +23,7 @@ The HUD keeps the values and layout of the TacAM skin, but with its own descript
 | `kill-feed.css` | `kill-feed` | `KillFeed.tsx` |
 | `round-history.css` | `round-history` | `RoundHistory.tsx` |
 | `map-series.css` | `map-series` | `MapSeries.tsx` |
-| `overlays.css` | `trivia`, `phase-banner`, `player-spotlight`, `match-teaser` | `Overlays.tsx` |
+| `overlays.css` | `center-stack`, `trivia`, `phase-banner`, `player-spotlight`, `match-teaser` | `Overlays.tsx` |
 | `sponsors.css` | `sponsors` | `Sponsors.tsx` |
 | `scenes.css` | `scene`, `score-header`, `stats-table(s)`, `veto-list`, `veto-card`, `mvp-card` | `scenes/Scenes.tsx` |
 
@@ -34,7 +34,8 @@ The HUD keeps the values and layout of the TacAM skin, but with its own descript
 - The kill feed sits at `top: 155px` instead of `93px` (it overlapped the sponsors).
 - The economy box sits next to the money box (there is no room in the column above it).
 - Removed because they had no effect or were unused in the skin: scout prediction bar, camera container, `round-thingy`, `.no-bo`, zeus/secondary weapon rules.
-- Known overlaps from the original layout (match preview over the right box column, player preview over the trivia box) are still open.
+- Trivia and player spotlight are stacked in one center column (`.center-stack`) instead of overlapping; alone they keep the skin's positions (130 px / 220 px).
+- The match teaser sits next to the focus player (bottom, left of center) instead of on top of the right side column.
 
 ## Checking changes
 

@@ -31,8 +31,6 @@ export function Layout() {
     <div className={`hud__layout ${visibility.hud && !hudHidden ? '' : 'is-hidden'}`}>
       <Sponsors />
       {visibility.killfeed && <KillFeed />}
-      <PlayerSpotlight game={game} />
-      <MatchTeaser />
       <RadarBox game={game} />
       <MatchBar />
       <PhaseBanners game={game} />
@@ -43,7 +41,11 @@ export function Layout() {
       <FocusPlayer />
       <TeamPanel team={sides.left} players={sides.leftPlayers} align="left" />
       <TeamPanel team={sides.right} players={sides.rightPlayers} align="right" />
-      <Trivia />
+      <div className="center-stack">
+        <Trivia />
+        <PlayerSpotlight game={game} />
+      </div>
+      <MatchTeaser />
       <MapSeries match={match} teams={[sides.left, sides.right]} visible={freezetime} mapName={game.map.name} />
       {(['left', 'right'] as const).map((align) => (
         <SideColumn

@@ -2,24 +2,6 @@
 
 Everything listed here is **not done yet**.
 
-## In progress: descriptive CSS/HTML names in the HUD
-
-The switch to BEM names (`match-bar__team`, `player-card`, `data-side`, `is-*`) and one CSS file per component (`apps/hud/src/styles/`) is implemented. Typecheck and build pass. **Still missing: the visual comparison** against the reference screenshots taken before the refactor:
-
-1. Start a server with test data:
-   `cd apps/server && TACAM_DATA_DIR=../../.data HUD_PORT=13490 GSI_PORT=23490 npx tsx src/main.ts`
-2. Run `.ref/pw/regress.cjs` twice (the first run warms up the stats) and compare with `python3 .ref/diff.py .ref/shots_before .ref/shots_after`.
-   Expected: 0 differing pixels, except for intentional changes.
-   Note: `.ref/` is local and not in the repo. Without it, record new fixtures (see docs/development.md).
-3. Fix differences in the new CSS files.
-
-## Known layout overlaps from the original skin
-
-- The match preview (`.match-teaser`, `top: 375px`) covers the right side column.
-- The player preview (`.player-spotlight`) covers the trivia box.
-
-Reposition them deliberately only after the regression comparison.
-
 ## To evaluate: ideas from zGLados/wartescreen
 
 No full integration (separate server, duplicates the scenes). Worth adopting:

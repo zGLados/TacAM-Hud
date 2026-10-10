@@ -10,8 +10,9 @@ const uploadUrl = (file: string | null) => (file ? `/uploads/${encodeURIComponen
 /** Text box in the center, controlled from the control panel. */
 export function Trivia() {
   const trivia = useHud((s) => s.config.trivia);
+  if (!trivia.visible) return null;
   return (
-    <div className={`trivia ${trivia.visible ? 'is-visible' : ''}`}>
+    <div className="trivia">
       <div className="trivia__title">{trivia.title}</div>
       <div className="trivia__text">{trivia.content}</div>
     </div>
@@ -46,7 +47,7 @@ export function PlayerSpotlight({ game }: { game: CSGO }) {
   const preview = useHud((s) => s.config.playerPreview);
   const players = useHud((s) => s.players);
   const stats = useHud((s) => s.stats);
-  if (!preview.steamid) return null;
+  if (!preview.steamid || !preview.visible) return null;
   const profile = players.find((p) => p.steamid === preview.steamid);
   const live = game.players.find((p) => p.steamid === preview.steamid);
   const matchStats = stats.players.find((p) => p.steamid === preview.steamid);
@@ -63,7 +64,7 @@ export function PlayerSpotlight({ game }: { game: CSGO }) {
     { label: 'RATING', value: (matchStats?.rating ?? 0).toFixed(2), fill: fillPercent((matchStats?.rating ?? 0) * 50, 100) },
   ];
   return (
-    <div className={`player-spotlight ${preview.visible ? 'is-visible' : ''}`} data-side={side}>
+    <div className="player-spotlight" data-side={side}>
       <div className="player-spotlight__picture">
         <img src={profile?.avatar || defaultAvatar(side)} alt={name} />
       </div>
@@ -99,7 +100,7 @@ export function MatchTeaser() {
       .then((matches: Match[]) => setMatch(matches.find((m) => m.id === preview.matchId) ?? null))
       .catch(() => setMatch(null));
   }, [preview.matchId]);
-  if (!match) return null;
+  if (!match || !preview.visible) return null;
   const left = teams.find((t) => t.id === match.left.id);
   const right = teams.find((t) => t.id === match.right.id);
   if (!left || !right) return null;
@@ -110,7 +111,7 @@ export function MatchTeaser() {
     </div>
   );
   return (
-    <div className={`match-teaser ${preview.visible ? 'is-visible' : ''}`}>
+    <div className="match-teaser">
       <div className="match-teaser__title">Upcoming match</div>
       <div className="match-teaser__teams">
         {team(left)}

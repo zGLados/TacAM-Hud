@@ -1,26 +1,40 @@
 /* Center overlays: trivia, pause/timeout/warmup banners, player and match previews. */
 
+/*
+ * Center stack: trivia and player spotlight are stacked in one column so they
+ * never cover each other (in the original skin they overlapped). Hidden items
+ * are not rendered.
+ */
+.center-stack {
+  position: fixed;
+  top: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* --- trivia ---------------------------------------------------------------- */
 
 .trivia {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
   background-color: var(--color-panel);
   color: #fff;
   width: 450px;
-  top: 130px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s;
+  animation: overlay-fade-in 0.5s;
   font-size: 14px;
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-.trivia.is-visible {
-  opacity: 1;
-  pointer-events: auto;
 }
 .trivia__title {
   display: flex;
@@ -87,22 +101,18 @@
 /* --- player spotlight (player preview) ------------------------------------ */
 
 .player-spotlight {
-  position: fixed;
-  top: 220px;
   background-color: var(--color-panel);
-  left: 50%;
-  transform: translate(-50%);
   width: 340px;
   padding: 25px 30px;
   color: #fff;
-  opacity: 0;
-  transition: opacity 0.75s;
+  animation: overlay-fade-in 0.75s;
   border-radius: var(--radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   font-family: Montserrat, sans-serif;
 }
-.player-spotlight.is-visible {
-  opacity: 1;
+/* alone it keeps the skin's original position (top: 220px) */
+.center-stack > .player-spotlight:first-child {
+  margin-top: 90px;
 }
 .player-spotlight__picture {
   display: flex;
@@ -167,14 +177,15 @@
 
 /* --- upcoming match teaser --------------------------------------------------- */
 
+/* Next to the focus player, in the free space left of the screen center.
+   In the skin it sat at right: 10px / top: 375px, on top of the side column. */
 .match-teaser {
-  opacity: 0;
-  transition: opacity 0.75s;
   position: fixed;
+  bottom: 5%;
+  right: calc(50% + 196px);
+  animation: overlay-fade-in 0.75s;
   display: flex;
   flex-direction: column;
-  right: 10px;
-  top: 375px;
   background-color: var(--color-panel);
   text-transform: uppercase;
   width: 260px;
@@ -183,9 +194,6 @@
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   font-family: Montserrat, sans-serif;
-}
-.match-teaser.is-visible {
-  opacity: 1;
 }
 .match-teaser__title {
   text-align: center;
