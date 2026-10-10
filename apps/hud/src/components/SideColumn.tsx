@@ -30,7 +30,10 @@ function UtilityBox({ team, players, visible }: { team: Team; players: Player[];
       <div className="utility-box__list">
         {GRENADES.map((g) => (
           <div key={g.icon} className="utility-box__item">
-            <WeaponIcon weapon={team.side === 'CT' && g.iconCT ? g.iconCT : g.icon} isGrenade />
+            {/* wrapper keeps the icon from shrinking as a flex item */}
+            <div>
+              <WeaponIcon weapon={team.side === 'CT' && g.iconCT ? g.iconCT : g.icon} isGrenade />
+            </div>
             <div>x{grenadeCount(players, g.names)}</div>
           </div>
         ))}

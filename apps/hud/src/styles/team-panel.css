@@ -234,10 +234,6 @@
   align-items: center;
   justify-content: space-around;
 }
-.player-card__grenades svg.weapon-icon--grenade {
-  width: 20px;
-  height: 20px;
-}
 .player-card__loadout svg.weapon-icon {
   max-height: 30px;
   width: auto;
@@ -245,6 +241,11 @@
   margin-right: 5px;
   max-width: 100px;
   height: 30px;
+}
+/* grenades are smaller than the main weapon (must win over the rule above) */
+.player-card__loadout .player-card__grenades svg.weapon-icon--grenade {
+  width: 20px;
+  height: 20px;
 }
 
 /* --- mirrored layout for the right team ------------------------------------ */
@@ -319,9 +320,9 @@
 .player-card.is-dead .player-card__stats {
   justify-content: center;
 }
+/* K/D numbers stay white, only name, money and icons are dimmed */
 .player-card.is-dead .player-card__name,
-.player-card.is-dead .player-card__money,
-.player-card.is-dead .player-card__stats {
+.player-card.is-dead .player-card__money {
   color: var(--color-dead);
 }
 .player-card.is-dead .player-card__stat svg {
