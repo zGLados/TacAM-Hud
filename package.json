@@ -17,7 +17,7 @@
     "start": "npm run start -w @tacam/server",
     "desktop": "npm run build && npm run start -w @tacam/desktop",
     "dist": "npm run build && npm run dist -w @tacam/desktop",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build -w @tacam/shared && npm run build -w @tacam/server && npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
