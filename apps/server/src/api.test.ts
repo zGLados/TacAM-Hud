@@ -237,6 +237,20 @@ describe('API', () => {
     expect((await fetch(`${base}/trigger/scene-live?key=${actionKey}`)).status).toBe(200);
   });
 
+  it('validates and stores keyboard shortcuts', async () => {
+    const save = (keybinds: Record<string, string>) => fetch(`${base}/settings/keybinds`, json('PUT', keybinds));
+    expect((await save({ 'radar-bigger': 'Ctrl+Shift+F5', 'scene-brb': 'Alt+\\', 'hud-toggle': '' })).status).toBe(200);
+    expect(server.store.doc('settings').keybinds).toEqual({ 'radar-bigger': 'Ctrl+Shift+F5', 'scene-brb': 'Alt+\\', 'hud-toggle': '' });
+    expect((await save({ 'radar-bigger': 'V' })).status).toBe(400); // no modifier
+    expect((await save({ 'radar-bigger': 'Alt+Alt+V' })).status).toBe(400);
+    expect((await save({ 'radar-bigger': 'Alt+Ü' })).status).toBe(400);
+    expect((await save({ nope: 'Alt+V' })).status).toBe(400);
+    const duplicate = await save({ 'radar-bigger': 'Alt+V', 'radar-smaller': 'Alt+V' });
+    expect(duplicate.status).toBe(400);
+    expect((await duplicate.json()).error).toContain('used twice');
+    expect(server.actions.some((a) => a.id === 'overlay-scoreboard')).toBe(true);
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

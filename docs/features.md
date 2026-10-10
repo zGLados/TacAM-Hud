@@ -53,6 +53,10 @@ With real CS2 data the game's own kill feed is used: run `cl_draw_only_deathnoti
 
 `apps/server/src/actions.ts` defines one-click actions (scenes, HUD toggles, overlays, swap teams, swap map sides) as `/api/trigger/<id>?key=<actionKey>`, callable with GET or POST because many button tools can only open a URL. The key lives in the settings, is required even for local requests (so a web page in the browser cannot fire actions against 127.0.0.1) and can be renewed under Settings → Stream Deck / Companion, which also lists all URLs. From another computer the server needs LAN access.
 
+## Keyboard shortcuts (desktop app)
+
+`settings.keybinds` maps action ids from `actions.ts` to Electron accelerators (`""` = unbound; keys are never deleted because loading merges defaults back in). The desktop app registers them as global shortcuts and re-registers on every settings change; defaults are the earlier fixed keys (Alt+V/B/N/O/F). The editor (Settings → Keyboard shortcuts) records a key combination, requires a modifier, and the server rejects invalid accelerators and duplicates. `Alt+H` (overlay window) stays a menu accelerator of the app window.
+
 ## Production control from a second device
 
 Settings → enable LAN access + PIN, restart the app. The control panel shows the LAN URLs. Enter the PIN once on the other device (cookie valid for 30 days). A HUD on another PC (e.g. the OBS machine) gets `?token=<token>` appended to its URL.

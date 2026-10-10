@@ -44,6 +44,7 @@ export interface Settings {
   accessPin: string;
   telnet: { host: string; port: number };
   actionKey: string;
+  keybinds: Record<string, string>;
   gsiPort: number;
   cs2CfgDir: string | null;
   gsiInstalled: boolean;
@@ -120,6 +121,7 @@ export const api = {
     save: (s: Pick<Settings, 'steamPath' | 'lanAccess' | 'accessPin' | 'telnet'>) => request<Settings>('PUT', '/settings', s),
     installGsi: () => request<{ file: string }>('POST', '/settings/install-gsi'),
     newActionKey: () => request<{ actionKey: string }>('POST', '/settings/action-key'),
+    saveKeybinds: (keybinds: Record<string, string>) => request<Record<string, string>>('PUT', '/settings/keybinds', keybinds),
   },
   actions: {
     list: () => request<TriggerActionInfo[]>('GET', '/actions'),

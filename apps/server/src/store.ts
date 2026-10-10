@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { EventEmitter } from 'node:events';
+import { DEFAULT_KEYBINDS } from './actions.js';
 import {
   DEFAULT_HUD_CONFIG,
   DEFAULT_SCENE,
@@ -24,6 +25,11 @@ export interface Settings {
   telnet: { host: string; port: number };
   /** Secret for `/api/trigger/<action>` URLs (Stream Deck, Companion). */
   actionKey: string;
+  /**
+   * Global shortcuts of the desktop app: action id (actions.ts) → Electron accelerator.
+   * "" = unbound; keys are never deleted, otherwise loading would merge the default back in.
+   */
+  keybinds: Record<string, string>;
   /** Default sponsors/brand logo were copied into uploads (see defaultMedia.ts). */
   defaultMediaSeeded: boolean;
 }
@@ -49,6 +55,7 @@ const defaults = (): Database => ({
     accessPin: '',
     telnet: { host: '127.0.0.1', port: 2020 },
     actionKey: randomUUID().replace(/-/g, ''),
+    keybinds: { ...DEFAULT_KEYBINDS },
     defaultMediaSeeded: false,
   },
   hudConfig: DEFAULT_HUD_CONFIG,

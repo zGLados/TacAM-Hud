@@ -4,10 +4,10 @@ CS2 broadcast HUD and HUD manager in the TacAM design. Inspired by [JTs-Hud](htt
 
 | Area | What it does |
 | --- | --- |
-| **HUD** (OBS browser source) | Match bar, team panels, spectated player, radar (10 maps incl. the updated Cache), kill feed, bomb/defuse timers, utility/money, map series, trivia, player/match preview, sponsors |
+| **HUD** (OBS browser source) | Match bar, team panels, spectated player, radar (10 maps incl. the updated Cache), kill feed, bomb/defuse timers, utility/money, map series, trivia, player/match preview, sponsors; scoreboard, economy graph and player comparison overlays; wingman; teams can keep their side after halftime |
 | **New: stats** | ADR, KAST (incl. trades), HS %, KPR, opening kills/deaths, clutches, multi-kills, HLTV 1.0 rating, round history, economy (buy classification) |
 | **New: scenes** | Starting soon (countdown), BRB, technical pause, halftime, map veto, scoreboard, match end with MVP, upcoming matches, player to watch; background videos; switched automatically, by click or via a fixed OBS URL per scene |
-| **New: web control** | Control panel in the browser, also on a tablet or second PC (LAN with PIN) |
+| **New: web control** | Control panel in the browser, also on a tablet or second PC (LAN with PIN); Stream Deck / Companion URLs and configurable shortcuts |
 | **New: theme editor** | Colors, corner radius, font, sponsors, tournament logo, with live preview |
 | **Manager** | Players (incl. CSV import and creating them from the live game), teams, matches with veto editor, automatic map results, GSI installation, demo match |
 
@@ -75,6 +75,8 @@ Publishing a GitHub release with a tag like `v1.2.3` builds the Windows installe
 The installed app checks GitHub for a newer release on startup (and via *TacAM HUD → Check for updates*) and offers to download and install it. Teams, players, matches, uploads and settings are kept, because they live in the user data folder, not in the program folder.
 
 ### Keyboard shortcuts (desktop app)
+
+Defaults below. Every action (scenes, overlays, HUD elements, team swaps) can get its own global shortcut under **Settings → Keyboard shortcuts**; the same actions are available as URLs for Stream Deck / Bitfocus Companion (**Settings → Stream Deck / Companion**).
 
 | Shortcut | Action |
 | --- | --- |

@@ -7,6 +7,7 @@ import type { CSGORaw } from 'csgogsi';
 import { Store } from './store.js';
 import { LiveHub } from './live.js';
 import { createApi } from './api.js';
+import { createActions, type TriggerAction } from './actions.js';
 import { DemoMatch } from './demo.js';
 import { seedDefaultMedia } from './defaultMedia.js';
 import { authMiddleware, isAuthorized } from './auth.js';
@@ -29,6 +30,8 @@ export interface TacamServer {
   store: Store;
   live: LiveHub;
   io: HudServer;
+  /** One-click actions (trigger URLs, keyboard shortcuts in the desktop app). */
+  actions: TriggerAction[];
   port: number;
   gsiPort: number;
   start(): Promise<void>;
@@ -49,6 +52,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   const io: HudServer = new Server(http, { maxHttpBufferSize: 1e6 });
   const live = new LiveHub(store, io);
   const demo = new DemoMatch((raw) => live.ingest(raw, true));
+  const actions = createActions(store, live, io);
 
   // --- realtime ----------------------------------------------------------
 
@@ -95,7 +99,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   // --- HTTP --------------------------------------------------------------
 
   app.use(authMiddleware(store));
-  app.use('/api', createApi({ store, live, io, uploadsDir, gsiPort, demo }));
+  app.use('/api', createApi({ store, live, io, actions, uploadsDir, gsiPort, demo }));
   app.use(
     '/uploads',
     express.static(uploadsDir, {
@@ -141,6 +145,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
     store,
     live,
     io,
+    actions,
     port,
     gsiPort,
     async start() {

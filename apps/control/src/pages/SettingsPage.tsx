@@ -40,6 +40,95 @@ function CopyField({ label, value }: { label: string; value: string }) {
   );
 }
 
+/** Turns a keydown into an Electron accelerator ("Ctrl+Shift+F5"); null while only modifiers are held. */
+function toAccelerator(e: KeyboardEvent): string | null {
+  const code = e.code;
+  let key: string | null = null;
+  if (/^Key[A-Z]$/.test(code)) key = code.slice(3);
+  else if (/^Digit[0-9]$/.test(code)) key = code.slice(5);
+  else if (/^Numpad[0-9]$/.test(code)) key = `num${code.slice(6)}`;
+  else if (/^F([1-9]|1[0-9]|2[0-4])$/.test(code)) key = code;
+  else {
+    const named: Record<string, string> = {
+      Space: 'Space', Tab: 'Tab', ArrowUp: 'Up', ArrowDown: 'Down', ArrowLeft: 'Left', ArrowRight: 'Right',
+      Home: 'Home', End: 'End', PageUp: 'PageUp', PageDown: 'PageDown', Insert: 'Insert', Delete: 'Delete',
+      Minus: '-', Equal: '=', Comma: ',', Period: '.', Slash: '/', Semicolon: ';', Quote: "'",
+      BracketLeft: '[', BracketRight: ']', Backslash: '\\', Backquote: '`',
+    };
+    key = named[code] ?? null;
+  }
+  if (!key) return null;
+  const mods = [e.ctrlKey && 'Ctrl', e.altKey && 'Alt', e.shiftKey && 'Shift', e.metaKey && 'Super'].filter(Boolean);
+  return mods.length ? [...mods, key].join('+') : null;
+}
+
+function ShortcutInput({ value, onChange }: { value: string; onChange: (accelerator: string) => void }) {
+  const [recording, setRecording] = useState(false);
+  useEffect(() => {
+    if (!recording) return;
+    const onKey = (e: KeyboardEvent) => {
+      e.preventDefault();
+      if (e.key === 'Escape') return setRecording(false);
+      const accelerator = toAccelerator(e);
+      if (!accelerator) return;
+      setRecording(false);
+      onChange(accelerator);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [recording, onChange]);
+  return (
+    <div className="row">
+      <button className={`button small shortcut_input ${recording ? 'primary' : ''}`} onClick={() => setRecording(!recording)}>
+        {recording ? 'Press keys… (Esc cancels)' : value || '—'}
+      </button>
+      {value && !recording && (
+        <button className="icon_button" aria-label="Remove shortcut" onClick={() => onChange('')}>
+          ×
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Global shortcuts of the desktop app, bound to the same actions as the trigger URLs. */
+function Keybinds({ settings, onSaved }: { settings: Settings; onSaved: () => void }) {
+  const run = useRun();
+  const { data: actions } = useData(api.actions.list, []);
+  const save = async (id: string, accelerator: string) => {
+    const ok = await run(() => api.settings.saveKeybinds({ ...settings.keybinds, [id]: accelerator }), accelerator ? `${accelerator} saved` : 'Shortcut removed');
+    if (ok) onSaved();
+  };
+  const groups = [...new Set(actions.map((a) => a.group))];
+  return (
+    <Card title="Keyboard shortcuts (desktop app)" className="span_two">
+      <p className="muted small">
+        Global shortcuts: they work while the TacAM HUD app runs, even when CS2 or OBS has the focus, and take the key combination away
+        from other programs. Use at least one modifier (Ctrl, Alt, Shift). In the browser version they have no effect.
+      </p>
+      {groups.map((group) => (
+        <details key={group} open={group === 'HUD'}>
+          <summary className="small">{group}</summary>
+          <table className="table trigger_table">
+            <tbody>
+              {actions
+                .filter((a) => a.group === group)
+                .map((a) => (
+                  <tr key={a.id}>
+                    <td>{a.label}</td>
+                    <td className="right">
+                      <ShortcutInput value={settings.keybinds[a.id] ?? ''} onChange={(accelerator) => save(a.id, accelerator)} />
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </details>
+      ))}
+    </Card>
+  );
+}
+
 /** Trigger URLs for Stream Deck / Bitfocus Companion, see apps/server/src/actions.ts. */
 function TriggerUrls({ settings, onKeyChange }: { settings: Settings; onKeyChange: () => void }) {
   const run = useRun();
@@ -184,6 +273,7 @@ export function SettingsPage() {
         </Card>
 
         <TriggerUrls settings={settings} onKeyChange={reload} />
+        <Keybinds settings={settings} onSaved={reload} />
       </div>
     </>
   );

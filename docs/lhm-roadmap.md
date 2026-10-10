@@ -2,7 +2,7 @@
 
 Analysis of the CS2 feature set of [LHM.gg](https://lhm.gg) (Lexogrine HUD Manager), compared with TacAM HUD, and a plan for adopting the useful parts. Sources: lhm.gg feature pages and the [LHM user guide](https://guide.lhm.gg) (October 2026). LHM is a commercial cloud product; this plan only takes over ideas, no code or assets.
 
-Status: **phase 1 decided and in progress** (see `STATUS.md`); phases 2 and 3 are proposals.
+Status: **phase 1 done** (all seven items); phases 2 and 3 are proposals.
 
 ## 1. What LHM offers for CS2
 

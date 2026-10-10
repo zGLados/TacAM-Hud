@@ -4,9 +4,7 @@ Hand-over state for the next session. Latest release: **v0.1.6**, the Windows in
 
 ## Open tasks
 
-- **In progress: LHM roadmap phase 1** ([lhm-roadmap.md](lhm-roadmap.md)), order #1 → #6 → #7 → #2 → #3 → #4 → #5, one commit per feature, release at the end.
-  - Done: #1 keep team sides after halftime, #6 trigger URLs for Stream Deck/Companion, #7 wingman / custom rounds per half, #2 scoreboard overlay, #3 economy graph, #4 player comparison.
-  - Next: #5 keybinds editor (desktop shortcuts from settings; actions from `apps/server/src/actions.ts`).
+- LHM roadmap ([lhm-roadmap.md](lhm-roadmap.md)): **phase 1 done** (#1–#7), not released yet. Phases 2 and 3 are proposals, to be decided.
 
 ## Decided / not planned
 

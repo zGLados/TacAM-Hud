@@ -12,7 +12,7 @@ import type { HudServer } from './io.js';
 import { DemoMatch, seedDemoData } from './demo.js';
 import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from './gsiInstall.js';
 import { loginHandler, statusHandler } from './auth.js';
-import { createActions, TriggerError, validActionKey } from './actions.js';
+import { isAccelerator, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 
 const str = z.string().trim();
 const nullableStr = z.string().trim().nullable();
@@ -147,12 +147,13 @@ export interface ApiOptions {
   store: Store;
   live: LiveHub;
   io: HudServer;
+  actions: TriggerAction[];
   uploadsDir: string;
   gsiPort: number;
   demo: DemoMatch;
 }
 
-export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOptions) {
+export function createApi({ store, live, io, actions, uploadsDir, gsiPort, demo }: ApiOptions) {
   const api = express.Router();
   api.use(express.json({ limit: '1mb' }));
 
@@ -325,7 +326,6 @@ export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOpt
 
   // --- trigger URLs (Stream Deck / Companion) -----------------------------
 
-  const actions = createActions(store, live, io);
   api.get('/actions', (_req, res) => res.json(actions.map(({ id, group, label }) => ({ id, group, label }))));
   // GET as well: many button tools can only open a URL. The key is required even
   // for local requests, so a web page in the browser cannot trigger actions.
@@ -393,6 +393,23 @@ export function createApi({ store, live, io, uploadsDir, gsiPort, demo }: ApiOpt
         return res.status(400).json({ error: 'LAN access requires a PIN' });
       }
       res.json(store.setDoc('settings', { ...store.doc('settings'), ...body }));
+    })
+  );
+  api.put(
+    '/settings/keybinds',
+    h((req, res) => {
+      const ids = new Set(actions.map((a) => a.id));
+      const keybinds = z
+        .record(z.string().refine((id) => ids.has(id), 'Unknown action'), z.string().refine((v) => v === '' || isAccelerator(v), 'Invalid shortcut'))
+        .parse(req.body);
+      const used = new Map<string, string>();
+      for (const [id, accelerator] of Object.entries(keybinds)) {
+        if (!accelerator) continue;
+        const key = accelerator.toLowerCase();
+        if (used.has(key)) return res.status(400).json({ error: `${accelerator} is used twice` });
+        used.set(key, id);
+      }
+      res.json(store.setDoc('settings', { ...store.doc('settings'), keybinds }).keybinds);
     })
   );
   api.post('/settings/action-key', (_req, res) => {

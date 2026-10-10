@@ -107,6 +107,25 @@ export function createActions(store: Store, live: LiveHub, io: HudServer): Trigg
   ];
 }
 
+/** Shortcuts of earlier versions (same as JTs-Hud / TacAM skin). */
+export const DEFAULT_KEYBINDS: Record<string, string> = {
+  'radar-bigger': 'Alt+V',
+  'radar-smaller': 'Alt+B',
+  'radar-enlarge-toggle': 'Alt+N',
+  'hud-toggle': 'Alt+O',
+  'hud-refresh': 'Alt+F',
+};
+
+const MODIFIERS = ['Ctrl', 'Alt', 'Shift', 'Super', 'CommandOrControl'];
+const KEY = /^([A-Z0-9]|F([1-9]|1[0-9]|2[0-4])|num[0-9]|Space|Tab|Up|Down|Left|Right|Home|End|PageUp|PageDown|Insert|Delete|Plus|-|=|,|\.|\/|;|'|\[|\]|\\|`)$/;
+
+/** Electron accelerator like "Alt+V" or "Ctrl+Shift+F5": at least one modifier and one key. */
+export function isAccelerator(value: string) {
+  const parts = value.split('+');
+  const key = parts.pop() ?? '';
+  return parts.length > 0 && parts.every((p) => MODIFIERS.includes(p)) && new Set(parts).size === parts.length && KEY.test(key);
+}
+
 export class TriggerError extends Error {
   constructor(
     readonly status: number,

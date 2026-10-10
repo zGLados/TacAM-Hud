@@ -925,3 +925,12 @@ input[type='range'] {
   word-break: break-all;
   color: var(--muted);
 }
+
+.shortcut_input {
+  min-width: 120px;
+  justify-content: center;
+  font-family: ui-monospace, monospace;
+}
+.trigger_table .row {
+  justify-content: flex-end;
+}

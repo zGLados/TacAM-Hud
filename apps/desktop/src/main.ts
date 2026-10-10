@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { app, BrowserWindow, clipboard, dialog, globalShortcut, Menu, shell } from 'electron';
 import { createTacamServer, type TacamServer } from '@tacam/server';
-import type { HudAction } from '@tacam/shared';
 import { checkForUpdates } from './updater';
 
 /**
@@ -20,23 +19,26 @@ const webDir = (name: 'hud' | 'control') =>
 
 const baseUrl = () => `http://127.0.0.1:${server?.port ?? 1349}`;
 
-/** Global keybinds, active while the app runs (same defaults as JTs-Hud / TacAM skin). */
-const SHORTCUTS: { accelerator: string; action: HudAction['type'] | 'refresh' }[] = [
-  { accelerator: 'Alt+V', action: 'radarBigger' },
-  { accelerator: 'Alt+B', action: 'radarSmaller' },
-  { accelerator: 'Alt+N', action: 'toggleRadarView' },
-  { accelerator: 'Alt+O', action: 'toggleHud' },
-  { accelerator: 'Alt+F', action: 'refresh' },
-];
-
+/**
+ * Global shortcuts from Settings → Keyboard shortcuts (action id → accelerator).
+ * They run the same actions as the Stream Deck trigger URLs and are re-registered
+ * whenever the settings change.
+ */
 function registerShortcuts() {
-  for (const { accelerator, action } of SHORTCUTS) {
+  globalShortcut.unregisterAll();
+  if (!server) return;
+  const { actions } = server;
+  for (const [id, accelerator] of Object.entries(server.store.doc('settings').keybinds)) {
+    const action = actions.find((a) => a.id === id);
+    if (!accelerator || !action) continue;
     const ok = globalShortcut.register(accelerator, () => {
-      if (!server) return;
-      if (action === 'refresh') server.io.emit('refresh');
-      else server.io.emit('action', { type: action });
+      try {
+        action.run();
+      } catch (error) {
+        console.warn(`Shortcut ${accelerator} (${id}):`, error);
+      }
     });
-    if (!ok) console.warn(`Shortcut ${accelerator} is already taken`);
+    if (!ok) console.warn(`Shortcut ${accelerator} is already taken by another program`);
   }
 }
 
@@ -127,6 +129,7 @@ async function start() {
   }
   buildMenu();
   registerShortcuts();
+  server.store.on('change', (name: string) => name === 'settings' && registerShortcuts());
   await createMainWindow();
   void checkForUpdates();
 }
