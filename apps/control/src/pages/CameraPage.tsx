@@ -101,7 +101,8 @@ export function CameraPage() {
   const [allMaps, setAllMaps] = useState(false);
   const [pathIds, setPathIds] = useState<string[]>([]);
   const [duration, setDuration] = useState(5);
-  const [hold, setHold] = useState(true);
+  // Off: after the path CS2 shows the spectated player again (owner's expectation).
+  const [hold, setHold] = useState(false);
 
   const load = () => api.camera.status().then(setStatus).catch(() => {});
   useEffect(() => {

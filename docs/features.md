@@ -52,7 +52,7 @@ Not supported: LHM cameras, tournaments, Scout AI and cloud features. TacAM over
 
 ## Camera control (HLAE)
 
-Page **Camera** (Broadcast), `apps/server/src/camera.ts`, needs CS2 started via HLAE and the console connected. Three tabs: *Players & director* (auto director, free camera, players), *Views & paths* (save views, jump, camera path) and *Setup* (free camera on load, HLAE keys, console commands). Every move goes through `CameraControl`, which keeps the **camera mode** (`game` / `free` / `view` / `path`, shown as a status pill) and sends it to HUD and control panel (socket event `camera`): outside `game` nobody is spectated, so the HUD hides the focused player panel, the focus highlight in the team panels and the observed marker on the radar. A path without *hold* returns to `game` after its duration. HLAE's own Esc key is not seen by TacAM – the mode then stays until the next TacAM move. All commands are taken from the HLAE source (advancedfx `shared/MirvInput.cpp`, `MirvCampath.cpp`):
+Page **Camera** (Broadcast), `apps/server/src/camera.ts`, needs CS2 started via HLAE and the console connected. Three tabs: *Players & director* (auto director, free camera, players), *Views & paths* (save views, jump, camera path) and *Setup* (free camera on load, HLAE keys, console commands). Every move goes through `CameraControl`, which keeps the **camera mode** (`game` / `free` / `view` / `path`, shown as a status pill) and sends it to HUD and control panel (socket event `camera`): outside `game` nobody is spectated, so the HUD hides the focused player panel, the focus highlight in the team panels and the observed marker on the radar. A path without *hold* (default since v0.1.20: off, so CS2 shows the spectated player again afterwards) returns to `game` after its duration. HLAE's own Esc key is not seen by TacAM – the mode then stays until the next TacAM move. All commands are taken from the HLAE source (advancedfx `shared/MirvInput.cpp`, `MirvCampath.cpp`):
 - **Is HLAE running?** `mirv_input` without options prints HLAE's usage; plain CS2 answers "Unknown command". Shown as "Running via HLAE" (button *Check*).
 - **Save the current view:** `mirv_campath print` ends with `Current ( x y z ) fov ( pitch yaw roll ): ( … )`; position, angles and FOV are stored as a `CameraShot` in `settings.cameraShots` together with the current map (GSI). The view can come from HLAE's free camera (`mirv_input camera`, WASD + mouse) or any spectator view.
 - **Jump to a view:** `mirv_campath enabled 0`, `mirv_input camera`, `mirv_input position x y z`, `mirv_input angles <pitch> <yaw> <roll>` (HLAE's usage text says `<yPitch> <xRoll> <zYaw>`, but the code takes pitch, yaw, roll – the usage order tilted the camera sideways), `mirv_input fov <fov>`.
@@ -74,6 +74,10 @@ The API lives under `/api/camera-control` because `/api/camera` belongs to the L
 ## Control panel layout
 
 The sidebar groups the pages into **Broadcast** (Live, Director, Stats), **Data** (Matches, Teams, Players) and **Setup** (Theme, HUDs, Integrations, Settings). *Integrations* has one tab each for OBS, Stream Deck / Companion, keyboard shortcuts, signals and the CS2 console (`/control/integrations/<tab>`); *Settings* keeps game connection, OBS browser source URLs and LAN access. The Director stays a single page (everything reachable while live) with a sticky jump bar: Scenes · HUD · Overlays · Content (scene text, countdown, player to watch, trivia, previews, side boxes) · Match.
+
+## HUD updates in OBS
+
+OBS keeps a browser source loaded across TacAM updates: the socket reconnects, but the old HUD code would keep running and miss new features (v0.1.19: the camera mode). On every reconnect the HUD (`apps/hud/src/state/store.ts`) fetches its `index.html` and compares the hashed bundle URLs with its own; if they differ it reloads itself. The same version never reloads. *Reload all HUDs* (`Alt+F`) still works by hand.
 
 ## HUD configuration ("panel")
 

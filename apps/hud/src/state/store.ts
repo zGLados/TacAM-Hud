@@ -106,9 +106,30 @@ async function bootstrap() {
   set({ ...data });
 }
 
+/**
+ * OBS keeps a browser source loaded across TacAM updates: the socket reconnects,
+ * but the old HUD code keeps running (and misses new events). The built
+ * index.html references hashed bundles, so different script URLs = new version.
+ */
+const scriptUrls = (doc: Document) =>
+  [...doc.querySelectorAll<HTMLScriptElement>('script[type="module"][src]')].map((s) => new URL(s.getAttribute('src')!, window.location.href).pathname).sort().join(' ');
+async function reloadIfOutdated() {
+  try {
+    const res = await fetch(window.location.pathname, { cache: 'no-store' });
+    if (!res.ok) return;
+    const served = scriptUrls(new DOMParser().parseFromString(await res.text(), 'text/html'));
+    if (served && served !== scriptUrls(document)) window.location.reload();
+  } catch {
+    // server restarting – the next reconnect checks again
+  }
+}
+
+let connectedBefore = false;
 socket.on('connect', () => {
   socket.emit('hello', 'hud');
   set({ connected: true });
+  if (connectedBefore) void reloadIfOutdated();
+  connectedBefore = true;
   void bootstrap();
 });
 socket.on('disconnect', () => set({ connected: false }));
