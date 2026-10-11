@@ -7,7 +7,7 @@ Hand-over state for the next session. Latest release: **v0.1.16** (Start CS2 via
 ### Camera control (in progress)
 
 - **Done, not released yet:** page *Camera* built on HLAE commands (from the HLAE source): HLAE detection ("Running via HLAE"), save current view per map (`mirv_campath print`), jump to a view (`mirv_input camera/position/angles/fov`), camera path through chosen views (campath XML + `mirv_campath load/offset current/enabled 1`), back to game view. Tested against a fake HLAE console only. Also unreleased: HLAE in its own settings card.
-- **Next:** the owner tests on Windows with CS2 via HLAE (spectating a demo / GOTV). Open questions: does `mirv_input camera` take over the view while spectating, does `mirv_campath load` accept the absolute path with spaces (AppData\\TacAM HUD), do paths look smooth.
+- **Next:** the owner tests on Windows with CS2 via HLAE (spectating a demo / GOTV). Open questions: does `mirv_input camera` take over the view while spectating, does `mirv_campath load` accept the absolute path with spaces (AppData\TacAM HUD), do paths look smooth.
 - Ideas after that: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path), auto observer (#17) on the same console bridge.
 
 - HUD import (LHM / JTs-Hud format) **done**, released in v0.1.10. Tested with the official LHM CS2 default HUD (lexogrine/cs2-react-hud, built locally): live data, teams, radar, match series, settings panel (trivia, side boxes). Still to test: other community HUDs and a JTs-Hud HUD package.
