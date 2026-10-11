@@ -17,12 +17,12 @@ Hand-over state for the next session. Latest release: **v0.3.0** (CSV export, fi
 - Owner: 2FA on GitHub is on; **applied at signpath.org on 2026-10-11** (category Gaming, individual maintainer, GitHub Actions; v0.2.0 release notes mention the code signing policy as required for the download page). Waiting for SignPath's answer by email – possibly they ask for more reputation (young repo), then re-apply with community links.
 - After the approval: follow the setup steps (2FA on SignPath, project/policy/artifact configuration, API token, GitHub variable + secret). First signed release = check signature, update from an unsigned version, SmartScreen.
 
-### Export / import of settings (owner's wish, 2026-10-11)
+### Export / import of settings – built, not released yet (owner's wish, 2026-10-11)
 
-- Every page should be able to **export and import** its data as a file, e.g. to move to another PC, share a setup or keep a backup before a broadcast.
-- **Most important:** players and teams (incl. logos / avatars), the HUD settings together with the current HUD (theme, sponsors, logo, HUD elements, imported HUD and its panel values) and the camera data (saved views and paths per map).
-- Then the rest: matches / veto, integrations (OBS, signals, shortcuts, Stream Deck key), scene content, camera console commands.
-- Ideas: one JSON (or zip with the uploads) per area plus "export everything"; import with a preview and "merge / replace", matched by id or SteamID / team name so nothing is duplicated; never export secrets (PIN, GSI token, action key) unless asked. Players / teams have CSV import and (since v0.3.0) CSV export – keep them; the full export (with logos, avatars, coach flag) is the next step.
+- **Done (unreleased, next minor version):** `apps/server/src/transfer.ts` + `components/Transfer.tsx`. One zip per export (manifest + JSON per section + uploads + imported HUD folders); Export / Import in the header of Teams, Players, Matches, Theme, HUDs, Camera, Integrations; *Settings → Backup & transfer* for any combination (videos optional). Import = preview (dry run) → choose sections → merge or replace. Secrets never exported. Details: `docs/features.md` → Export / import.
+- Tested: 10 unit tests (`transfer.test.ts`: round trip to an empty install, merge by name / SteamID, replace, upload name clash, invalid entries, imported HUDs, secrets); end to end in the browser with two local servers (export download → import on the Teams page and in Settings).
+- **Owner to test in the desktop app (Windows):** save dialog for the zip, import on a second PC (or after a fresh install), large exports with background videos / imported HUDs.
+- Kept: CSV import / export for players and teams (Excel editing). Possible later: coach flag in the CSV.
 
 ### Camera control (owner tested 2026-10-11)
 

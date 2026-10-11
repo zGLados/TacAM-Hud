@@ -20,6 +20,10 @@ import type {
   ObsStatus,
   SignalLogEntry,
   SignalRule,
+  TransferMode,
+  TransferPreview,
+  TransferResult,
+  TransferSection,
 } from '@tacam/shared';
 
 export class ApiError extends Error {
@@ -211,6 +215,20 @@ export const api = {
   hlae: {
     status: (check = false) => request<HlaeStatus>('GET', `/hlae${check ? '?check=1' : ''}`),
     install: () => request<{ version: string | null; path: string }>('POST', '/hlae/install'),
+  },
+  /** Export / import of settings as a zip (apps/server/src/transfer.ts). */
+  transfer: {
+    /** Downloads the export; resolves with the file name and content. */
+    export: async (sections: TransferSection[], videos = false) => {
+      const query = new URLSearchParams({ sections: sections.join(','), videos: videos ? '1' : '0', app: __APP_VERSION__ });
+      const res = await fetch(`/api/transfer/export?${query}`, { credentials: 'same-origin' });
+      if (!res.ok) throw new ApiError(res.status, (await res.json().catch(() => ({}))).error ?? res.statusText);
+      const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? 'tacam-export.zip';
+      return { name, blob: await res.blob() };
+    },
+    preview: (file: File) => request<TransferPreview>('POST', '/transfer/preview', file),
+    check: (id: string, sections: TransferSection[], mode: TransferMode) => request<TransferResult>('POST', '/transfer/check', { id, sections, mode }),
+    import: (id: string, sections: TransferSection[], mode: TransferMode) => request<TransferResult>('POST', '/transfer/import', { id, sections, mode }),
   },
   huds: {
     list: () => request<ImportedHud[]>('GET', '/huds'),

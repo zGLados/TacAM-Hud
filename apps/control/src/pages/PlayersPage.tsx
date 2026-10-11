@@ -3,6 +3,7 @@ import { countryFlagEmoji, csvRows, playersToCsv, type PlayerProfile, type TeamP
 import { datedFileName, downloadText } from '../download';
 import { api, uploadUrl, useData, type PlayerInput } from '../api';
 import { Card, ConfirmButton, CountrySelect, Field, ImageUpload, Modal, PageHeader, Toggle, useRun, useToast } from '../components/ui';
+import { TransferButtons } from '../components/Transfer';
 
 const emptyPlayer: PlayerInput = {
   steamid: '',
@@ -125,6 +126,7 @@ export function PlayersPage() {
         description="The SteamID links profile, avatar and team to the live data from CS2."
         actions={
           <>
+            <TransferButtons sections={['teams']} />
             <button className="button ghost" onClick={() => fileInput.current?.click()}>
               Import CSV
             </button>

@@ -3,6 +3,7 @@ import { DEFAULT_THEME, THEME_COLOR_KEYS, type Theme, type ThemeColorKey } from 
 import { api, uploadUrl, useData } from '../api';
 import { HudMonitor } from '../components/HudMonitor';
 import { Card, ColorInput, ConfirmButton, Field, ImageUpload, PageHeader, Toggle, useRun } from '../components/ui';
+import { TransferButtons } from '../components/Transfer';
 
 const COLOR_LABELS: Record<ThemeColorKey, string> = {
   primary: 'Accent',
@@ -156,6 +157,7 @@ export function ThemePage() {
         description="Change colors, logos and sponsors without touching CSS. The preview shows changes immediately."
         actions={
           <>
+            <TransferButtons sections={['hud']} />
             <ConfirmButton
               className="ghost"
               // Only the look; sponsors, logos and videos are kept.

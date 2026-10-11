@@ -37,6 +37,7 @@ Inspired by [JTs-Hud](https://github.com/JohnTimmermann/JTs-Hud) and [LHM.gg](ht
 | 🖼️ **HUD import** | Import HUDs in the LHM / JTs-Hud format (zip with `hud.json`) and run them as their own OBS source, with their own settings panel |
 | 🎨 **Theme editor** | Colors, corner radius, font, sponsors, brand and tournament logo – with live preview |
 | 🗂️ **Manager** | Players and teams (CSV import and export, quick setup from the live game), matches with veto editor, automatic map results, GSI config installation, demo match |
+| 💾 **Export / import** | Every page exports and imports its settings as a zip with images (teams and players with logos and avatars, matches, HUD settings and theme, imported HUDs, camera views and paths, OBS / signals / shortcuts) – Settings → Backup & transfer does everything at once; preview with merge or replace; passwords and keys are never exported |
 | ⬆️ **Desktop app** | Windows installer with automatic updates; your data stays when updating |
 
 ## Screenshots

@@ -1261,3 +1261,51 @@ input.grow {
   width: 100%;
   font-weight: 600;
 }
+
+/* --- export / import (components/Transfer.tsx) --------------------------- */
+
+.transfer_list,
+.transfer_modes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.transfer_item,
+.transfer_mode {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.transfer_item > span,
+.transfer_mode > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.transfer_item input,
+.transfer_mode input {
+  flex: none;
+  width: auto;
+  margin: 3px 0 0;
+}
+.transfer_mode.is-active {
+  border-color: var(--primary);
+}
+.transfer_result {
+  margin: 0;
+  padding-left: 18px;
+}
+.transfer_skipped summary {
+  cursor: pointer;
+  color: var(--warning, #e0a040);
+}
+.transfer_skipped ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  max-height: 180px;
+  overflow: auto;
+}

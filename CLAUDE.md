@@ -5,7 +5,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 ## Structure
 
 - `packages/shared`: domain types, `StatsTracker`, `inferKills`, format helpers. Built to `dist/`; **after changes run `npm run build -w @tacam/shared`**, otherwise server/apps see stale types.
-- `apps/server`: Express 4 + Socket.io; `app.ts` (server factory), `live.ts` (GSI pipeline, team assignment, scene automation, game events), `api.ts` (REST + zod), `store.ts` (JSON DB), `auth.ts` (LAN PIN), `demo.ts` (simulated match), `gsiInstall.ts`, `actions.ts`/`signals.ts`/`obs.ts` (integrations), `huds.ts`/`lhm.ts` (imported HUDs), `game.ts`/`hlae.ts`/`camera.ts` (start CS2, console, HLAE camera). Module table: `docs/architecture.md`.
+- `apps/server`: Express 4 + Socket.io; `app.ts` (server factory), `live.ts` (GSI pipeline, team assignment, scene automation, game events), `api.ts` (REST) + `schemas.ts` (zod, shared with the import), `transfer.ts` (export / import zip), `store.ts` (JSON DB), `auth.ts` (LAN PIN), `demo.ts` (simulated match), `gsiInstall.ts`, `actions.ts`/`signals.ts`/`obs.ts` (integrations), `huds.ts`/`lhm.ts` (imported HUDs), `game.ts`/`hlae.ts`/`camera.ts` (start CS2, console, HLAE camera). Module table: `docs/architecture.md`.
 - `apps/hud`: React overlay; state in `state/store.ts` (useSyncExternalStore), components in `components/`, scenes in `scenes/`, one CSS file per component in `styles/`.
 - `apps/control`: React control panel (react-router 7), pages in `pages/`, building blocks in `components/ui.tsx`; `veto.html` is a second entry (captain veto page, no login).
 - `apps/desktop`: Electron main (`src/main.ts`), bundled to CJS with esbuild.

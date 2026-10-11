@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, useData, type HlaeStatus, type Settings } from '../api';
 import { Card, CopyField, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
 import { REPORT_ISSUE_URL } from '../issues';
+import { BackupCard } from '../components/Transfer';
 
 const OBS_SCENES: [string, string][] = [
   ['live', 'In-game HUD only'],
@@ -193,6 +194,10 @@ export function SettingsPage() {
             </a>{' '}
             – with the version, what you did and a screenshot if possible.
           </p>
+        </Card>
+
+        <Card title="Backup & transfer">
+          <BackupCard />
         </Card>
 
         <Card title="Access from other devices" className="span_two">

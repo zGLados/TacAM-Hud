@@ -16,7 +16,7 @@ Server modules (`apps/server/src`):
 | --- | --- |
 | `app.ts` | server factory: Express, Socket.io, GSI receiver, static apps, wiring (one shared CS2 console connection for API, actions and camera) |
 | `live.ts` | GSI pipeline (`LiveHub`): coaches, team resolution, halftime flip, round rules, stats, scene automation, game events |
-| `api.ts` | REST API with zod validation |
+| `api.ts`, `schemas.ts` | REST API; zod schemas shared with the settings import |
 | `store.ts` | JSON database (`db.json`) |
 | `auth.ts` | LAN access with PIN/token |
 | `actions.ts` | one-click actions (trigger URLs, global shortcuts) |
@@ -26,6 +26,7 @@ Server modules (`apps/server/src`):
 | `matchzy.ts` | MatchZy match config export |
 | `huds.ts`, `lhm.ts` | imported HUDs (zip import) and the LHM-compatible interface they need |
 | `game.ts`, `hlae.ts`, `camera.ts` | start CS2 (normal / Workshop Tools / HLAE), CS2 console over `-netconport`, HLAE install, camera views and paths; `CameraControl` tracks the camera mode (HUD hides the focused player during HLAE camera / paths) |
+| `transfer.ts` | export / import of settings as a zip (sections, merge / replace, uploads and imported HUDs) |
 | `demo.ts` | simulated match |
 | `gsiInstall.ts`, `defaultMedia.ts`, `paths.ts` | GSI config, default sponsors/logo, data folder |
 

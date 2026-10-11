@@ -5,6 +5,7 @@ All notable changes to TacAM HUD. Versions follow [semantic versioning](https://
 ## Unreleased
 
 ### Added
+- **Export and import on every page** (Teams, Players, Matches, Theme, HUDs, Camera, Integrations) and **Settings → Backup & transfer** for everything at once: one zip with readable JSON and the images (logos, avatars, sponsors), imported HUDs with their settings and optionally the background videos. The import shows what would change and lets you choose the areas and *merge* (add and update – teams by name, players by SteamID) or *replace*. Passwords, the LAN PIN and Stream Deck keys are never exported.
 - Contributing guide, Code of Conduct and GitHub Discussions; website sections for getting involved, the roadmap and FAQ, and which features need HLAE.
 
 ## [0.3.0] – 2026-10-11

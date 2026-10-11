@@ -29,6 +29,8 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 | `POST /auth/login` `{ pin }`, `GET /auth/status` | LAN login |
 | `GET /matches/:id/matchzy.json` | MatchZy match config (download) |
 | `POST /teams/import` `[{ name, shortName, country }]` | Team CSV import (matched by name) |
+| `GET /transfer/export?sections=teams,hud[&videos=1][&app=<version>]` | Export the chosen sections (`teams`, `matches`, `hud`, `huds`, `camera`, `integrations`) as a zip download |
+| `POST /transfer/preview` (zip body, max. 1 GB) → `{ id, appVersion, createdAt, sections: [{ section, summary }], files }`; `POST /transfer/check` / `POST /transfer/import` `{ id, sections, mode: 'merge' \| 'replace' }` → `{ sections, skipped }` | Import: preview, dry run for a choice, import (see features.md → Export / import) |
 | `POST /live/quick-setup` `{ left, right, reassign, setMatch }` | Live tab quick setup (`left`/`right`: `{ teamId }` or `{ name, shortName }`) |
 | `GET /actions` | Trigger actions (id, group, label) |
 | `POST /game/launch` | Start CS2 with the launch options and launch mode |

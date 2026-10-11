@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { api, useData, type HudPanelData, type HudPanelInput, type HudPanelValues, type ImportedHud } from '../api';
 import { Card, ConfirmButton, CopyField, Field, Group, ImageUpload, Modal, PageHeader, Toggle, useRun } from '../components/ui';
+import { TransferButtons } from '../components/Transfer';
 
 /** One input of an imported HUD's panel.json, rendered as a form control. */
 function PanelInputField({
@@ -179,9 +180,12 @@ export function HudsPage() {
         title="HUDs"
         description="The TacAM HUD is built in. Other HUDs in the LHM / JTs-Hud format (zip with hud.json) can be imported and used as their own OBS browser source."
         actions={
-          <button className="button primary" onClick={() => fileInput.current?.click()}>
-            Import HUD (.zip)
-          </button>
+          <>
+            <TransferButtons sections={['huds']} />
+            <button className="button primary" onClick={() => fileInput.current?.click()}>
+              Import HUD (.zip)
+            </button>
+          </>
         }
       />
       <input

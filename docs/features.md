@@ -105,6 +105,19 @@ OBS keeps a browser source loaded across TacAM updates: the socket reconnects, b
 - **Players CSV**: teams named in the last column that do not exist yet are created first, so one file is enough.
 - **Export CSV** (Players / Teams): writes exactly the import format (`packages/shared/src/csv.ts`, semicolons, UTF-8 with BOM for Excel, header row), so export → edit → import round-trips without duplicates (players by SteamID, teams by name). Not in the CSV: logos, avatars, coach flag. The import ignores Excel's BOM.
 
+## Export / import of settings (`apps/server/src/transfer.ts`)
+
+Every page with data has **Export / Import** in its header (Teams and Players → teams & players, Matches, Theme → HUD settings & theme, HUDs → imported HUDs, Camera → views & paths, Integrations → OBS, signals & shortcuts); **Settings → Backup & transfer** exports any combination at once (optionally with the background videos, which can be hundreds of MB). Use cases: move TacAM HUD to another PC, share a setup with another crew, keep a backup before a broadcast.
+
+- **Format:** one zip – `manifest.json` (`format: "tacam-export"`, `formatVersion`, app version, date, sections), one readable JSON file per section (`teams.json`, `matches.json`, `hud.json`, `huds.json`, `camera.json`, `integrations.json`), the referenced uploads under `uploads/` (logos, avatars, sponsors, brand/tournament logo, side box images; videos only on request) and imported HUD folders under `huds/<dir>/`. A zip because images belong to teams, players and the theme – JSON alone would lose them. Newer format versions are refused with "please update first".
+- **Never exported:** LAN PIN, GSI token, action key (trigger URLs) and the OBS password – they stay on each PC. Captain veto links (tokens) are dropped from matches.
+- **Import** (`POST /transfer/preview` → `check` → `import`): the uploaded file is kept in memory (one at a time, 15 minutes) and a dry run shows per section what would happen ("2 teams (1 new, 1 updated), 40 players (12 new)"). The user picks the sections and the mode:
+  - **Merge:** add new entries, update existing ones – teams by id or name (case-insensitive), players by SteamID, matches, camera views/paths and signals by id; nothing is deleted. Shortcuts: an imported key frees the same key on another local action.
+  - **Replace:** clears the chosen sections first ("– replaces N existing" in the preview); imported HUDs not in the file are removed.
+- **References:** team ids are remapped (players, matches, veto scores/winners); uploads are reused when identical, renamed when a different file has the same name; references to files that are neither in the zip nor on this PC are dropped (e.g. videos left out). Signals may point at camera paths imported in the same run.
+- **Validation:** the same zod schemas as the REST API (`apps/server/src/schemas.ts`); invalid entries are skipped and listed ("2 invalid entries are left out"), the rest is imported. Imported HUD folders get the same zip-slip and size checks as the HUD import.
+- After the import the control panel reloads, so every page shows the new data.
+
 ## MatchZy server config
 
 Matches → *MatchZy config* downloads `GET /api/matches/:id/matchzy.json` (`apps/server/src/matchzy.ts`) for the [MatchZy](https://shobhit-pathak.github.io/MatchZy/match_setup/) CS2 server plugin (Get5-style format; load it with `matchzy_loadmatch <file>`). Teams come with their players' SteamID64s (coaches left out). Once the veto has all maps, `maplist` holds them in order with `map_sides` (`team1_ct`/`team2_ct` derived from the picking team's side, `knife` for the decider) and `skip_veto: true`; before that the map pool is listed and vetoed in game. `matchid` is a stable number derived from the match id.

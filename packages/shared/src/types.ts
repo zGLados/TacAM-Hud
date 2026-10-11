@@ -556,3 +556,45 @@ export interface GsiStatus {
   map: string | null;
   phase: string | null;
 }
+
+// ---------------------------------------------------------------------------
+// Export / import of settings (apps/server/src/transfer.ts)
+// ---------------------------------------------------------------------------
+
+/** Areas of an export file; every page exports its own, Settings → Backup all of them. */
+export const TRANSFER_SECTIONS = ['teams', 'matches', 'hud', 'huds', 'camera', 'integrations'] as const;
+export type TransferSection = (typeof TRANSFER_SECTIONS)[number];
+
+export const TRANSFER_SECTION_LABELS: Record<TransferSection, string> = {
+  teams: 'Teams & players',
+  matches: 'Matches',
+  hud: 'HUD settings & theme',
+  huds: 'Imported HUDs',
+  camera: 'Camera views & paths',
+  integrations: 'OBS, signals & shortcuts',
+};
+
+export interface TransferSectionPreview {
+  section: TransferSection;
+  /** e.g. "8 teams (3 new), 40 players (12 new)". */
+  summary: string;
+}
+
+/** Answer to an uploaded export file, before anything is changed. */
+export interface TransferPreview {
+  /** Pass to the import call; valid for a few minutes. */
+  id: string;
+  appVersion: string | null;
+  createdAt: string | null;
+  sections: TransferSectionPreview[];
+  /** Image/video files in the file. */
+  files: number;
+}
+
+export type TransferMode = 'merge' | 'replace';
+
+export interface TransferResult {
+  sections: TransferSectionPreview[];
+  /** Entries that were invalid and left out (with the reason). */
+  skipped: string[];
+}

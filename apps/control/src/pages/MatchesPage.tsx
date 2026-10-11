@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ACTIVE_DUTY_MAPS, ACTIVE_MAP_POOL, VETO_ORDER, captainSteps, prettyMapName, vetoMapsNeeded, type Match, type MatchType, type TeamProfile, type Veto } from '@tacam/shared';
 import { api, uploadUrl, useData, type MatchInput, type Settings } from '../api';
 import { Card, ConfirmButton, CopyField, Field, Group, Modal, PageHeader, Toggle, useRun } from '../components/ui';
+import { TransferButtons } from '../components/Transfer';
 
 const emptyVeto = (): Veto => ({
   type: 'pick',
@@ -314,9 +315,12 @@ export function MatchesPage() {
         title="Matches"
         description="The current match provides teams, series score and veto for the HUD and scenes."
         actions={
-          <button className="button primary" onClick={() => setEditing('new')}>
-            + Match
-          </button>
+          <>
+            <TransferButtons sections={['matches']} />
+            <button className="button primary" onClick={() => setEditing('new')}>
+              + Match
+            </button>
+          </>
         }
       />
       <div className="stack">

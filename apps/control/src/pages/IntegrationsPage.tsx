@@ -4,6 +4,7 @@ import { SCENE_IDS, SCENE_LABELS, type ObsSettings, type ObsStatus } from '@taca
 import { api, useData, type ConsoleDiagnosis, type GameConsoleStatus, type Settings } from '../api';
 import { Card, ConfirmButton, copyText, Field, Group, PageHeader, Toggle, useRun } from '../components/ui';
 import { SignalsPanel } from './SignalsPage';
+import { TransferButtons } from '../components/Transfer';
 
 /** OBS WebSocket connection and scene mapping (apps/server/src/obs.ts). */
 function ObsCard({ settings, onSaved }: { settings: Settings; onSaved: () => void }) {
@@ -347,7 +348,9 @@ export function IntegrationsPage() {
   if (!TABS.some((t) => t.id === tab)) return <Navigate to="/integrations/obs" replace />;
   return (
     <>
-      <PageHeader title="Integrations" description="OBS, Stream Deck / Companion, keyboard shortcuts, automatic signals from game events and the CS2 console." />
+      <PageHeader title="Integrations" description="OBS, Stream Deck / Companion, keyboard shortcuts, automatic signals from game events and the CS2 console."
+        actions={<TransferButtons sections={['integrations']} />}
+      />
       <nav className="tabs">
         {TABS.map((t) => (
           <NavLink key={t.id} to={`/integrations/${t.id}`} className={({ isActive }) => `tab ${isActive ? 'active' : ''}`}>

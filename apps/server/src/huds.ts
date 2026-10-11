@@ -145,3 +145,47 @@ export function removeHud(dataDir: string, dir: string) {
   fs.rmSync(path.join(hudsDir(dataDir), dir), { recursive: true, force: true });
   return true;
 }
+
+/** Valid folder name of an imported HUD. */
+export const isHudDir = (dir: string) => /^[a-z0-9-]{1,60}$/.test(dir);
+
+/** All files of an imported HUD as [path relative to its folder, content] (settings export). */
+export function readHudFiles(dataDir: string, dir: string): [string, Uint8Array][] {
+  if (!getHud(dataDir, dir)) return [];
+  const folder = path.join(hudsDir(dataDir), dir);
+  const out: [string, Uint8Array][] = [];
+  const walk = (relative: string) => {
+    for (const entry of fs.readdirSync(path.join(folder, relative), { withFileTypes: true })) {
+      const name = relative ? `${relative}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) walk(name);
+      else if (entry.isFile()) out.push([name, fs.readFileSync(path.join(folder, name))]);
+    }
+  };
+  walk('');
+  return out;
+}
+
+/** Writes an imported HUD folder from a settings export, replacing an existing one with the same name. */
+export function writeHudFiles(dataDir: string, dir: string, files: [string, Uint8Array][]) {
+  if (!isHudDir(dir)) throw new HudImportError(`Invalid HUD folder: ${dir}`);
+  if (files.length > MAX_FILES || files.reduce((sum, [, data]) => sum + data.length, 0) > MAX_TOTAL) throw new HudImportError(`HUD ${dir} is too large`);
+  const names = new Set(files.map(([name]) => name));
+  if (!names.has('hud.json') || !names.has('index.html')) throw new HudImportError(`HUD ${dir} has no hud.json / index.html`);
+  const target = path.join(hudsDir(dataDir), dir);
+  const tmp = `${target}.tmp`;
+  fs.rmSync(tmp, { recursive: true, force: true });
+  fs.mkdirSync(tmp, { recursive: true });
+  try {
+    for (const [name, data] of files) {
+      const out = path.resolve(tmp, name);
+      if (!out.startsWith(tmp + path.sep)) throw new HudImportError(`Invalid path in HUD ${dir}: ${name}`);
+      fs.mkdirSync(path.dirname(out), { recursive: true });
+      fs.writeFileSync(out, data);
+    }
+    fs.rmSync(target, { recursive: true, force: true });
+    fs.renameSync(tmp, target);
+  } catch (error) {
+    fs.rmSync(tmp, { recursive: true, force: true });
+    throw error;
+  }
+}

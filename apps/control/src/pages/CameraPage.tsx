@@ -3,6 +3,7 @@ import { Link, NavLink, Navigate, useParams } from 'react-router-dom';
 import { prettyMapName, type CameraMode, type CameraPath, type CameraShot, type LivePlayerSummary } from '@tacam/shared';
 import { api, useLive, type CameraStatus } from '../api';
 import { Card, ConfirmButton, Field, PageHeader, Toggle, useRun } from '../components/ui';
+import { TransferButtons } from '../components/Transfer';
 
 const TABS = [
   { id: 'players', label: 'Players & director' },
@@ -215,9 +216,12 @@ export function CameraPage() {
         title="Camera"
         description="Players, CS2 auto director, saved views and camera paths – controlled through the CS2 console and HLAE."
         actions={
-          <button className="button primary" onClick={() => run(api.camera.release, 'Back to the game view').then(load)}>
-            Back to game view
-          </button>
+          <>
+            <TransferButtons sections={['camera']} />
+            <button className="button primary" onClick={() => run(api.camera.release, 'Back to the game view').then(load)}>
+              Back to game view
+            </button>
+          </>
         }
       />
       <div className="status_row">

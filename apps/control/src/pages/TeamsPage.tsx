@@ -3,6 +3,7 @@ import { countryFlagEmoji, type TeamProfile, csvRows, teamsToCsv } from '@tacam/
 import { datedFileName, downloadText } from '../download';
 import { api, uploadUrl, useData, type TeamInput } from '../api';
 import { Card, ConfirmButton, CountrySelect, Field, ImageUpload, Modal, PageHeader, useRun, useToast } from '../components/ui';
+import { TransferButtons } from '../components/Transfer';
 
 const emptyTeam: TeamInput = { name: '', shortName: '', country: null, logo: null, extra: {} };
 
@@ -69,6 +70,7 @@ export function TeamsPage() {
         description="Logo and name appear in the match bar, scenes and veto."
         actions={
           <>
+            <TransferButtons sections={['teams']} />
             <button className="button ghost" onClick={() => fileInput.current?.click()}>
               Import CSV
             </button>
