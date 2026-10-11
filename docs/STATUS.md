@@ -7,7 +7,7 @@ Hand-over state for the next session. Latest release: **v0.3.0** (CSV export, fi
 ### Code signing (SignPath Foundation) – prepared, waiting for the owner
 
 - Prepared: README *Code signing policy* + *Privacy*, optional signing steps in `release.yml` (active once `SIGNPATH_ORGANIZATION_ID` is set), `apps/desktop/scripts/refresh-update-info.mjs` (tested locally with a fake signed exe), setup guide in `docs/development.md` → Code signing.
-- Owner: 2FA on GitHub is on; **applied at signpath.org on 2026-10-11** (category Gaming, individual maintainer, GitHub Actions; v0.2.0 release notes mention the code signing policy as required for the download page). Waiting for SignPath's answer by email – possibly they ask for more reputation (young repo), then re-apply with community links (e.g. the Reddit post).
+- Owner: 2FA on GitHub is on; **applied at signpath.org on 2026-10-11** (category Gaming, individual maintainer, GitHub Actions; v0.2.0 release notes mention the code signing policy as required for the download page). Waiting for SignPath's answer by email – possibly they ask for more reputation (young repo), then re-apply with community links.
 - After the approval: follow the setup steps (2FA on SignPath, project/policy/artifact configuration, API token, GitHub variable + secret). First signed release = check signature, update from an unsigned version, SmartScreen.
 
 ### Export / import of settings (owner's wish, 2026-10-11)
