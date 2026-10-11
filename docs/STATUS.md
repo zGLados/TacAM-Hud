@@ -1,6 +1,6 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.1.18** (player selection, free camera on demo load, camera fixes).
+Hand-over state for the next session. Latest release: **v0.1.19** (camera tabs, CS2 auto director, console commands on demo load).
 
 ## Open tasks
 
@@ -10,9 +10,9 @@ Hand-over state for the next session. Latest release: **v0.1.18** (player select
 - **Player selection, released in v0.1.18:** Camera page *Players* (one button per player → `spec_player "<name>"` + `spec_mode 1`, after leaving HLAE camera/path), *Previous/Next player*, Stream Deck actions *Spectate player on slot 1–0*. Tested against a fake console with the demo match. **Owner to test in CS2:** does a click switch to the right player in a demo / as GOTV spectator, also after a free camera or a path? Names starting with a digit cannot be targeted (CS2 limitation) → Next/Previous.
 - **Fixed after the owner's test (v0.1.18):** jumping to a saved view tilted the camera sideways – `mirv_input angles` takes pitch yaw roll (HLAE's usage text says otherwise). Black screen after loading another demo: TacAM now ends HLAE camera/path when GSI reports a new map. If it stays black, the console command `mirv_input end; mirv_campath enabled 0` or *Back to game view* should help – owner to confirm.
 - **Free camera on demo / map load (v0.1.18):** TacAM ends camera/path and enters `mirv_input camera` from the current game view (toggle on the Camera page, default on), plus a key overview. Owner's report "picture shrinks to a white dot after a disconnect" = HLAE FOV growing to 180° (Page Down / Numpad 1 or wheel seen as held) – Home resets it; entering the free camera fresh resets it too.
-- **Console commands on demo / map load and back in the menu – done, not released yet** (Camera page, last card; defaults `cl_draw_only_deathnotices 1/0`, `engine_no_focus_sleep 0/60`). Tested against a fake console. Open question: CS2 kill feed or TacAM kill feed in the stream (both visible = duplicate).
+- **Console commands on demo / map load and back in the menu – released in v0.1.19** (Camera page, last card; defaults `cl_draw_only_deathnotices 1/0`, `engine_no_focus_sleep 0/60`). Tested against a fake console. Open question: CS2 kill feed or TacAM kill feed in the stream (both visible = duplicate).
 - **Next (owner's wish): save camera paths** – store a path (chosen views in order, duration, hold) under a name per map, so it can be played during a broadcast with one click and as a Stream Deck / Companion action (`camera-path-<id>`), maybe also from signals (e.g. round start → overview path).
-- **Camera page in tabs, camera mode, CS2 auto director – done, not released yet** (owner's wishes): tabs *Players & director* / *Views & paths* / *Setup*; during free camera / view / path the HUD shows no focused player; button + action for `spec_autodirector`. Owner to test in CS2: does `spec_autodirector 1` work in a demo via the console, does picking a player end it? Kill feed: owner uses the CS2 one (TacAM kill feed stays off by default).
+- **Camera page in tabs, camera mode, CS2 auto director – released in v0.1.19** (owner's wishes): tabs *Players & director* / *Views & paths* / *Setup*; during free camera / view / path the HUD shows no focused player; button + action for `spec_autodirector`. Owner confirmed: `spec_autodirector 1` works in a demo via the console. Still to test after v0.1.19: does the HUD hide the focused player during a camera path? Kill feed: owner uses the CS2 one (TacAM kill feed stays off by default).
 - **Later: own auto observer (#17)** – smarter than CS2's auto director – on the same console bridge (switch to the player in the duel / with the bomb / last alive, with a minimum dwell time, manual takeover pauses it).
 - Other ideas: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path).
 
@@ -32,7 +32,7 @@ Hand-over state for the next session. Latest release: **v0.1.18** (player select
 
 ## Releases
 
-- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.18).
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.19).
 - Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 → 0.1.7 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies
