@@ -126,6 +126,6 @@ Settings → enable LAN access + PIN, restart the app. The control panel shows t
 ## Known limitations
 
 - No kill feed details (flash/wallbang/no-scope) and no utility damage: not in CS2 GSI.
-- No player cameras (WebRTC) and no "bring your own HUD" as in JTs-Hud.
-- No spectator binds tool (telnet settings are prepared).
-- `react-router-dom` 6 has two moderate advisories (backslash redirect in `<Link>`, SSR hydration). Not exploitable in the panel (fixed routes only, no SSR); fixed only in v7.
+- No bomb damage preview in the health bars: CS2 computes it from data baked into the map and does not send it via GSI.
+- No player cameras (WebRTC) and no spectator binds tool yet (the CS2 console bridge they would need exists).
+- Camera control and the CS2 console on Windows need CS2 started via HLAE (or Workshop Tools), i.e. insecure mode: fine for demos and own servers, not for VAC-secured servers.

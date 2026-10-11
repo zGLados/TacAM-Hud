@@ -1,12 +1,12 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.1.16** (Start CS2 via HLAE, HLAE install/update from TacAM).
+Hand-over state for the next session. Latest release: **v0.1.17** (camera control via HLAE, README redesign).
 
 ## Open tasks
 
 ### Camera control (in progress)
 
-- **Done, not released yet:** page *Camera* built on HLAE commands (from the HLAE source): HLAE detection ("Running via HLAE"), save current view per map (`mirv_campath print`), jump to a view (`mirv_input camera/position/angles/fov`), camera path through chosen views (campath XML + `mirv_campath load/offset current/enabled 1`), back to game view. Tested against a fake HLAE console only. Also unreleased: HLAE in its own settings card.
+- **Done, released in v0.1.17:** page *Camera* built on HLAE commands (from the HLAE source): HLAE detection ("Running via HLAE"), save current view per map (`mirv_campath print`), jump to a view (`mirv_input camera/position/angles/fov`), camera path through chosen views (campath XML + `mirv_campath load/offset current/enabled 1`), back to game view. Tested against a fake HLAE console only. Also in v0.1.17: HLAE in its own settings card, README redesign with the TacAM logo, LICENSE file.
 - **Next:** the owner tests on Windows with CS2 via HLAE (spectating a demo / GOTV). Open questions: does `mirv_input camera` take over the view while spectating, does `mirv_campath load` accept the absolute path with spaces (AppData\TacAM HUD), do paths look smooth.
 - Ideas after that: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path), auto observer (#17) on the same console bridge.
 
@@ -26,7 +26,7 @@ Hand-over state for the next session. Latest release: **v0.1.16** (Start CS2 via
 
 ## Releases
 
-- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.16).
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.17).
 - Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 → 0.1.7 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies

@@ -1,28 +1,61 @@
+<div align="center">
+
+<img src="docs/images/tacam-logo.png" alt="TacAM logo" width="150">
+
 # TacAM HUD
 
-CS2 broadcast HUD and HUD manager in the TacAM design. Inspired by [JTs-Hud](https://github.com/JohnTimmermann/JTs-Hud), but built from scratch and extended with live statistics, broadcast scenes, web-based production control and a theme editor.
+**CS2 broadcast HUD and production manager in the TacAM design**
 
-| Area | What it does |
+Live HUD with statistics, broadcast scenes and overlays · web-based director · camera control via HLAE · Stream Deck, OBS and Companion integration
+
+[![Latest release](https://img.shields.io/github/v/release/zGLados/TacAM-Hud?label=release&color=c13a3a)](https://github.com/zGLados/TacAM-Hud/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/zGLados/TacAM-Hud/total?color=1a3a5c)](https://github.com/zGLados/TacAM-Hud/releases)
+[![License](https://img.shields.io/github/license/zGLados/TacAM-Hud?color=555)](LICENSE)
+![Platform](https://img.shields.io/badge/platform-Windows%20·%20Linux%20(server)-555)
+
+[**Download**](https://github.com/zGLados/TacAM-Hud/releases/latest) · [Features](#features) · [Screenshots](#screenshots) · [Getting started](#getting-started) · [Camera control](#camera-control-hlae) · [Docs](#documentation)
+
+<img src="docs/images/hud-live.webp" alt="TacAM HUD during a round" width="100%">
+
+</div>
+
+Inspired by [JTs-Hud](https://github.com/JohnTimmermann/JTs-Hud) and [LHM.gg](https://lhm.gg), built from scratch: one Windows app (or a Node server) that runs the HUD for OBS, the control panel in the browser and everything around a CS2 broadcast.
+
+## Features
+
+| | |
 | --- | --- |
-| **HUD** (OBS browser source) | Match bar, team panels, spectated player, radar (10 maps incl. the updated Cache), kill feed, bomb/defuse timers, utility/money, map series, trivia, player/match preview, sponsors; scoreboard, economy graph and player comparison overlays; round win probability (estimate); wingman; teams can keep their side after halftime |
-| **New: stats** | ADR, KAST (incl. trades), HS %, KPR, opening kills/deaths, clutches, multi-kills, HLTV 1.0 rating, round history, economy (buy classification) |
-| **New: scenes** | Starting soon (optional countdown), BRB, technical pause, halftime, map veto, scoreboard, match end with MVP, upcoming matches, player to watch; background videos; switched automatically, by click or via a fixed OBS URL per scene |
-| **New: web control** | Control panel in the browser, also on a tablet or second PC (LAN with PIN); Stream Deck / Companion URLs and configurable shortcuts; OBS scenes follow the TacAM scene (OBS WebSocket); signals: game events trigger overlays, Companion buttons, webhooks or OBS |
-| **New: theme editor** | Colors, corner radius, font, sponsors, tournament logo, with live preview |
-| **New: HUD import** | Import HUDs in the LHM / JTs-Hud format (zip with `hud.json`) and use them as their own OBS source, with their settings panel |
-| **Manager** | Players and teams (CSV import, quick setup of both teams from the live game), matches with veto editor and captain veto links, automatic map results, GSI installation, demo match |
+| 🎯 **Broadcast HUD** | Match bar, team panels, spectated player, radar (10 maps incl. the updated Cache), kill feed, bomb/defuse timers, utility and money, map series, round history, sponsors – as a transparent 1920×1080 OBS browser source |
+| 📊 **Live statistics** | ADR, KAST (incl. trades), HS %, KPR, opening kills, clutches, multi-kills, HLTV 1.0 rating, round history and economy with buy classification |
+| 🧩 **Overlays** | Scoreboard, economy graph and player comparison over the live HUD; round win probability bar (estimate); teams can keep their HUD side after halftime; wingman / custom rounds per half |
+| 🎬 **Scenes** | Starting soon (optional countdown), BRB, technical pause, halftime, map veto, scoreboard, match end with MVP, upcoming matches, player to watch; background videos; automatic, by click (preview → take) or a fixed OBS URL per scene |
+| 🎥 **Camera control (HLAE)** | Start CS2 via HLAE from the app, save camera views per map, jump to them with one click and fly smooth camera paths through them |
+| 🎛️ **Director** | Control panel in the browser, also on a tablet or a second PC (LAN with PIN); captain veto links for the team captains' phones |
+| 🔌 **Integrations** | Stream Deck / Bitfocus Companion URLs with button feedback, configurable global shortcuts, OBS WebSocket (OBS follows the TacAM scene), signals (game events → overlays, Companion buttons, webhooks, OBS replay buffer), MatchZy config export |
+| 🖼️ **HUD import** | Import HUDs in the LHM / JTs-Hud format (zip with `hud.json`) and run them as their own OBS source, with their own settings panel |
+| 🎨 **Theme editor** | Colors, corner radius, font, sponsors, brand and tournament logo – with live preview |
+| 🗂️ **Manager** | Players and teams (CSV import, quick setup from the live game), matches with veto editor, automatic map results, GSI config installation, demo match |
+| ⬆️ **Desktop app** | Windows installer with automatic updates; your data stays when updating |
 
 ## Screenshots
 
-**In-game HUD** during a round (kill feed, radar, team panels, focus player with live stats):
+<details open>
+<summary><b>HUD and overlays</b></summary>
 
-![In-game HUD during a round](docs/images/hud-live.webp)
-
-**Freezetime**: round history, map series, utility, team money and the economy box with buy classification:
+**Freezetime** – round history, map series, utility, team money and the economy box:
 
 ![HUD during freezetime](docs/images/hud-freezetime.webp)
 
-**Broadcast scenes** (switched from the control panel, automatically, or via a fixed OBS URL per scene):
+| Scoreboard overlay | Economy graph |
+| --- | --- |
+| ![Scoreboard overlay](docs/images/overlay-scoreboard.webp) | ![Economy graph overlay](docs/images/overlay-economy.webp) |
+| **Player comparison** | **Round win probability** (estimate, under the match bar) |
+| ![Player comparison overlay](docs/images/overlay-comparison.webp) | ![Win probability bar](docs/images/hud-win-probability.webp) |
+
+</details>
+
+<details open>
+<summary><b>Broadcast scenes</b></summary>
 
 | Halftime | Match end with MVP |
 | --- | --- |
@@ -32,62 +65,66 @@ CS2 broadcast HUD and HUD manager in the TacAM design. Inspired by [JTs-Hud](htt
 | **Upcoming matches** | **Player to watch** |
 | ![Upcoming matches scene](docs/images/scene-upcoming.webp) | ![Player to watch scene](docs/images/scene-playerToWatch.webp) |
 
-**Overlays** over the live HUD, one at a time (Director → Overlays, Stream Deck, shortcut or signal):
+</details>
 
-| Scoreboard | Economy graph |
-| --- | --- |
-| ![Scoreboard overlay](docs/images/overlay-scoreboard.webp) | ![Economy graph overlay](docs/images/overlay-economy.webp) |
-| **Player comparison** | |
-| ![Player comparison overlay](docs/images/overlay-comparison.webp) | |
-
-**Control panel** (runs in the browser, also on a second device):
+<details open>
+<summary><b>Control panel</b> (browser, also on a second device)</summary>
 
 | Live | Director |
 | --- | --- |
 | ![Control panel: live](docs/images/control-live.webp) | ![Control panel: director](docs/images/control-director.webp) |
-| **Statistics** | **Theme editor with live preview** |
-| ![Control panel: statistics](docs/images/control-stats.webp) | ![Control panel: theme editor](docs/images/control-theme.webp) |
-| **Integrations: signals** (game events → overlays, Companion, OBS) | **Captain veto** on the captain's phone |
-| ![Control panel: integrations with signals](docs/images/control-integrations.webp) | <img src="docs/images/veto-phone.webp" alt="Captain veto page on a phone" width="260"> |
+| **Camera** (HLAE views and paths) | **Statistics** |
+| ![Control panel: camera](docs/images/control-camera.webp) | ![Control panel: statistics](docs/images/control-stats.webp) |
+| **Theme editor** with live preview | **Integrations: signals** |
+| ![Control panel: theme editor](docs/images/control-theme.webp) | ![Control panel: integrations with signals](docs/images/control-integrations.webp) |
+| **HUDs** (built-in + imported) | **Captain veto** on a phone |
+| ![Control panel: HUDs](docs/images/control-huds.webp) | <img src="docs/images/veto-phone.webp" alt="Captain veto page on a phone" width="240"> |
 
-Screenshots are taken from the built-in demo match; the HUD is transparent and shown on a gray background here.
+</details>
 
-## Quick start
+Screenshots come from the built-in demo match; the transparent HUD is shown on a gray background.
+
+## Getting started
+
+### Windows app (recommended)
+
+1. Download `TacAM-HUD-Setup-<version>.exe` from the [latest release](https://github.com/zGLados/TacAM-Hud/releases/latest) and install it. The installer is not code-signed yet – if SmartScreen warns, choose *More info → Run anyway*.
+2. The app opens the control panel. **Settings → Install GSI config**, then restart CS2.
+3. In OBS add a **browser source** with `http://127.0.0.1:1349/hud/` (1920×1080, leave “Custom CSS” empty).
+4. Join a match as spectator / GOTV. Unknown players can be created in the **Live** tab with one click (or all at once with *Quick setup*).
+5. No CS2 at hand? **Live → Create demo data → Start demo match.**
+
+New versions are offered by the app on startup (or *TacAM HUD → Check for updates*); teams, players, matches, uploads and settings are kept.
+
+### Camera control (HLAE)
+
+On Windows CS2 only opens its console for other programs when started via [HLAE](https://www.advancedfx.org/) (or Workshop Tools) – a CS2 bug. TacAM handles that:
+
+1. **Settings → HLAE (camera control) → Install HLAE** (downloaded from the official advancedfx release, checksum verified; updates are offered there too).
+2. Close CS2, then **Settings → Start CS2** (launch mode HLAE).
+3. **Integrations → CS2 console → Connect.** The **Camera** page now shows *Running via HLAE*.
+4. Fly to a spot (`mirv_input camera`, WASD + mouse) and **Save current view**; click a view to jump there, mark several with **+ Path** and **Play path** for a smooth camera flight.
+
+HLAE runs CS2 in insecure mode: fine for demos and your own servers, not for VAC-secured servers.
+
+### Run from source
 
 Requires Node.js ≥ 22.12 and npm ≥ 11 (`npm install -g npm@11`; the npm 10 bundled with Node 22 fails to install the dependencies).
 
 ```bash
 npm install
 npm run build        # shared → hud → control → server
-npm start            # starts the server on http://localhost:1349
+npm start            # server on http://localhost:1349
+npm run desktop      # or: build everything and start the Electron app
 ```
 
-- Control panel: <http://localhost:1349/control/>
-- HUD for OBS: <http://localhost:1349/hud/> (browser source 1920×1080, leave "Custom CSS" empty)
-- Testing without CS2: control panel → **Live** → *Create demo data* → *Start demo match*
-
-### Connecting CS2
-
-1. Control panel → **Settings** → *Install GSI config* (the Steam folder is detected automatically, otherwise enter it).
-2. Restart CS2 and join a match as spectator/GOTV.
-3. In the **Live** tab, create unknown players with one click and assign their teams.
-
-### Desktop app (Electron)
-
-```bash
-npm run desktop      # builds everything and starts the app
-npm run dist         # installers (Windows NSIS/portable, Linux AppImage, macOS dmg)
-```
-
-The app runs the server internally, opens the control panel and registers global keyboard shortcuts.
-
-Publishing a GitHub release with a tag like `v1.2.3` builds the Windows installer automatically and attaches it to the release (`.github/workflows/release.yml`).
-
-The installed app checks GitHub for a newer release on startup (and via *TacAM HUD → Check for updates*) and offers to download and install it. Teams, players, matches, uploads and settings are kept, because they live in the user data folder, not in the program folder.
+- Control panel: <http://localhost:1349/control/> · HUD: <http://localhost:1349/hud/>
+- Data: `~/.tacam-hud/` (override with `TACAM_DATA_DIR`); in the desktop app Electron's `userData` folder (`%APPDATA%\TacAM HUD`).
+- Releases: publishing a GitHub release with a tag like `v1.2.3` builds the Windows installer and update files automatically (`.github/workflows/release.yml`).
 
 ### Keyboard shortcuts (desktop app)
 
-Defaults below. Every action (scenes, overlays, HUD elements, team swaps) can get its own global shortcut under **Integrations → Keyboard shortcuts**; the same actions are available as URLs for Stream Deck / Bitfocus Companion (**Integrations → Stream Deck / Companion**).
+Defaults below; every action (scenes, overlays, HUD elements, team swaps) can get its own global shortcut under **Integrations → Keyboard shortcuts**, and the same actions are URLs for Stream Deck / Companion.
 
 | Shortcut | Action |
 | --- | --- |
@@ -97,28 +134,24 @@ Defaults below. Every action (scenes, overlays, HUD elements, team swaps) can ge
 | `Alt+F` | Reload all HUDs |
 | `Alt+H` | HUD overlay window (while the app window is focused) |
 
-## Development
+## Documentation
+
+| | |
+| --- | --- |
+| [docs/features.md](docs/features.md) | How the features work: stats, scenes, overlays, integrations, camera, HUD import |
+| [docs/architecture.md](docs/architecture.md) | Structure, server modules, data flow, team assignment, security |
+| [docs/api.md](docs/api.md) | REST and Socket.io interface |
+| [docs/hud-styling.md](docs/hud-styling.md) | Naming scheme (BEM) and CSS structure of the HUD |
+| [docs/development.md](docs/development.md) | Workflow, tests, visual regression, releases |
+| [docs/lhm-roadmap.md](docs/lhm-roadmap.md) | Feature plan based on LHM.gg |
+| [docs/STATUS.md](docs/STATUS.md) | Current state and open tasks |
 
 ```bash
 npm run dev          # server (tsx watch) + HUD (Vite :3500) + control (Vite :3600)
-npm test             # Vitest: stats engine + server API
+npm test             # Vitest
 npm run typecheck
 ```
 
-Further reading:
-
-- [docs/architecture.md](docs/architecture.md): structure, data flow, team assignment
-- [docs/features.md](docs/features.md): stats calculation, scenes, theme, LAN access
-- [docs/api.md](docs/api.md): REST and Socket.io interface
-- [docs/hud-styling.md](docs/hud-styling.md): naming scheme (BEM) and CSS structure of the HUD
-- [docs/development.md](docs/development.md): workflow, tests, visual regression, releases
-- [docs/STATUS.md](docs/STATUS.md): current state and open tasks
-- [CLAUDE.md](CLAUDE.md): notes for AI assistants
-
-## Data
-
-Everything is stored locally: standalone in `~/.tacam-hud/` (override with `TACAM_DATA_DIR`), in the desktop app in Electron's `userData` folder (`db.json` + `uploads/`).
-
 ## License & credits
 
-GPL-3.0-only. Design: [TacAM-Hud-Skin](https://github.com/zGLados/TacAM-Hud-Skin). Weapon/status icons and component structure based on [lexogrine/cs2-react-hud](https://github.com/lexogrine/cs2-react-hud) (MIT), GSI parsing with [csgogsi](https://github.com/lexogrine/csgogsi) (MIT). Cache radar and map banners from [JTs-Hud/OpenHud](https://github.com/JohnTimmermann/JTs-Hud) (GPL-3.0). Details: [THIRD_PARTY.md](THIRD_PARTY.md).
+GPL-3.0-only. Design: [TacAM-Hud-Skin](https://github.com/zGLados/TacAM-Hud-Skin). Weapon/status icons and component structure based on [lexogrine/cs2-react-hud](https://github.com/lexogrine/cs2-react-hud) (MIT), GSI parsing with [csgogsi](https://github.com/lexogrine/csgogsi) (MIT). Cache radar and map banners from [JTs-Hud/OpenHud](https://github.com/JohnTimmermann/JTs-Hud) (GPL-3.0). Camera control uses [HLAE / advancedfx](https://github.com/advancedfx/advancedfx), downloaded separately at runtime. Details: [THIRD_PARTY.md](THIRD_PARTY.md).

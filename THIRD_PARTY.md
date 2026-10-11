@@ -7,3 +7,4 @@
 | `csgogsi` (npm) | [lexogrine/csgogsi](https://github.com/lexogrine/csgogsi) | MIT, © 2021 Hubert Walczak |
 | Cache radar (`radar/cache.png`), map banners (`assets/maps/*.png`) | [JohnTimmermann/JTs-Hud](https://github.com/JohnTimmermann/JTs-Hud) (release 7.13.26) | GPL-3.0 |
 | Montserrat | Google Fonts | SIL OFL 1.1 |
+| HLAE (advancedfx) – not bundled; downloaded by the user from the official GitHub release at runtime (Settings → HLAE) | [advancedfx/advancedfx](https://github.com/advancedfx/advancedfx) | MIT |
