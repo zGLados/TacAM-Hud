@@ -9,6 +9,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 - `apps/hud`: React overlay; state in `state/store.ts` (useSyncExternalStore), components in `components/`, scenes in `scenes/`, one CSS file per component in `styles/`.
 - `apps/control`: React control panel (react-router 7), pages in `pages/`, building blocks in `components/ui.tsx`; `veto.html` is a second entry (captain veto page, no login).
 - `apps/desktop`: Electron main (`src/main.ts`), bundled to CJS with esbuild.
+- `.github/workflows/ci.yml`: typecheck + tests + build on every push/PR (Linux and Windows).
 - `.github/workflows/release.yml`: builds the Windows installer (+ `latest.yml` for the in-app updater) when a GitHub release is published; tests run on Windows there.
 - Docs: `README.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state.**
 

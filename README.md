@@ -8,6 +8,8 @@
 
 Live HUD with statistics, broadcast scenes and overlays · web-based director · camera control via HLAE · Stream Deck, OBS and Companion integration
 
+[![CI](https://github.com/zGLados/TacAM-Hud/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zGLados/TacAM-Hud/actions/workflows/ci.yml)
+[![Release build](https://github.com/zGLados/TacAM-Hud/actions/workflows/release.yml/badge.svg)](https://github.com/zGLados/TacAM-Hud/actions/workflows/release.yml)
 [![Latest release](https://img.shields.io/github/v/release/zGLados/TacAM-Hud?label=release&color=c13a3a)](https://github.com/zGLados/TacAM-Hud/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/zGLados/TacAM-Hud/total?color=1a3a5c)](https://github.com/zGLados/TacAM-Hud/releases)
 [![License](https://img.shields.io/github/license/zGLados/TacAM-Hud?color=555)](LICENSE)
