@@ -4,12 +4,11 @@ Hand-over state for the next session. Latest release: **v0.1.16** (Start CS2 via
 
 ## Open tasks
 
-### Next session (camera control, owner feedback 2026-10-10)
+### Camera control (in progress)
 
-- **Starting CS2 via HLAE works** on the owner's PC (v0.1.16, launch mode HLAE).
-- **To discuss: how the owner can see that CS2 really runs via HLAE.** Ideas: Diagnose already reads the cs2.exe command line (shows `-afxFixNetCon`); add a clear "Started via HLAE / Workshop Tools / normal" indicator in the CS2 console tab and/or the Live tab, e.g. from the command line or by querying an HLAE command (`mirv_…`) over the console.
-- **Camera positions do not work yet** (test buttons `spec_goto` / `spec_lerpto` etc. in Integrations → CS2 console). Next: get the console output for each test button from the owner, check which commands CS2 accepts as a spectator, and switch to HLAE's own camera commands (`mirv_campath`, `mirv_input`) if `spec_goto`/`spec_lerpto` are not available.
-- Not released yet: HLAE in its own, always visible settings card (commit 4e86ed4) – the owner did not find the install because it only showed with launch mode HLAE.
+- **Done, not released yet:** page *Camera* built on HLAE commands (from the HLAE source): HLAE detection ("Running via HLAE"), save current view per map (`mirv_campath print`), jump to a view (`mirv_input camera/position/angles/fov`), camera path through chosen views (campath XML + `mirv_campath load/offset current/enabled 1`), back to game view. Tested against a fake HLAE console only. Also unreleased: HLAE in its own settings card.
+- **Next:** the owner tests on Windows with CS2 via HLAE (spectating a demo / GOTV). Open questions: does `mirv_input camera` take over the view while spectating, does `mirv_campath load` accept the absolute path with spaces (AppData\\TacAM HUD), do paths look smooth.
+- Ideas after that: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path), auto observer (#17) on the same console bridge.
 
 - HUD import (LHM / JTs-Hud format) **done**, released in v0.1.10. Tested with the official LHM CS2 default HUD (lexogrine/cs2-react-hud, built locally): live data, teams, radar, match series, settings panel (trivia, side boxes). Still to test: other community HUDs and a JTs-Hud HUD package.
 - LHM roadmap ([lhm-roadmap.md](lhm-roadmap.md)): **phase 1 done** (#1–#7) and released in v0.1.7.

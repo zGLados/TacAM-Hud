@@ -171,6 +171,21 @@ export const SCENE_IDS = [
 
 export type SceneId = (typeof SCENE_IDS)[number];
 
+/** Saved camera view (HLAE mirv_input), per map. Angles in degrees. */
+export interface CameraShot {
+  id: string;
+  name: string;
+  /** e.g. de_mirage; shots are listed for the map being played. */
+  map: string;
+  x: number;
+  y: number;
+  z: number;
+  pitch: number;
+  yaw: number;
+  roll: number;
+  fov: number;
+}
+
 /** Game events that can fire signals (apps/server/src/signals.ts). */
 export const SIGNAL_EVENTS = [
   'roundStart',

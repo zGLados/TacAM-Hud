@@ -189,6 +189,16 @@ export class GameConsole {
     return this.lines.filter((l) => l.at >= since && !l.text.startsWith('] ')).map((l) => l.text);
   }
 
+  /** Sends several commands in one go (camera moves must not wait between steps). */
+  async sendAll(commands: string[], waitMs = 300) {
+    await this.connect();
+    const since = Date.now();
+    for (const command of commands) this.lines.push({ at: since, text: `] ${command}` });
+    this.socket!.write(commands.map((c) => `${c}\n`).join(''));
+    await new Promise((r) => setTimeout(r, waitMs));
+    return this.lines.filter((l) => l.at >= since && !l.text.startsWith('] ')).map((l) => l.text);
+  }
+
   disconnect() {
     this.socket?.destroy();
     this.socket = null;

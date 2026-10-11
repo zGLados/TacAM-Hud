@@ -1,0 +1,171 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { prettyMapName, type CameraShot } from '@tacam/shared';
+import { api, type CameraStatus } from '../api';
+import { Card, ConfirmButton, Field, PageHeader, Toggle, useRun } from '../components/ui';
+
+/**
+ * Camera control through HLAE: saved views per map, jumps and smooth paths
+ * (apps/server/src/camera.ts). Needs CS2 started via HLAE and the console.
+ */
+export function CameraPage() {
+  const run = useRun();
+  const [status, setStatus] = useState<CameraStatus | null>(null);
+  const [hlae, setHlae] = useState<boolean | null>(null);
+  const [name, setName] = useState('');
+  const [allMaps, setAllMaps] = useState(false);
+  const [pathIds, setPathIds] = useState<string[]>([]);
+  const [duration, setDuration] = useState(5);
+  const [hold, setHold] = useState(true);
+
+  const load = () => api.camera.status().then(setStatus).catch(() => {});
+  useEffect(() => {
+    load();
+    const timer = setInterval(load, 3000);
+    return () => clearInterval(timer);
+  }, []);
+  const check = async () => {
+    const result = await run(api.camera.check);
+    setHlae(result ? result.hlae : null);
+    load();
+  };
+  useEffect(() => {
+    void api.camera.check().then((r) => setHlae(r.hlae)).catch(() => setHlae(null));
+  }, []);
+
+  if (!status) return null;
+  const shots = status.shots.filter((s) => allMaps || !status.map || s.map === status.map);
+  const save = async () => {
+    const shot = await run(() => api.camera.save(name.trim() || `View ${status.shots.length + 1}`), 'View saved');
+    if (shot) {
+      setName('');
+      load();
+    }
+  };
+  const togglePath = (id: string) => setPathIds(pathIds.includes(id) ? pathIds.filter((x) => x !== id) : [...pathIds, id]);
+  const move = async (shot: CameraShot, delta: number) => {
+    const list = [...status.shots];
+    const i = list.findIndex((s) => s.id === shot.id);
+    const j = i + delta;
+    if (j < 0 || j >= list.length) return;
+    [list[i], list[j]] = [list[j], list[i]];
+    await run(() => api.camera.update(list.map(({ id, name }) => ({ id, name }))));
+    load();
+  };
+  const rename = async (shot: CameraShot) => {
+    const next = window.prompt('Name of the view', shot.name)?.trim();
+    if (!next) return;
+    await run(() => api.camera.update(status.shots.map((s) => ({ id: s.id, name: s.id === shot.id ? next : s.name }))));
+    load();
+  };
+
+  return (
+    <>
+      <PageHeader
+        title="Camera"
+        description="Saved camera views per map and smooth camera paths, controlled through HLAE."
+        actions={
+          <button className="button primary" onClick={() => run(api.camera.release, 'Back to the game view')}>
+            Back to game view
+          </button>
+        }
+      />
+      <div className="status_row">
+        <span className={`status_pill ${status.connected ? 'ok' : 'off'}`}>{status.connected ? 'Console connected' : 'Console not connected'}</span>
+        <span className={`status_pill ${hlae ? 'ok' : 'off'}`}>{hlae === null ? 'HLAE: unknown' : hlae ? 'Running via HLAE' : 'Not running via HLAE'}</span>
+        <span className="status_pill">{status.map ? prettyMapName(status.map) : 'No map (no game data)'}</span>
+        <button className="button small" onClick={check}>
+          Check
+        </button>
+      </div>
+      {hlae === false && (
+        <Card>
+          <p className="muted">
+            Camera control needs CS2 started via HLAE: <Link to="/settings">Settings</Link> → HLAE → install, launch mode HLAE, then “Start CS2”. The console must
+            be connected (<Link to="/integrations/console">Integrations → CS2 console</Link>).
+          </p>
+        </Card>
+      )}
+
+      <Card title="Save the current view">
+        <p className="muted small">
+          Fly to a spot in CS2 (free camera, or HLAE camera mode: <code>mirv_input camera</code>, WASD + mouse) or spectate a player, then save. The view is
+          stored for the current map.
+        </p>
+        <form
+          className="row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void save();
+          }}
+        >
+          <input className="grow" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name, e.g. A site overview" />
+          <button className="button primary" type="submit">
+            Save current view
+          </button>
+        </form>
+      </Card>
+
+      <Card
+        title={`Views${status.map && !allMaps ? ` · ${prettyMapName(status.map)}` : ''}`}
+        actions={<Toggle checked={allMaps} onChange={setAllMaps} label="All maps" />}
+      >
+        {shots.length ? (
+          <div className="camera_shots">
+            {shots.map((shot) => {
+              const order = pathIds.indexOf(shot.id);
+              return (
+                <div key={shot.id} className={`camera_shot ${order >= 0 ? 'is-in-path' : ''}`}>
+                  <button className="button primary camera_go" onClick={() => run(() => api.camera.go(shot.id))}>
+                    {shot.name}
+                  </button>
+                  <div className="muted small">
+                    {allMaps && `${prettyMapName(shot.map)} · `}fov {Math.round(shot.fov)}
+                  </div>
+                  <div className="row">
+                    <button className={`button small ${order >= 0 ? 'primary' : 'ghost'}`} onClick={() => togglePath(shot.id)} title="Add to / remove from the camera path">
+                      {order >= 0 ? `Path #${order + 1}` : '+ Path'}
+                    </button>
+                    <button className="icon_button" aria-label="Move up" onClick={() => move(shot, -1)}>
+                      ↑
+                    </button>
+                    <button className="icon_button" aria-label="Move down" onClick={() => move(shot, 1)}>
+                      ↓
+                    </button>
+                    <button className="icon_button" aria-label="Rename" onClick={() => rename(shot)}>
+                      ✎
+                    </button>
+                    <ConfirmButton className="small danger" onConfirm={() => run(() => api.camera.remove(shot.id), 'View deleted').then(load)}>
+                      ×
+                    </ConfirmButton>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="muted">No views for this map yet.</p>
+        )}
+      </Card>
+
+      <Card title="Camera path">
+        <p className="muted small">
+          Choose views with “+ Path” in the order the camera should fly through them (at least two). The path starts right away and runs over the given
+          duration.
+        </p>
+        <div className="row wrap">
+          <Field label="Duration (seconds)">
+            <input type="number" min={0.5} max={120} step={0.5} value={duration} onChange={(e) => setDuration(Number(e.target.value) || 5)} />
+          </Field>
+          <Toggle checked={hold} onChange={setHold} label="Stay on the last view afterwards" />
+          <button className="button primary" disabled={pathIds.length < 2} onClick={() => run(() => api.camera.path(pathIds, duration, hold), 'Camera path started')}>
+            Play path ({pathIds.length} views)
+          </button>
+          <button className="button ghost" disabled={!pathIds.length} onClick={() => setPathIds([])}>
+            Clear selection
+          </button>
+        </div>
+      </Card>
+    </>
+  );
+}

@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
-import { HUD_OVERLAYS, SCENE_IDS, SIGNAL_EVENTS, THEME_COLOR_KEYS, type HudBootstrap } from '@tacam/shared';
+import { HUD_OVERLAYS, SCENE_IDS, SIGNAL_EVENTS, THEME_COLOR_KEYS, normalizeMapName, type CameraShot, type HudBootstrap } from '@tacam/shared';
 import type { Store } from './store.js';
 import type { LiveHub } from './live.js';
 import type { HudServer } from './io.js';
@@ -16,6 +16,7 @@ import { isAccelerator, triggerStatus, TriggerError, validActionKey, type Trigge
 import { captainVetoRoutes } from './captainVeto.js';
 import { diagnoseConsole, GameConsole, GameLaunchError, launchCs2, withNetconPort } from './game.js';
 import { HlaeError, installHlae, installedHlae, latestHlae } from './hlae.js';
+import { CameraError, goToCommands, hlaeActive, playPathCommands, readView, releaseCommands } from './camera.js';
 import { matchzyConfig } from './matchzy.js';
 import { buildHudConfig, emitHudAction, emitHudConfig, emitHudPanelAction, emitKeybindAction, emitRefresh, type PanelSection } from './lhm.js';
 import { getHud, hudFile, HudImportError, importHudZip, listHuds, removeHud } from './huds.js';
@@ -460,6 +461,78 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
     if (req.query.connect) await gameConsole.send('echo TacAM HUD connected', 200).catch(() => {});
     res.json(gameConsole.status());
   });
+  // --- camera (HLAE) -------------------------------------------------------
+
+  const shots = () => store.doc('settings').cameraShots;
+  const saveShots = (cameraShots: CameraShot[]) => store.setDoc('settings', { ...store.doc('settings'), cameraShots }).cameraShots;
+  /** Turns console/camera failures into a 409 with a readable message. */
+  const camera = (fn: Handler) =>
+    h(async (req, res) => {
+      try {
+        await fn(req, res);
+      } catch (error) {
+        if (error instanceof CameraError || (error as Error).message?.includes('listens')) return res.status(409).json({ error: (error as Error).message });
+        throw error;
+      }
+    });
+  api.get('/camera-control', (_req, res) => {
+    const status = gameConsole.status();
+    res.json({ connected: status.connected, error: status.error, map: live.last ? normalizeMapName(live.last.map.name) : null, shots: shots() });
+  });
+  api.post(
+    '/camera-control/check',
+    camera(async (_req, res) => res.json({ hlae: await hlaeActive(gameConsole) }))
+  );
+  api.post(
+    '/camera-control/shots',
+    camera(async (req, res) => {
+      const { name, map } = z.object({ name: str.min(1).max(60), map: str.max(64).optional() }).parse(req.body);
+      const view = await readView(gameConsole);
+      const shot: CameraShot = { id: randomUUID(), name, map: map || (live.last ? normalizeMapName(live.last.map.name) : 'unknown'), ...view };
+      saveShots([...shots(), shot]);
+      res.status(201).json(shot);
+    })
+  );
+  api.put(
+    '/camera-control/shots',
+    h((req, res) => {
+      // Rename / reorder: only known ids, values stay as recorded.
+      const body = z.array(z.object({ id: str, name: str.min(1).max(60) })).parse(req.body);
+      const byId = new Map(shots().map((s) => [s.id, s]));
+      res.json(saveShots(body.filter((s) => byId.has(s.id)).map((s) => ({ ...byId.get(s.id)!, name: s.name }))));
+    })
+  );
+  api.delete('/camera-control/shots/:id', (req, res) => {
+    saveShots(shots().filter((s) => s.id !== req.params.id));
+    res.status(204).end();
+  });
+  api.post(
+    '/camera-control/shots/:id/go',
+    camera(async (req, res) => {
+      const shot = shots().find((s) => s.id === req.params.id);
+      if (!shot) return res.status(404).json({ error: 'not found' });
+      await gameConsole.sendAll(goToCommands(shot));
+      res.json({ ok: true });
+    })
+  );
+  api.post(
+    '/camera-control/path',
+    camera(async (req, res) => {
+      const { shotIds, duration, hold } = z.object({ shotIds: z.array(str).min(2).max(20), duration: z.number().min(0.5).max(120), hold: z.boolean() }).parse(req.body);
+      const views = shotIds.map((id) => shots().find((s) => s.id === id)).filter((s): s is CameraShot => !!s);
+      if (views.length < 2) return res.status(400).json({ error: 'Select at least two views' });
+      await gameConsole.sendAll(playPathCommands(store.dataDir, views, duration, hold));
+      res.json({ ok: true });
+    })
+  );
+  api.post(
+    '/camera-control/release',
+    camera(async (_req, res) => {
+      await gameConsole.sendAll(releaseCommands);
+      res.json({ ok: true });
+    })
+  );
+
   // HLAE managed by TacAM (download from the advancedfx GitHub releases).
   api.get('/hlae', async (req, res) => {
     const installed = installedHlae(store.dataDir);

@@ -13,6 +13,7 @@ import type {
   StatsSnapshot,
   TeamProfile,
   Theme,
+  CameraShot,
   ObsSettings,
   ObsStatus,
   SignalLogEntry,
@@ -69,6 +70,14 @@ export interface GameConsoleStatus {
   connected: boolean;
   error: string | null;
   lines: { at: number; text: string }[];
+}
+
+export interface CameraStatus {
+  connected: boolean;
+  error: string | null;
+  /** Map being played (GSI), shots are filtered by it. */
+  map: string | null;
+  shots: CameraShot[];
 }
 
 export interface HlaeStatus {
@@ -170,6 +179,16 @@ export const api = {
     console: (connect = false) => request<GameConsoleStatus>('GET', `/game/console${connect ? '?connect=1' : ''}`),
     send: (command: string) => request<{ lines: string[] }>('POST', '/game/console', { command }),
     diagnose: () => request<ConsoleDiagnosis>('GET', '/game/console/diagnose'),
+  },
+  camera: {
+    status: () => request<CameraStatus>('GET', '/camera-control'),
+    check: () => request<{ hlae: boolean }>('POST', '/camera-control/check'),
+    save: (name: string) => request<CameraShot>('POST', '/camera-control/shots', { name }),
+    update: (shots: { id: string; name: string }[]) => request<CameraShot[]>('PUT', '/camera-control/shots', shots),
+    remove: (id: string) => request<void>('DELETE', `/camera-control/shots/${id}`),
+    go: (id: string) => request<void>('POST', `/camera-control/shots/${id}/go`),
+    path: (shotIds: string[], duration: number, hold: boolean) => request<void>('POST', '/camera-control/path', { shotIds, duration, hold }),
+    release: () => request<void>('POST', '/camera-control/release'),
   },
   hlae: {
     status: (check = false) => request<HlaeStatus>('GET', `/hlae${check ? '?check=1' : ''}`),

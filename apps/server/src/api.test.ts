@@ -450,6 +450,12 @@ describe('API', () => {
     expect((await fetch(`http://127.0.0.1:${port}/huds/${hud.dir}/`)).status).toBe(404);
   });
 
+  it('serves the camera control (not shadowed by the LHM camera path)', async () => {
+    const status = await (await fetch(`${base}/camera-control`)).json();
+    expect(status).toMatchObject({ connected: false, shots: [] });
+    expect(await (await fetch(`${base}/camera`)).json()).toEqual({ availablePlayers: [], uuid: '' }); // LHM HUDs
+  });
+
   it('refuses GSI data with a wrong token', async () => {
     const res = await fetch(`http://127.0.0.1:${gsiPort}/`, json('POST', { auth: { token: 'nope' } }));
     expect(res.status).toBe(401);

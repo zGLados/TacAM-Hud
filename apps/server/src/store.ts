@@ -13,6 +13,7 @@ import {
   type SceneState,
   type TeamProfile,
   type Theme,
+  type CameraShot,
   type ObsSettings,
   type SignalRule,
 } from '@tacam/shared';
@@ -36,6 +37,8 @@ export interface Settings {
   launchMode: 'normal' | 'tools' | 'hlae';
   /** Path to HLAE.exe (advancedfx), for launchMode `hlae`. */
   hlaePath: string;
+  /** Saved camera views (HLAE), see camera.ts. */
+  cameraShots: CameraShot[];
   /** Start CS2 as a borderless window (-windowed -noborder): keeps drawing when unfocused. */
   launchBorderless: boolean;
   /** Secret for `/api/trigger/<action>` URLs (Stream Deck, Companion). */
@@ -77,6 +80,7 @@ const defaults = (): Database => ({
     launchOptions: '-netconport 2020',
     launchMode: process.platform === 'win32' ? 'tools' : 'normal',
     hlaePath: '',
+    cameraShots: [],
     launchBorderless: process.platform === 'win32',
     actionKey: randomUUID().replace(/-/g, ''),
     keybinds: { ...DEFAULT_KEYBINDS },

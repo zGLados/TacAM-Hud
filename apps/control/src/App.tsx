@@ -4,6 +4,7 @@ import { api, connectLive, useLive } from './api';
 import { ToastProvider } from './components/ui';
 import { LivePage } from './pages/LivePage';
 import { DirectorPage } from './pages/DirectorPage';
+import { CameraPage } from './pages/CameraPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { TeamsPage } from './pages/TeamsPage';
 import { MatchesPage } from './pages/MatchesPage';
@@ -19,6 +20,7 @@ const NAV: { group: string; items: { to: string; label: string }[] }[] = [
     items: [
       { to: '/live', label: 'Live' },
       { to: '/director', label: 'Director' },
+      { to: '/camera', label: 'Camera' },
       { to: '/stats', label: 'Stats' },
     ],
   },
@@ -104,6 +106,7 @@ function Shell() {
         <Routes>
           <Route path="/live" element={<LivePage />} />
           <Route path="/director" element={<DirectorPage />} />
+          <Route path="/camera" element={<CameraPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/matches" element={<MatchesPage />} />
           <Route path="/teams" element={<TeamsPage />} />
