@@ -4,6 +4,11 @@ Hand-over state for the next session. Latest release: **v0.2.0** (saved and smoo
 
 ## Open tasks
 
+### Code signing (SignPath Foundation) – prepared, waiting for the owner
+
+- Prepared: README *Code signing policy* + *Privacy*, optional signing steps in `release.yml` (active once `SIGNPATH_ORGANIZATION_ID` is set), `apps/desktop/scripts/refresh-update-info.mjs` (tested locally with a fake signed exe), setup guide in `docs/development.md` → Code signing.
+- Owner: enable 2FA on GitHub (and later SignPath), apply at signpath.org for the open-source program, then follow the setup steps. First signed release = check signature, update from an unsigned version, SmartScreen.
+
 ### Export / import of settings (owner's wish, 2026-10-11)
 
 - Every page should be able to **export and import** its data as a file, e.g. to move to another PC, share a setup or keep a backup before a broadcast.

@@ -59,10 +59,37 @@ Note: `google-chrome --headless --screenshot` with `--virtual-time-budget` hangs
 
 **Updates:** the desktop app (`apps/desktop/src/updater.ts`, `electron-updater`) checks GitHub on startup and offers the update; it downloads only after confirmation and installs silently on restart. The data in `userData` is never touched. Stable installs only see normal releases. With *Settings → App updates → Also offer beta versions* (`settings.betaUpdates` → `autoUpdater.allowPrerelease`) GitHub **pre-releases** are offered too – publish betas as pre-release (`gh release create v0.3.0-beta.1 --prerelease`). Drafts are ignored, and the portable build does not update itself.
 
+### Code signing (SignPath Foundation)
+
+The installer is signed by [SignPath Foundation](https://signpath.org) (free for open source). The README section *Code signing policy* is required by their [terms](https://signpath.org/terms); every release page must mention it too (link in the release notes). The signing steps in `release.yml` only run when the repository variable `SIGNPATH_ORGANIZATION_ID` is set – until then releases are built unsigned as before.
+
+Flow in the release workflow: electron-builder builds the NSIS installer → `actions/upload-artifact` (zip with the `.exe`) → `SignPath/github-action-submit-signing-request@v3` (waits up to an hour for the manual approval in SignPath) → the signed `.exe` replaces the unsigned one, `Get-AuthenticodeSignature` must say *Valid* → `apps/desktop/scripts/refresh-update-info.mjs` rebuilds the `.blockmap` and the `sha512` / `size` in `latest.yml` / `beta.yml` (the signature changes the file; with the old hashes the in-app updater would reject the download) → upload to the release. Only the installer is signed; the app `.exe` inside it is not (SignPath cannot sign inside NSIS), which is fine for SmartScreen – it checks the downloaded file. Signing happens after electron-builder, so `app-update.yml` has no `publisherName` and electron-updater does not compare publishers; if signing ever moves into electron-builder with `publisherName`, a different certificate subject would break updates.
+
+Setup after SignPath accepted the project:
+
+1. GitHub and SignPath accounts of everyone involved use two-factor authentication.
+2. In SignPath: project slug `TacAM-Hud`, link the trusted build system *GitHub.com* to it, signing policy `release-signing` with manual approval, artifact configuration `installer`:
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+     <zip-file>
+       <pe-file path="TacAM-HUD-Setup-*.exe" product-name="TacAM HUD" max-matches="1">
+         <authenticode-sign />
+       </pe-file>
+     </zip-file>
+   </artifact-configuration>
+   ```
+   (file metadata restrictions as SignPath asks for them: product name *TacAM HUD*, product version = the app version.)
+3. A SignPath API token for a CI user with the *submitter* role.
+4. GitHub → Settings → Secrets and variables → Actions: variable `SIGNPATH_ORGANIZATION_ID`, secret `SIGNPATH_API_TOKEN`. Other slugs only if they differ from the defaults (`SIGNPATH_PROJECT_SLUG`, `SIGNPATH_SIGNING_POLICY_SLUG`, `SIGNPATH_ARTIFACT_CONFIGURATION_SLUG`).
+5. Next release: approve the signing request in SignPath while the workflow waits; check the installer's *Properties → Digital Signatures*.
+
+SmartScreen still warns for the first downloads of a newly signed program – the reputation builds with downloads and then carries over to new versions signed with the same certificate (EV certificates no longer skip this either).
+
 Checklist:
 
 1. `CHANGELOG.md` updated, `npm run version:set -- X.Y.Z` + `npm install`, commit
 2. `npm run typecheck && npm test && npm run build`
 3. Review the demo match in the HUD and all scenes
-4. Create the GitHub release with tag `vX.Y.Z` (beta: `--prerelease`), notes from the changelog, and wait for the workflow
+4. Create the GitHub release with tag `vX.Y.Z` (beta: `--prerelease`), notes from the changelog plus a link to the code signing policy, and wait for the workflow (once signing is active: approve the request in SignPath)
 5. Download the installer from the release and test it briefly

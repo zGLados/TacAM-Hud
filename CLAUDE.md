@@ -10,7 +10,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 - `apps/control`: React control panel (react-router 7), pages in `pages/`, building blocks in `components/ui.tsx`; `veto.html` is a second entry (captain veto page, no login).
 - `apps/desktop`: Electron main (`src/main.ts`), bundled to CJS with esbuild.
 - `.github/workflows/ci.yml`: typecheck + tests + build on every push/PR (Linux and Windows).
-- `.github/workflows/release.yml`: builds the Windows installer (+ `latest.yml` for the in-app updater) when a GitHub release is published; tests run on Windows there.
+- `.github/workflows/release.yml`: builds the Windows installer (+ `latest.yml` for the in-app updater) when a GitHub release is published; tests run on Windows there. Signs it via SignPath once configured (`docs/development.md` → Code signing; `apps/desktop/scripts/refresh-update-info.mjs` fixes the update hashes after signing).
 - Docs: `README.md`, `CHANGELOG.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state.**
 
 ## Commands

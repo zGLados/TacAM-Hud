@@ -15,7 +15,7 @@ Live HUD with statistics, broadcast scenes and overlays · web-based director ·
 [![License](https://img.shields.io/github/license/zGLados/TacAM-Hud?color=555)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows%20·%20Linux%20(server)-555)
 
-[**Download**](https://github.com/zGLados/TacAM-Hud/releases/latest) · [Report a bug](https://github.com/zGLados/TacAM-Hud/issues/new/choose) · [Features](#features) · [Screenshots](#screenshots) · [Getting started](#getting-started) · [Camera control](#camera-control-hlae) · [Docs](#documentation)
+[**Download**](https://github.com/zGLados/TacAM-Hud/releases/latest) · [Report a bug](https://github.com/zGLados/TacAM-Hud/issues/new/choose) · [Code signing policy](#code-signing-policy) · [Features](#features) · [Screenshots](#screenshots) · [Getting started](#getting-started) · [Camera control](#camera-control-hlae) · [Docs](#documentation)
 
 <img src="docs/images/hud-live.webp" alt="TacAM HUD during a round" width="100%">
 
@@ -90,7 +90,7 @@ Screenshots come from the built-in demo match; the transparent HUD is shown on a
 
 ### Windows app (recommended)
 
-1. Download `TacAM-HUD-Setup-<version>.exe` from the [latest release](https://github.com/zGLados/TacAM-Hud/releases/latest) and install it. The installer is not code-signed yet – if SmartScreen warns, choose *More info → Run anyway*.
+1. Download `TacAM-HUD-Setup-<version>.exe` from the [latest release](https://github.com/zGLados/TacAM-Hud/releases/latest) and install it. Code signing is being set up ([code signing policy](#code-signing-policy)) – if SmartScreen warns, choose *More info → Run anyway*.
 2. The app opens the control panel. **Settings → Install GSI config**, then restart CS2.
 3. In OBS add a **browser source** with `http://127.0.0.1:1349/hud/` (1920×1080, leave “Custom CSS” empty).
 4. Join a match as spectator / GOTV. Unknown players can be created in the **Live** tab with one click (or all at once with *Quick setup*).
@@ -158,6 +158,27 @@ npm run typecheck
 ## Bugs, questions and ideas
 
 Found a bug or something behaves oddly? Please **[open an issue on GitHub](https://github.com/zGLados/TacAM-Hud/issues/new/choose)** – the bug report form asks for everything needed (version, what you did, screenshots, CS2 console output). Ideas and feature requests are welcome there too. In the app: *TacAM HUD → Report a problem on GitHub…* or the link at the bottom of the sidebar (fills in your version).
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org) – being set up: releases up to v0.2.0 are unsigned, so Windows SmartScreen may warn (*More info → Run anyway*).
+
+- Only the Windows installer built by the [release workflow](.github/workflows/release.yml) on GitHub Actions from this public repository is signed – never builds from a local machine.
+- Committers and reviewers: [zGLados](https://github.com/zGLados). Changes from other contributors are reviewed before they are merged.
+- Approvers: [zGLados](https://github.com/zGLados) – every release is approved for signing by hand.
+- All team members use multi-factor authentication for GitHub and SignPath.
+
+## Privacy
+
+TacAM HUD runs on your own PC and has no account, analytics or telemetry. It only connects to other systems in these cases:
+
+- **Update check** (desktop app, on startup and via *Check for updates*): asks GitHub (`github.com/zGLados/TacAM-Hud/releases`) for a newer version and downloads it after you agree.
+- **HLAE** (Settings → HLAE): asks the GitHub API for the latest [advancedfx](https://github.com/advancedfx/advancedfx) release and downloads it when you install or update it.
+- **Integrations you set up yourself:** OBS WebSocket, HTTP requests of signals (e.g. Bitfocus Companion, webhooks), the CS2 console, Stream Deck / Companion calling TacAM.
+- **Report a problem** opens the GitHub issue form in your browser.
+- **Imported HUDs** run their own code and may load content from elsewhere – only import HUDs you trust.
+
+GitHub's [privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement) applies to the requests to GitHub. Your teams, players, matches and settings stay in the local data folder.
 
 ## License & credits
 

@@ -5,6 +5,7 @@ All notable changes to TacAM HUD. Versions follow [semantic versioning](https://
 ## [Unreleased]
 
 ### Added
+- **Code signing prepared** (SignPath Foundation, free for open source): code signing policy and privacy statement in the README; the release build signs the installer once SignPath is set up.
 - **Report a problem:** link at the bottom of the sidebar, under Settings → App updates and in the app menu (*TacAM HUD → Report a problem on GitHub…*) – opens the GitHub bug report form with your version filled in. Issue forms for bug reports and feature requests.
 
 ## [0.2.0] – 2026-10-11
