@@ -62,6 +62,7 @@ describe('ObsBridge', () => {
     cleanup.push(async () => {
       await bridge.stop();
       obs.wss.close();
+      store.flush(); // no throttled write into the removed folder
       fs.rmSync(dir, { recursive: true, force: true });
     });
     store.setDoc('settings', {
@@ -89,6 +90,7 @@ describe('ObsBridge', () => {
     cleanup.push(async () => {
       await bridge.stop();
       obs.wss.close();
+      store.flush(); // no throttled write into the removed folder
       fs.rmSync(dir, { recursive: true, force: true });
     });
     store.setDoc('settings', { ...store.doc('settings'), obs: { enabled: true, url: `ws://127.0.0.1:${obs.port()}`, password: 'wrong', sceneMap: {} } });
