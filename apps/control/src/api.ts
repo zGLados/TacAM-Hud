@@ -189,6 +189,8 @@ export const api = {
     go: (id: string) => request<void>('POST', `/camera-control/shots/${id}/go`),
     path: (shotIds: string[], duration: number, hold: boolean) => request<void>('POST', '/camera-control/path', { shotIds, duration, hold }),
     release: () => request<void>('POST', '/camera-control/release'),
+    spectate: (steamid: string) => request<void>('POST', '/camera-control/spectate', { steamid }),
+    step: (direction: 'next' | 'prev') => request<void>('POST', '/camera-control/step', { direction }),
   },
   hlae: {
     status: (check = false) => request<HlaeStatus>('GET', `/hlae${check ? '?check=1' : ''}`),

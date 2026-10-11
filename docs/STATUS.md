@@ -7,7 +7,7 @@ Hand-over state for the next session. Latest release: **v0.1.17** (camera contro
 ### Camera control (owner tested 2026-10-11)
 
 - **Works on the owner's PC (v0.1.17):** CS2 via HLAE, HLAE detection, HLAE free camera (`mirv_input camera`), camera path playback. Console test buttons now use HLAE commands (`spec_goto`/`spec_lerpto` are not needed).
-- **Next: choose each player individually on the Camera page** (one button per player of the running game, also for Stream Deck). Note: `spec_player <n>` behaved oddly – it could not step through all players. Find the right way first (e.g. `spec_player` with the player name or the observer slot from GSI, or `spec_next`/`spec_prev`), test it with the console tab, then build the buttons; leaving HLAE camera mode (`mirv_input end`) must come first.
+- **Player selection done, not released yet:** Camera page *Players* (one button per player → `spec_player "<name>"` + `spec_mode 1`, after leaving HLAE camera/path), *Previous/Next player*, Stream Deck actions *Spectate player on slot 1–0*. Tested against a fake console with the demo match. **Owner to test in CS2:** does a click switch to the right player in a demo / as GOTV spectator, also after a free camera or a path? Names starting with a digit cannot be targeted (CS2 limitation) → Next/Previous.
 - **Later: auto observer (#17)** on the same console bridge (switch to the player in the duel / with the bomb / last alive, with a minimum dwell time, manual takeover pauses it).
 - Other ideas: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path).
 

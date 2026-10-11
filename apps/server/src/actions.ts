@@ -2,6 +2,8 @@ import { timingSafeEqual } from 'node:crypto';
 import { SCENE_IDS, SCENE_LABELS, type HudAction, type HudConfig } from '@tacam/shared';
 import type { HudServer } from './io.js';
 import { emitHudAction, emitRefresh } from './lhm.js';
+import type { GameConsole } from './game.js';
+import { releaseCommands, spectateCommands, stepCommands } from './camera.js';
 import type { LiveHub } from './live.js';
 import type { Store } from './store.js';
 
@@ -12,7 +14,7 @@ import type { Store } from './store.js';
  */
 export interface TriggerAction {
   id: string;
-  group: 'Scenes' | 'HUD' | 'Overlays' | 'Teams';
+  group: 'Scenes' | 'HUD' | 'Overlays' | 'Teams' | 'Camera';
   label: string;
   run: () => void;
   /** For toggles and scenes: whether the action's state is currently on (button feedback in Companion). */
@@ -23,7 +25,7 @@ type VisibilityKey = keyof HudConfig['visibility'];
 
 const OVERLAY_LABELS = { scoreboard: 'Scoreboard', economy: 'Economy graph', comparison: 'Player comparison' };
 
-export function createActions(store: Store, live: LiveHub, io: HudServer): TriggerAction[] {
+export function createActions(store: Store, live: LiveHub, io: HudServer, gameConsole?: GameConsole): TriggerAction[] {
   const config = () => store.doc('hudConfig');
   const patchConfig = (patch: Partial<HudConfig>) => store.setDoc('hudConfig', { ...config(), ...patch });
   const hudAction = (type: HudAction['type']) => () => emitHudAction(io, type);
@@ -39,8 +41,33 @@ export function createActions(store: Store, live: LiveHub, io: HudServer): Trigg
     isActive: () => store.doc('scene').active === id,
   }));
 
+  // Camera actions talk to CS2 over the console; failures are logged, a button press has no answer channel.
+  const toConsole = (commands: () => string[]) => () => {
+    if (!gameConsole) throw new TriggerError(503, 'No CS2 console');
+    void gameConsole.sendAll(commands()).catch((error) => console.warn('Camera action failed:', (error as Error).message));
+  };
+  const slotName = (slot: number) => {
+    const player = live.summary()?.players.find((p) => p.observerSlot === slot);
+    if (!player) throw new TriggerError(404, `No player on observer slot ${slot}`);
+    return player.name;
+  };
+  const cameraActions: TriggerAction[] = [
+    ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(
+      (slot): TriggerAction => ({
+        id: `spectate-slot-${slot}`,
+        group: 'Camera',
+        label: `Spectate player on slot ${slot}`,
+        run: toConsole(() => spectateCommands(slotName(slot))),
+      })
+    ),
+    { id: 'spectate-next', group: 'Camera', label: 'Next player', run: toConsole(() => stepCommands('next')) },
+    { id: 'spectate-prev', group: 'Camera', label: 'Previous player', run: toConsole(() => stepCommands('prev')) },
+    { id: 'camera-release', group: 'Camera', label: 'Back to game view (end camera / path)', run: toConsole(() => releaseCommands) },
+  ];
+
   return [
     ...sceneActions,
+    ...cameraActions,
     {
       id: 'scene-auto-toggle',
       group: 'Scenes',

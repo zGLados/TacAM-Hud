@@ -31,7 +31,7 @@ Inspired by [JTs-Hud](https://github.com/JohnTimmermann/JTs-Hud) and [LHM.gg](ht
 | 📊 **Live statistics** | ADR, KAST (incl. trades), HS %, KPR, opening kills, clutches, multi-kills, HLTV 1.0 rating, round history and economy with buy classification |
 | 🧩 **Overlays** | Scoreboard, economy graph and player comparison over the live HUD; round win probability bar (estimate); teams can keep their HUD side after halftime; wingman / custom rounds per half |
 | 🎬 **Scenes** | Starting soon (optional countdown), BRB, technical pause, halftime, map veto, scoreboard, match end with MVP, upcoming matches, player to watch; background videos; automatic, by click (preview → take) or a fixed OBS URL per scene |
-| 🎥 **Camera control (HLAE)** | Start CS2 via HLAE from the app, save camera views per map, jump to them with one click and fly smooth camera paths through them |
+| 🎥 **Camera control (HLAE)** | Start CS2 via HLAE from the app, save camera views per map, jump to them with one click, fly smooth camera paths through them and pick each player to spectate (also from the Stream Deck) |
 | 🎛️ **Director** | Control panel in the browser, also on a tablet or a second PC (LAN with PIN); captain veto links for the team captains' phones |
 | 🔌 **Integrations** | Stream Deck / Bitfocus Companion URLs with button feedback, configurable global shortcuts, OBS WebSocket (OBS follows the TacAM scene), signals (game events → overlays, Companion buttons, webhooks, OBS replay buffer), MatchZy config export |
 | 🖼️ **HUD import** | Import HUDs in the LHM / JTs-Hud format (zip with `hud.json`) and run them as their own OBS source, with their own settings panel |

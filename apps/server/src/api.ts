@@ -14,9 +14,9 @@ import { findCs2CfgDir, gsiConfig, gsiConfigInstalled, installGsiConfig } from '
 import { loginHandler, statusHandler } from './auth.js';
 import { isAccelerator, triggerStatus, TriggerError, validActionKey, type TriggerAction } from './actions.js';
 import { captainVetoRoutes } from './captainVeto.js';
-import { diagnoseConsole, GameConsole, GameLaunchError, launchCs2, withNetconPort } from './game.js';
+import { diagnoseConsole, GameLaunchError, launchCs2, withNetconPort, type GameConsole } from './game.js';
 import { HlaeError, installHlae, installedHlae, latestHlae } from './hlae.js';
-import { CameraError, goToCommands, hlaeActive, playPathCommands, readView, releaseCommands } from './camera.js';
+import { CameraError, goToCommands, hlaeActive, playPathCommands, readView, releaseCommands, spectateCommands, stepCommands } from './camera.js';
 import { matchzyConfig } from './matchzy.js';
 import { buildHudConfig, emitHudAction, emitHudConfig, emitHudPanelAction, emitKeybindAction, emitRefresh, type PanelSection } from './lhm.js';
 import { getHud, hudFile, HudImportError, importHudZip, listHuds, removeHud } from './huds.js';
@@ -164,12 +164,13 @@ export interface ApiOptions {
   actions: TriggerAction[];
   obs: ObsBridge;
   signals: SignalEngine;
+  gameConsole: GameConsole;
   uploadsDir: string;
   gsiPort: number;
   demo: DemoMatch;
 }
 
-export function createApi({ store, live, io, actions, obs, signals, uploadsDir, gsiPort, demo }: ApiOptions) {
+export function createApi({ store, live, io, actions, obs, signals, gameConsole, uploadsDir, gsiPort, demo }: ApiOptions) {
   const api = express.Router();
   api.use(express.json({ limit: '1mb' }));
 
@@ -442,7 +443,6 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
 
   // --- CS2: start with launch options, console over -netconport -----------
 
-  const gameConsole = new GameConsole(() => store.doc('settings').telnet);
   api.post(
     '/game/launch',
     h(async (_req, res) => {
@@ -522,6 +522,24 @@ export function createApi({ store, live, io, actions, obs, signals, uploadsDir, 
       const views = shotIds.map((id) => shots().find((s) => s.id === id)).filter((s): s is CameraShot => !!s);
       if (views.length < 2) return res.status(400).json({ error: 'Select at least two views' });
       await gameConsole.sendAll(playPathCommands(store.dataDir, views, duration, hold));
+      res.json({ ok: true });
+    })
+  );
+  api.post(
+    '/camera-control/spectate',
+    camera(async (req, res) => {
+      const { steamid } = z.object({ steamid: str.min(1) }).parse(req.body);
+      const player = live.summary()?.players.find((p) => p.steamid === steamid);
+      if (!player) return res.status(404).json({ error: 'Player not in the running game' });
+      await gameConsole.sendAll(spectateCommands(player.name));
+      res.json({ ok: true });
+    })
+  );
+  api.post(
+    '/camera-control/step',
+    camera(async (req, res) => {
+      const { direction } = z.object({ direction: z.enum(['next', 'prev']) }).parse(req.body);
+      await gameConsole.sendAll(stepCommands(direction));
       res.json({ ok: true });
     })
   );

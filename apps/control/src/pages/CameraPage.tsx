@@ -1,13 +1,59 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { prettyMapName, type CameraShot } from '@tacam/shared';
-import { api, type CameraStatus } from '../api';
+import { prettyMapName, type CameraShot, type LivePlayerSummary } from '@tacam/shared';
+import { api, useLive, type CameraStatus } from '../api';
 import { Card, ConfirmButton, Field, PageHeader, Toggle, useRun } from '../components/ui';
 
 /**
  * Camera control through HLAE: saved views per map, jumps and smooth paths
  * (apps/server/src/camera.ts). Needs CS2 started via HLAE and the console.
  */
+/** One button per player of the running game (spec_player + spec_mode 1), grouped by HUD side. */
+function PlayerPicker() {
+  const run = useRun();
+  const summary = useLive((s) => s.summary);
+  if (!summary) return <p className="muted">No game data – the players appear as soon as CS2 (or a demo) sends GSI data.</p>;
+  // Key 0 is the tenth slot in CS2, so it sorts last.
+  const order = (p: LivePlayerSummary) => (p.observerSlot === null ? 11 : p.observerSlot === 0 ? 10 : p.observerSlot);
+  const slotLabel = (p: LivePlayerSummary) => (p.observerSlot === null ? '–' : String(p.observerSlot));
+  const column = (side: 'left' | 'right') => {
+    const team = summary[side];
+    const players = summary.players.filter((p) => p.side === team.side).sort((a, b) => order(a) - order(b));
+    return (
+      <div className="camera_team" data-side={team.side}>
+        <div className="camera_team_name">{team.name}</div>
+        {players.map((p) => (
+          <button
+            key={p.steamid}
+            className={`camera_player ${summary.observed === p.steamid ? 'is-observed' : ''} ${p.health <= 0 ? 'is-dead' : ''}`}
+            title={/^\d/.test(p.name) ? 'CS2 cannot target names starting with a digit – use Next/Previous' : `spec_player "${p.name}"`}
+            onClick={() => run(() => api.camera.spectate(p.steamid))}
+          >
+            <span className="camera_slot">{slotLabel(p)}</span>
+            <span className="camera_player_name">{p.name}</span>
+          </button>
+        ))}
+      </div>
+    );
+  };
+  return (
+    <>
+      <div className="camera_teams">
+        {column('left')}
+        {column('right')}
+      </div>
+      <div className="row">
+        <button className="button" onClick={() => run(() => api.camera.step('prev'))}>
+          ← Previous player
+        </button>
+        <button className="button" onClick={() => run(() => api.camera.step('next'))}>
+          Next player →
+        </button>
+      </div>
+    </>
+  );
+}
+
 export function CameraPage() {
   const run = useRun();
   const [status, setStatus] = useState<CameraStatus | null>(null);
@@ -86,6 +132,13 @@ export function CameraPage() {
           </p>
         </Card>
       )}
+
+      <Card title="Players">
+        <p className="muted small">
+          Follow a player in first person – ends a free camera or camera path first. Also available as Stream Deck actions (Spectate player on slot 1–0, Next/Previous player).
+        </p>
+        <PlayerPicker />
+      </Card>
 
       <Card title="Save the current view">
         <p className="muted small">

@@ -14,7 +14,7 @@ Server modules (`apps/server/src`):
 
 | Module | Purpose |
 | --- | --- |
-| `app.ts` | server factory: Express, Socket.io, GSI receiver, static apps, wiring |
+| `app.ts` | server factory: Express, Socket.io, GSI receiver, static apps, wiring (one shared CS2 console connection for API, actions and camera) |
 | `live.ts` | GSI pipeline (`LiveHub`): coaches, team resolution, halftime flip, round rules, stats, scene automation, game events |
 | `api.ts` | REST API with zod validation |
 | `store.ts` | JSON database (`db.json`) |

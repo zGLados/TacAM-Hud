@@ -116,3 +116,20 @@ export function playPathCommands(dataDir: string, views: View[], duration: numbe
     'mirv_campath enabled 1',
   ];
 }
+
+/**
+ * Follow one player in first person: leave HLAE camera/path first (they would
+ * cover the switch), then `spec_player <name>` + `spec_mode 1` – the same pair
+ * JTs-Hud's spectator binds use; `spec_player` alone only sets the target.
+ * Names come from the GSI data. CS2 cannot target names starting with a digit.
+ */
+export function spectateCommands(name: string) {
+  const clean = name.replace(/["\r\n;]/g, '');
+  if (!clean.trim()) throw new CameraError('Player name is empty');
+  return [...releaseCommands, `spec_player "${clean}"`, 'spec_mode 1'];
+}
+
+/** Next / previous player, works for any name. */
+export function stepCommands(direction: 'next' | 'prev') {
+  return [...releaseCommands, direction === 'next' ? 'spec_next' : 'spec_prev', 'spec_mode 1'];
+}

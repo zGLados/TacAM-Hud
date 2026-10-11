@@ -450,6 +450,14 @@ describe('API', () => {
     expect((await fetch(`http://127.0.0.1:${port}/huds/${hud.dir}/`)).status).toBe(404);
   });
 
+  it('refuses to spectate players that are not in the game', async () => {
+    expect((await fetch(`${base}/camera-control/spectate`, json('POST', { steamid: '76561190000000000' }))).status).toBe(404);
+    const key = server.store.doc('settings').actionKey;
+    const res = await fetch(`${base}/trigger/spectate-slot-7?key=${key}`);
+    expect(res.status).toBe(404);
+    expect((await res.json()).error).toContain('slot 7');
+  });
+
   it('serves the camera control (not shadowed by the LHM camera path)', async () => {
     const status = await (await fetch(`${base}/camera-control`)).json();
     expect(status).toMatchObject({ connected: false, shots: [] });

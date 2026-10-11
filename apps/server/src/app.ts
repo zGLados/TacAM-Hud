@@ -9,6 +9,7 @@ import { LiveHub } from './live.js';
 import { createApi } from './api.js';
 import { createActions, type TriggerAction } from './actions.js';
 import { ObsBridge } from './obs.js';
+import { GameConsole } from './game.js';
 import { attachLhmSocket, buildHudConfig, lhmRoutes, type PanelSection } from './lhm.js';
 import { hudFile, hudsDir } from './huds.js';
 import { SignalEngine } from './signals.js';
@@ -57,7 +58,9 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   const io: HudServer = new Server(http, { maxHttpBufferSize: 1e6 });
   const live = new LiveHub(store, io);
   const demo = new DemoMatch((raw) => live.ingest(raw, true));
-  const actions = createActions(store, live, io);
+  // One console connection to CS2 (-netconport), shared by API, actions and camera control.
+  const gameConsole = new GameConsole(() => store.doc('settings').telnet);
+  const actions = createActions(store, live, io, gameConsole);
   const obs = new ObsBridge(store);
   const signals = new SignalEngine(store, actions, obs, (side) => live.displaySlot(side));
   live.onEvents = (events) => signals.handle(events);
@@ -111,7 +114,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
 
   app.use(authMiddleware(store));
   app.use('/api', lhmRoutes(store, live, uploadsDir, options.hudDir));
-  app.use('/api', createApi({ store, live, io, actions, obs, signals, uploadsDir, gsiPort, demo }));
+  app.use('/api', createApi({ store, live, io, actions, obs, signals, gameConsole, uploadsDir, gsiPort, demo }));
   app.use(
     '/uploads',
     express.static(uploadsDir, {

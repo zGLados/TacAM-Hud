@@ -3,7 +3,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { campathXml, goToCommands, hlaeActive, parseCurrentView, playPathCommands, readView } from './camera.js';
+import { campathXml, goToCommands, hlaeActive, parseCurrentView, playPathCommands, readView, spectateCommands, stepCommands } from './camera.js';
 import { GameConsole } from './game.js';
 
 // Output formats as printed by advancedfx/shared/MirvInput.cpp and MirvCampath.cpp.
@@ -85,5 +85,13 @@ describe('camera (HLAE)', () => {
     await console.sendAll(commands, 100);
     expect(received.filter((c) => !c.startsWith('engine_no_focus_sleep'))).toEqual(commands);
     fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('follows a player: leaves HLAE camera/path, then spec_player + spec_mode 1', () => {
+    expect(spectateCommands('m0NESY')).toEqual(['mirv_campath enabled 0', 'mirv_input end', 'spec_player "m0NESY"', 'spec_mode 1']);
+    // spaces stay inside the quotes; quotes and separators cannot break out of the command
+    expect(spectateCommands('Team "X"; quit')[2]).toBe('spec_player "Team X quit"');
+    expect(() => spectateCommands('"";')).toThrow('empty');
+    expect(stepCommands('next')).toEqual(['mirv_campath enabled 0', 'mirv_input end', 'spec_next', 'spec_mode 1']);
   });
 });
