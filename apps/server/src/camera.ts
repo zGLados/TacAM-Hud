@@ -51,8 +51,10 @@ export function goToCommands(view: View) {
     'mirv_campath enabled 0',
     'mirv_input camera',
     `mirv_input position ${fmt(view.x)} ${fmt(view.y)} ${fmt(view.z)}`,
-    // mirv_input angles takes <pitch> <roll> <yaw>
-    `mirv_input angles ${fmt(view.pitch)} ${fmt(view.roll)} ${fmt(view.yaw)}`,
+    // Order is pitch yaw roll: MirvInput.cpp sets Rx/Ry/Rz from the arguments and builds
+    // QEulerAngles(Rx, Ry, Rz) = (pitch, yaw, roll). HLAE's own usage text says
+    // <yPitch> <xRoll> <zYaw>, which is wrong and tilted the camera.
+    `mirv_input angles ${fmt(view.pitch)} ${fmt(view.yaw)} ${fmt(view.roll)}`,
     `mirv_input fov ${fmt(view.fov)}`,
   ];
 }

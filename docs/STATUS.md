@@ -8,6 +8,7 @@ Hand-over state for the next session. Latest release: **v0.1.17** (camera contro
 
 - **Works on the owner's PC (v0.1.17):** CS2 via HLAE, HLAE detection, HLAE free camera (`mirv_input camera`), camera path playback. Console test buttons now use HLAE commands (`spec_goto`/`spec_lerpto` are not needed).
 - **Player selection done, not released yet:** Camera page *Players* (one button per player → `spec_player "<name>"` + `spec_mode 1`, after leaving HLAE camera/path), *Previous/Next player*, Stream Deck actions *Spectate player on slot 1–0*. Tested against a fake console with the demo match. **Owner to test in CS2:** does a click switch to the right player in a demo / as GOTV spectator, also after a free camera or a path? Names starting with a digit cannot be targeted (CS2 limitation) → Next/Previous.
+- **Fixed after the owner's test (not released yet):** jumping to a saved view tilted the camera sideways – `mirv_input angles` takes pitch yaw roll (HLAE's usage text says otherwise). Black screen after loading another demo: TacAM now ends HLAE camera/path when GSI reports a new map. If it stays black, the console command `mirv_input end; mirv_campath enabled 0` or *Back to game view* should help – owner to confirm.
 - **Later: auto observer (#17)** on the same console bridge (switch to the player in the duel / with the bomb / last alive, with a minimum dwell time, manual takeover pauses it).
 - Other ideas: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path).
 

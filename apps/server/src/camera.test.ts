@@ -49,12 +49,12 @@ describe('camera (HLAE)', () => {
     await expect(readView(await fakeCs2(false))).rejects.toThrow('via HLAE');
   });
 
-  it('jumps to a view with mirv_input (angles as pitch roll yaw)', () => {
+  it('jumps to a view with mirv_input (angles as pitch yaw roll, despite the HLAE usage text)', () => {
     expect(goToCommands({ x: 1, y: 2.5, z: -3, pitch: 10, yaw: 90, roll: 0, fov: 75 })).toEqual([
       'mirv_campath enabled 0',
       'mirv_input camera',
       'mirv_input position 1 2.5 -3',
-      'mirv_input angles 10 0 90',
+      'mirv_input angles 10 90 0',
       'mirv_input fov 75',
     ]);
   });
