@@ -1,5 +1,14 @@
 blank_issues_enabled: true
 contact_links:
+  - name: Ideas and feature discussion
+    url: https://github.com/zGLados/TacAM-Hud/discussions/categories/ideas
+    about: Not sure yet or want feedback first? Start a discussion – well-defined ideas become issues.
+  - name: Questions (Q&A)
+    url: https://github.com/zGLados/TacAM-Hud/discussions/categories/q-a
+    about: Setup and usage questions.
+  - name: Show your broadcast
+    url: https://github.com/zGLados/TacAM-Hud/discussions/categories/show-and-tell
+    about: Share your stream, VOD, screenshot or theme made with TacAM HUD.
   - name: Documentation
     url: https://github.com/zGLados/TacAM-Hud#documentation
     about: Setup, features, camera control and the API are described in the docs.

@@ -2,6 +2,11 @@
 
 All notable changes to TacAM HUD. Versions follow [semantic versioning](https://semver.org/): new features raise the minor version (0.**2**.0), fixes the patch version (0.2.**1**); 1.0.0 comes once TacAM has carried a real broadcast. Betas (`-beta.N`) are test builds before a release – see [docs/development.md](docs/development.md#versions-and-releases).
 
+## Unreleased
+
+### Added
+- Contributing guide, Code of Conduct and GitHub Discussions; website sections for getting involved, the roadmap and FAQ, and which features need HLAE.
+
 ## [0.3.0] – 2026-10-11
 
 ### Added

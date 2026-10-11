@@ -15,7 +15,7 @@ Live HUD with statistics, broadcast scenes and overlays · web-based director ·
 [![License](https://img.shields.io/github/license/zGLados/TacAM-Hud?color=555)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows%20·%20Linux%20(server)-555)
 
-[**Download**](https://github.com/zGLados/TacAM-Hud/releases/latest) · [Website](https://hud.tac.am) · [Report a bug](https://github.com/zGLados/TacAM-Hud/issues/new/choose) · [Code signing policy](#code-signing-policy) · [Features](#features) · [Screenshots](#screenshots) · [Getting started](#getting-started) · [Camera control](#camera-control-hlae) · [Docs](#documentation)
+[**Download**](https://github.com/zGLados/TacAM-Hud/releases/latest) · [Website](https://hud.tac.am) · [Report a bug](https://github.com/zGLados/TacAM-Hud/issues/new/choose) · [Get involved](#get-involved) · [Code signing policy](#code-signing-policy) · [Features](#features) · [Screenshots](#screenshots) · [Getting started](#getting-started) · [Camera control](#camera-control-hlae) · [Docs](#documentation)
 
 <img src="docs/images/hud-live.webp" alt="TacAM HUD during a round" width="100%">
 
@@ -109,6 +109,18 @@ On Windows CS2 only opens its console for other programs when started via [HLAE]
 
 HLAE runs CS2 in insecure mode: fine for demos and your own servers, not for VAC-secured servers.
 
+**What runs where:**
+
+| Normal CS2 (GSI only, VAC-secured) | CS2 via HLAE (`-insecure`, observer PC only) |
+|---|---|
+| HUD, live statistics, radar, kill feed | Saved camera views and camera paths |
+| Scenes, overlays, director, map veto | Free camera when a demo loads |
+| Teams and players, theme editor, imported HUDs | Pick a player by click or Stream Deck, next / previous player |
+| OBS, Stream Deck / Companion, signals | CS2 auto director as a button |
+| | Console commands on demo load and back in the menu |
+
+Imported LHM / JTs-Hud HUDs work with camera control, OBS and Stream Deck too; TacAM's own scenes and overlays need the TacAM HUD.
+
 ### Run from source
 
 Requires Node.js ≥ 22.12 and npm ≥ 11 (`npm install -g npm@11`; the npm 10 bundled with Node 22 fails to install the dependencies).
@@ -148,6 +160,7 @@ Defaults below; every action (scenes, overlays, HUD elements, team swaps) can ge
 | [docs/lhm-roadmap.md](docs/lhm-roadmap.md) | Feature plan based on LHM.gg |
 | [docs/STATUS.md](docs/STATUS.md) | Current state and open tasks |
 | [CHANGELOG.md](CHANGELOG.md) | What changed in each version |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to help: bugs, ideas, testing, guides, code |
 
 ```bash
 npm run dev          # server (tsx watch) + HUD (Vite :3500) + control (Vite :3600)
@@ -155,9 +168,15 @@ npm test             # Vitest
 npm run typecheck
 ```
 
-## Bugs, questions and ideas
+## Get involved
 
-Found a bug or something behaves oddly? Please **[open an issue on GitHub](https://github.com/zGLados/TacAM-Hud/issues/new/choose)** – the bug report form asks for everything needed (version, what you did, screenshots, CS2 console output). Ideas and feature requests are welcome there too. In the app: *TacAM HUD → Report a problem on GitHub…* or the *Report issue* button at the bottom of the sidebar (fills in your version); the *GitHub* button next to it opens the project.
+TacAM HUD is free and made for the community – no paid tier, no donations. **Everyone can help, with or without code:**
+
+- **Bugs:** [open an issue](https://github.com/zGLados/TacAM-Hud/issues/new/choose) – the bug report form asks for everything needed (version, what you did, screenshots, CS2 console output). In the app: *TacAM HUD → Report a problem on GitHub…* or the *Report issue* button at the bottom of the sidebar (fills in your version); the *GitHub* button next to it opens the project.
+- **Ideas and questions:** [Discussions](https://github.com/zGLados/TacAM-Hud/discussions) (*Ideas*, *Q&A*); show your broadcast or theme in *Show and tell*.
+- **Testing, guides, translations, code:** see [CONTRIBUTING.md](CONTRIBUTING.md) and the issues labeled [`good first issue`](https://github.com/zGLados/TacAM-Hud/labels/good%20first%20issue) and [`help wanted`](https://github.com/zGLados/TacAM-Hud/labels/help%20wanted).
+
+Please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Code signing policy
 

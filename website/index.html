@@ -38,6 +38,7 @@
           <a href="#features">Features</a>
           <a href="#screenshots">Screenshots</a>
           <a href="#start">Get started</a>
+          <a href="#involved">Get involved</a>
         </nav>
         <a class="button button--small" href="https://github.com/zGLados/TacAM-Hud">GitHub</a>
       </div>
@@ -74,12 +75,33 @@
           </p>
           <p class="muted">
             Built by <a href="https://github.com/zGLados">zGLados</a> for the TacAM community, developed with the help of AI. Every feature is tested in CS2 and OBS, and
-            every build comes from the public repository.
+            every build comes from the public repository. There is no paid version and no donation button – if you want to give something back, help
+            make it better.
           </p>
         </div>
       </section>
 
-      <section class="section" id="features" aria-labelledby="features-title">
+      <section class="section" aria-labelledby="audience-title">
+        <div class="wrap">
+          <h2 id="audience-title">Made for</h2>
+          <div class="audience">
+            <article class="audience__item">
+              <h3>Community tournaments &amp; leagues</h3>
+              <p>Teams with logos, matches with map veto, captains vetoing on their phones, a director who switches scenes – a real broadcast on a community budget.</p>
+            </article>
+            <article class="audience__item">
+              <h3>LAN parties</h3>
+              <p>One PC runs CS2 and TacAM, the control panel opens on any tablet or laptop in the network. Try everything beforehand with the built-in demo match.</p>
+            </article>
+            <article class="audience__item">
+              <h3>Streamers &amp; casters</h3>
+              <p>Watch parties, demo reviews and co-streams: a clean HUD, statistics on demand and camera flights – controlled from a Stream Deck.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="features" aria-labelledby="features-title">
         <div class="wrap">
           <h2 id="features-title">Everything for a CS2 broadcast</h2>
           <div class="features">
@@ -113,9 +135,47 @@
             </article>
             <article class="feature">
               <h3>Bring your HUD</h3>
-              <p>Already use an LHM or JTs-Hud HUD? Import it and run it with TacAM's data and its own settings panel.</p>
+              <p>
+                Already use an LHM or JTs-Hud HUD? Import it and keep it – camera paths, player selection, OBS and Stream Deck work with it too. TacAM's own scenes and
+                overlays need the TacAM HUD.
+              </p>
             </article>
           </div>
+        </div>
+      </section>
+
+      <section class="section" id="requirements" aria-labelledby="requirements-title">
+        <div class="wrap">
+          <h2 id="requirements-title">What runs where</h2>
+          <p class="intro">
+            Most of TacAM only reads CS2's game state (GSI) and works with a normal, VAC-secured CS2. Camera control needs CS2 started through HLAE, which runs the game
+            with <code class="nowrap">-insecure</code> – TacAM starts it that way for you, on the observer PC only.
+          </p>
+          <div class="runs">
+            <div class="runs__col">
+              <h3><span class="tag tag--ok">Normal CS2</span> <span>GSI only, VAC-secured</span></h3>
+              <ul>
+                <li>HUD, live statistics, radar, kill feed</li>
+                <li>Scenes, overlays, director, map veto</li>
+                <li>Teams and players, theme editor, imported HUDs</li>
+                <li>OBS, Stream Deck / Companion, signals</li>
+              </ul>
+            </div>
+            <div class="runs__col">
+              <h3><span class="tag tag--warn">CS2 via HLAE</span> <span><code class="nowrap">-insecure</code>, observer PC only</span></h3>
+              <ul>
+                <li>Saved camera views and camera paths</li>
+                <li>Free camera when a demo loads</li>
+                <li>Pick a player by click or Stream Deck, next / previous player</li>
+                <li>CS2 auto director as a button</li>
+                <li>Console commands on demo load and back in the menu</li>
+              </ul>
+            </div>
+          </div>
+          <p class="muted small">
+            Why: on Windows CS2 only opens its console to other programs when started through HLAE (or Workshop Tools), and both run insecure. Fine for demos and your
+            own servers; for live GOTV the server may need <code class="nowrap">tv_secure_bypass 1</code>. Players' PCs are never touched.
+          </p>
         </div>
       </section>
 
@@ -181,15 +241,138 @@
         </div>
       </section>
 
-      <section class="section section--alt" aria-labelledby="oss-title">
-        <div class="wrap oss">
-          <h2 id="oss-title">Open source – shape it with us</h2>
-          <p>Found a bug, missing something for your broadcast, or want to contribute? Everything happens on GitHub.</p>
-          <div class="actions actions--center">
-            <a class="button button--primary" href="https://github.com/zGLados/TacAM-Hud/issues/new/choose">Report a bug or idea</a>
-            <a class="button" href="https://github.com/zGLados/TacAM-Hud/blob/main/CHANGELOG.md">Changelog</a>
-            <a class="button" href="https://github.com/zGLados/TacAM-Hud">Source code</a>
+      <section class="section section--alt" id="involved" aria-labelledby="involved-title">
+        <div class="wrap">
+          <h2 id="involved-title">Get involved</h2>
+          <p class="intro">
+            TacAM HUD belongs to the community. Nobody earns money with it – it gets better when the people who run broadcasts shape it. You don't need to write code.
+          </p>
+          <div class="involve">
+            <a class="involve__item" href="https://github.com/zGLados/TacAM-Hud/issues/new/choose">
+              <h3>Report a bug</h3>
+              <p>Something broke during your broadcast? The form asks for everything needed – the app fills in your version.</p>
+            </a>
+            <a class="involve__item" href="https://github.com/zGLados/TacAM-Hud/discussions/categories/ideas">
+              <h3>Share and vote on ideas</h3>
+              <p>What's missing for your broadcast? Start a discussion or upvote the ideas you want most.</p>
+            </a>
+            <a class="involve__item" href="https://github.com/zGLados/TacAM-Hud/labels/help%20wanted">
+              <h3>Test with your setup</h3>
+              <p>OBS, Stream Deck, GOTV, your imported HUD – reports from real setups are worth more than any simulation.</p>
+            </a>
+            <a class="involve__item" href="https://github.com/zGLados/TacAM-Hud/discussions/categories/show-and-tell">
+              <h3>Show your broadcast</h3>
+              <p>Post your stream, VOD, screenshot or theme. It inspires others – and may be featured here.</p>
+            </a>
+            <a class="involve__item" href="https://github.com/zGLados/TacAM-Hud/issues?q=is%3Aopen+label%3Adocumentation">
+              <h3>Write guides &amp; translate</h3>
+              <p>Tournament setup guides, videos, tips – or translate the website and docs into your language.</p>
+            </a>
+            <a class="involve__item" href="https://github.com/zGLados/TacAM-Hud/labels/good%20first%20issue">
+              <h3>Write code</h3>
+              <p>Start with a <i>good first issue</i>. TypeScript and React; the built-in demo match lets you develop without CS2.</p>
+            </a>
           </div>
+          <div class="actions">
+            <a class="button button--primary" href="https://github.com/zGLados/TacAM-Hud/blob/main/CONTRIBUTING.md">How to contribute</a>
+            <a class="button" href="https://github.com/zGLados/TacAM-Hud/discussions">Discussions</a>
+            <a class="button" href="https://github.com/zGLados/TacAM-Hud/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="roadmap" aria-labelledby="roadmap-title">
+        <div class="wrap">
+          <h2 id="roadmap-title">Roadmap</h2>
+          <div class="roadmap">
+            <div class="roadmap__col">
+              <h3><span class="tag tag--ok">Recently</span></h3>
+              <ul>
+                <li>CSV export for players and teams <span class="muted">v0.3.0</span></li>
+                <li>Saved, smooth camera paths <span class="muted">v0.2.0</span></li>
+                <li>CS2 auto director and player selection <span class="muted">v0.1.19</span></li>
+              </ul>
+            </div>
+            <div class="roadmap__col">
+              <h3><span class="tag tag--next">Next</span></h3>
+              <ul>
+                <li>Export and import of all settings – players and teams with logos, HUD settings, camera paths</li>
+                <li>Signed installer (no more SmartScreen warning)</li>
+              </ul>
+            </div>
+            <div class="roadmap__col">
+              <h3><span class="tag tag--later">Later</span></h3>
+              <ul>
+                <li>A smarter auto observer: follows duels, the bomb and the last player alive</li>
+                <li>Your idea? <a href="https://github.com/zGLados/TacAM-Hud/discussions/categories/ideas">Suggest it</a></li>
+              </ul>
+            </div>
+          </div>
+          <p class="muted small">
+            Every release is listed in the <a href="https://github.com/zGLados/TacAM-Hud/blob/main/CHANGELOG.md">changelog</a>; open work is on
+            <a href="https://github.com/zGLados/TacAM-Hud/issues">GitHub issues</a>.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="faq" aria-labelledby="faq-title">
+        <div class="wrap faq">
+          <h2 id="faq-title">FAQ</h2>
+          <details>
+            <summary>Is it really free? What's the catch?</summary>
+            <p>
+              No catch. TacAM HUD is open source under the GPL-3.0: no account, no subscription, no premium features, no ads, no donation button. It was built because
+              paid broadcast HUDs are too expensive for most community events.
+            </p>
+          </details>
+          <details>
+            <summary>Is it safe to use? What about VAC?</summary>
+            <p>
+              The HUD only reads CS2's official Game State Integration, which Valve provides for exactly this. Only camera control needs CS2 started through HLAE with
+              <code class="nowrap">-insecure</code> – on the observer PC, for demos, GOTV and your own servers. Players' PCs are never touched. See
+              <a href="#requirements">What runs where</a>.
+            </p>
+          </details>
+          <details>
+            <summary>Does it work with GOTV and demos?</summary>
+            <p>Yes – the observer spectates a GOTV broadcast, a server or plays back a demo, and TacAM receives the game state. Camera paths work in all three.</p>
+          </details>
+          <details>
+            <summary>Windows only?</summary>
+            <p>
+              The desktop app with automatic updates is for Windows, where CS2 observers usually are. The server also runs on Linux with Node.js, and the HUD is a web
+              page – any OBS can show it.
+            </p>
+          </details>
+          <details>
+            <summary>Why does Windows SmartScreen warn about the installer?</summary>
+            <p>
+              The installer is not code-signed yet. Free signing through the SignPath Foundation for open-source projects is being set up; until then choose
+              <i>More info → Run anyway</i>. Every installer is built by GitHub Actions from the public source code.
+            </p>
+          </details>
+          <details>
+            <summary>Does TacAM HUD collect data?</summary>
+            <p>
+              No telemetry, no tracking. The app only checks GitHub for updates, downloads HLAE when you ask for it, and talks to the integrations you configure (OBS,
+              Companion …). Details in the <a href="https://github.com/zGLados/TacAM-Hud#privacy">privacy section</a>.
+            </p>
+          </details>
+          <details>
+            <summary>Can I use my own design or my existing HUD?</summary>
+            <p>
+              Yes. The theme editor changes colors, fonts, sponsors and logo; LHM and JTs-Hud HUDs can be imported and keep working with camera control, OBS and Stream
+              Deck. Or fork the project – that's what open source is for.
+            </p>
+          </details>
+          <details>
+            <summary>May I use it for a tournament with prize money or sponsors?</summary>
+            <p>
+              Yes, for any event. The GPL-3.0 only asks one thing: if you distribute a modified version, publish its source code too. A mention of TacAM HUD in your
+              stream is appreciated, not required.
+            </p>
+          </details>
+          <p class="muted">More questions? Ask in <a href="https://github.com/zGLados/TacAM-Hud/discussions/categories/q-a">Discussions → Q&amp;A</a>.</p>
         </div>
       </section>
     </main>
@@ -210,6 +393,8 @@
           <a href="https://github.com/zGLados/TacAM-Hud#code-signing-policy">Code signing policy</a>
           <a href="https://github.com/zGLados/TacAM-Hud#privacy">Privacy (app)</a>
           <a href="https://github.com/zGLados/TacAM-Hud/blob/main/THIRD_PARTY.md">Credits</a>
+          <a href="https://github.com/zGLados/TacAM-Hud/discussions">Discussions</a>
+          <a href="legal.html">Legal notice &amp; privacy</a>
         </nav>
         <p class="footer__legal muted">
           Free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate by <a href="https://signpath.org">SignPath Foundation</a> (being

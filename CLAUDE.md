@@ -11,8 +11,9 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 - `apps/desktop`: Electron main (`src/main.ts`), bundled to CJS with esbuild.
 - `.github/workflows/ci.yml`: typecheck + tests + build on every push/PR (Linux and Windows).
 - `.github/workflows/release.yml`: builds the Windows installer (+ `latest.yml` for the in-app updater) when a GitHub release is published; tests run on Windows there. Signs it via SignPath once configured (`docs/development.md` → Code signing; `apps/desktop/scripts/refresh-update-info.mjs` fixes the update hashes after signing).
-- `website/`: static project page for hud.tac.am (hosted by the owner; images are copies of `docs/images`).
-- Docs: `README.md`, `CHANGELOG.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state.**
+- `website/`: static project page for hud.tac.am (hosted by the owner; images are copies of `docs/images`; `legal.html` = Impressum/privacy; keep the *Roadmap* section in sync with releases).
+- Community: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, GitHub Discussions; starter issues carry `good first issue` / `help wanted`.
+- Docs: `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state.**
 
 ## Commands
 

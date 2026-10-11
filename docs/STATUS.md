@@ -4,9 +4,12 @@ Hand-over state for the next session. Latest release: **v0.3.0** (CSV export, fi
 
 ## Open tasks
 
-### Website hud.tac.am
+### Website hud.tac.am and community
 
 - `website/` (static, see `website/README.md`) is **online at https://hud.tac.am** since 2026-10-11 (hosted by the owner, HTTPS, http redirects). Repo homepage and README link set. When screenshots change, update `website/images` too and tell the owner to re-upload.
+- 2026-10-11, after Reddit feedback ("lead with keeping your LHM / JTs-Hud HUD, spell out what needs `-insecure`"): sections *Made for*, *What runs where* (also in the README), *Get involved*, *Roadmap*, *FAQ*, and `legal.html` (Impressum + privacy). **Owner:** fill in the placeholders in `legal.html` (name, address, e-mail, hosting provider, log retention) and upload `index.html`, `style.css`, `legal.html` – `CODE_OF_CONDUCT.md` points to that page for reports. Keep the roadmap section in sync with releases.
+- Community setup (owner's wish: everyone can take part, no money involved): `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), GitHub Discussions enabled (default categories: Ideas, Q&A, Show and tell …), issue chooser links to them. Starter issues #1–#5 (radar for more maps, test community HUDs, German website, tournament guide, test Stream Deck / shortcuts / Companion).
+- Ideas for later: hero video of the demo match, a feature tour with large images, a showcase of broadcasts from *Show and tell*; overlays / scenes on top of imported HUDs (makes "keep your HUD" complete – TacAM overlays only work with the TacAM HUD today).
 
 ### Code signing (SignPath Foundation) – prepared, waiting for the owner
 
