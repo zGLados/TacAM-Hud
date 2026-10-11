@@ -54,6 +54,35 @@ function PlayerPicker() {
   );
 }
 
+/** Console commands TacAM runs when a demo / map loads and when CS2 is back in the main menu. */
+function MapCommands({ status, onSaved }: { status: CameraStatus; onSaved: () => void }) {
+  const run = useRun();
+  const [load, setLoad] = useState(status.mapLoadCommands);
+  const [menu, setMenu] = useState(status.menuCommands);
+  const dirty = load !== status.mapLoadCommands || menu !== status.menuCommands;
+  return (
+    <Card title="Console commands on demo / map load">
+      <p className="muted small">
+        One command per line, <code>//</code> starts a comment. Run over the CS2 console when GSI reports a loaded map (before the free camera) and when CS2 is back
+        in the main menu. Avoid toggles such as <code>ignoremsg</code> / <code>ignorerad</code> – every run flips them.
+      </p>
+      <div className="camera_commands">
+        <Field label="Demo / map loaded">
+          <textarea rows={5} spellCheck={false} value={load} onChange={(e) => setLoad(e.target.value)} />
+        </Field>
+        <Field label="Back in the main menu">
+          <textarea rows={5} spellCheck={false} value={menu} onChange={(e) => setMenu(e.target.value)} />
+        </Field>
+      </div>
+      <div className="row">
+        <button className="button primary" disabled={!dirty} onClick={() => run(() => api.camera.options({ mapLoadCommands: load, menuCommands: menu }), 'Commands saved').then(onSaved)}>
+          Save commands
+        </button>
+      </div>
+    </Card>
+  );
+}
+
 export function CameraPage() {
   const run = useRun();
   const [status, setStatus] = useState<CameraStatus | null>(null);
@@ -244,6 +273,8 @@ export function CameraPage() {
           </button>
         </div>
       </Card>
+
+      <MapCommands status={status} onSaved={load} />
     </>
   );
 }

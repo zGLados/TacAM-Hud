@@ -1206,3 +1206,19 @@ input.grow {
 .camera_keys td:nth-child(even) {
   color: var(--muted);
 }
+
+.camera_commands {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 10px 0;
+}
+.camera_commands textarea {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+}
+@media (max-width: 700px) {
+  .camera_commands {
+    grid-template-columns: 1fr;
+  }
+}

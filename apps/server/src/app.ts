@@ -10,7 +10,7 @@ import { createApi } from './api.js';
 import { createActions, type TriggerAction } from './actions.js';
 import { ObsBridge } from './obs.js';
 import { GameConsole } from './game.js';
-import { freeCamera, mapLoadWatcher, releaseCommands } from './camera.js';
+import { commandLines, freeCamera, mapLoadWatcher, releaseCommands } from './camera.js';
 import { attachLhmSocket, buildHudConfig, lhmRoutes, type PanelSection } from './lhm.js';
 import { hudFile, hudsDir } from './huds.js';
 import { SignalEngine } from './signals.js';
@@ -61,13 +61,27 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   const demo = new DemoMatch((raw) => live.ingest(raw, true));
   // One console connection to CS2 (-netconport), shared by API, actions and camera control.
   const gameConsole = new GameConsole(() => store.doc('settings').telnet);
-  // On a map / demo load: HLAE free camera (owner's wish) or back to the game view. A camera
-  // or held path from before would otherwise stay at its old spot, often inside a wall.
-  const onGsiMap = mapLoadWatcher(() => {
+  // Map / demo loaded: the owner's console commands, then HLAE free camera (or back to the
+  // game view – a camera or held path from before would sit at its old spot, often in a wall).
+  // Back in the main menu: the "leave" commands (e.g. restore the CS2 HUD).
+  const toConsole = (label: string, task: () => Promise<unknown>) => {
     if (!gameConsole.status().connected) return;
-    const task = store.doc('settings').freeCameraOnMapLoad ? freeCamera(gameConsole) : gameConsole.sendAll(releaseCommands);
-    void task.catch((error) => console.warn('Camera on map load failed:', (error as Error).message));
-  });
+    void task().catch((error) => console.warn(`${label} failed:`, (error as Error).message));
+  };
+  const onGsiMap = mapLoadWatcher(
+    () =>
+      toConsole('Map load commands', async () => {
+        const settings = store.doc('settings');
+        const commands = commandLines(settings.mapLoadCommands);
+        if (commands.length) await gameConsole.sendAll(commands);
+        await (settings.freeCameraOnMapLoad ? freeCamera(gameConsole) : gameConsole.sendAll(releaseCommands));
+      }),
+    () =>
+      toConsole('Main menu commands', async () => {
+        const commands = commandLines(store.doc('settings').menuCommands);
+        if (commands.length) await gameConsole.sendAll(commands);
+      })
+  );
   const actions = createActions(store, live, io, gameConsole);
   const obs = new ObsBridge(store);
   const signals = new SignalEngine(store, actions, obs, (side) => live.displaySlot(side));

@@ -475,16 +475,24 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
         throw error;
       }
     });
+  const cameraOptions = () => {
+    const { freeCameraOnMapLoad, mapLoadCommands, menuCommands } = store.doc('settings');
+    return { freeCameraOnMapLoad, mapLoadCommands, menuCommands };
+  };
   api.get('/camera-control', (_req, res) => {
     const status = gameConsole.status();
-    res.json({ connected: status.connected, error: status.error, map: live.last ? normalizeMapName(live.last.map.name) : null, shots: shots(), freeCameraOnMapLoad: store.doc('settings').freeCameraOnMapLoad });
+    res.json({ connected: status.connected, error: status.error, map: live.last ? normalizeMapName(live.last.map.name) : null, shots: shots(), ...cameraOptions() });
   });
+  const commandText = z
+    .string()
+    .max(4000)
+    .refine((text) => text.split(/\r?\n/).every((line) => line.length <= 300), 'A command line is too long');
   api.put(
     '/camera-control/options',
     h((req, res) => {
-      const { freeCameraOnMapLoad } = z.object({ freeCameraOnMapLoad: z.boolean() }).parse(req.body);
-      store.setDoc('settings', { ...store.doc('settings'), freeCameraOnMapLoad });
-      res.json({ freeCameraOnMapLoad });
+      const options = z.object({ freeCameraOnMapLoad: z.boolean(), mapLoadCommands: commandText, menuCommands: commandText }).partial().parse(req.body);
+      const settings = store.setDoc('settings', { ...store.doc('settings'), ...options });
+      res.json({ freeCameraOnMapLoad: settings.freeCameraOnMapLoad, mapLoadCommands: settings.mapLoadCommands, menuCommands: settings.menuCommands });
     })
   );
   api.post(

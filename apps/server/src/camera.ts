@@ -148,15 +148,26 @@ export async function freeCamera(console: GameConsole) {
 }
 
 /**
- * Tracks the map from GSI and calls `onLoad` when a map / demo gets loaded –
- * not for the first packet after TacAM starts (a running broadcast keeps its view).
+ * Tracks the map from GSI: `onLoad` when a map / demo gets loaded, `onLeave` when
+ * CS2 goes back to the main menu. Nothing for the first packet after TacAM starts
+ * (a running broadcast keeps its view).
  */
-export function mapLoadWatcher(onLoad: () => void) {
+export function mapLoadWatcher(onLoad: () => void, onLeave: () => void = () => {}) {
   let last: string | null | undefined;
   return (map: string | undefined) => {
     const previous = last;
     last = map ?? null;
-    if (previous !== undefined && map && map !== previous) onLoad();
+    if (previous === undefined) return;
+    if (map && map !== previous) onLoad();
+    else if (!map && previous) onLeave();
   };
+}
+
+/** One console command per line; empty lines and `//` comments are skipped. */
+export function commandLines(text: string) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('//'));
 }
 

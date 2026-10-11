@@ -79,6 +79,8 @@ export interface CameraStatus {
   map: string | null;
   shots: CameraShot[];
   freeCameraOnMapLoad: boolean;
+  mapLoadCommands: string;
+  menuCommands: string;
 }
 
 export interface HlaeStatus {
@@ -192,7 +194,8 @@ export const api = {
     release: () => request<void>('POST', '/camera-control/release'),
     spectate: (steamid: string) => request<void>('POST', '/camera-control/spectate', { steamid }),
     free: () => request<void>('POST', '/camera-control/free'),
-    options: (o: { freeCameraOnMapLoad: boolean }) => request<{ freeCameraOnMapLoad: boolean }>('PUT', '/camera-control/options', o),
+    options: (o: Partial<Pick<CameraStatus, 'freeCameraOnMapLoad' | 'mapLoadCommands' | 'menuCommands'>>) =>
+      request<Pick<CameraStatus, 'freeCameraOnMapLoad' | 'mapLoadCommands' | 'menuCommands'>>('PUT', '/camera-control/options', o),
     step: (direction: 'next' | 'prev') => request<void>('POST', '/camera-control/step', { direction }),
   },
   hlae: {

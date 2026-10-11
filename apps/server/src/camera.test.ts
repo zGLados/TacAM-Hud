@@ -3,7 +3,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { campathXml, goToCommands, hlaeActive, mapLoadWatcher, parseCurrentView, playPathCommands, readView, spectateCommands, stepCommands } from './camera.js';
+import { campathXml, commandLines, goToCommands, hlaeActive, mapLoadWatcher, parseCurrentView, playPathCommands, readView, spectateCommands, stepCommands } from './camera.js';
 import { GameConsole } from './game.js';
 
 // Output formats as printed by advancedfx/shared/MirvInput.cpp and MirvCampath.cpp.
@@ -107,5 +107,21 @@ describe('mapLoadWatcher', () => {
     seen('de_mirage'); // same map loaded again
     seen('de_inferno');
     expect(loads).toBe(2);
+  });
+
+  it('reports going back to the main menu, but not before a map was seen', () => {
+    let leaves = 0;
+    const seen = mapLoadWatcher(() => {}, () => leaves++);
+    seen(undefined); // TacAM started while CS2 is in the menu
+    seen('de_mirage');
+    seen(undefined);
+    seen(undefined);
+    expect(leaves).toBe(1);
+  });
+});
+
+describe('commandLines', () => {
+  it('takes one command per line and skips empty lines and comments', () => {
+    expect(commandLines('// HUD\r\ncl_draw_only_deathnotices 1\n\n  engine_no_focus_sleep 0  \n')).toEqual(['cl_draw_only_deathnotices 1', 'engine_no_focus_sleep 0']);
   });
 });
