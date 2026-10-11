@@ -76,6 +76,10 @@ function buildMenu() {
           { type: 'separator' },
           { label: 'Open data folder', click: () => shell.openPath(app.getPath('userData')) },
           { label: `Check for updates (current: ${app.getVersion()})`, click: () => checkForUpdates(true, !!server?.store.doc('settings').betaUpdates) },
+          {
+            label: 'Report a problem on GitHub…',
+            click: () => shell.openExternal(`https://github.com/zGLados/TacAM-Hud/issues/new?template=bug_report.yml&version=${encodeURIComponent(app.getVersion())}`),
+          },
           { type: 'separator' },
           { role: 'quit', label: 'Quit' },
         ],

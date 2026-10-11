@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, useData, type HlaeStatus, type Settings } from '../api';
 import { Card, CopyField, Field, PageHeader, Toggle, useRun, useToast } from '../components/ui';
+import { REPORT_ISSUE_URL } from '../issues';
 
 const OBS_SCENES: [string, string][] = [
   ['live', 'In-game HUD only'],
@@ -184,6 +185,13 @@ export function SettingsPage() {
           <p className="muted small">
             Betas (e.g. v0.3.0-beta.1) are test builds before a release – for testing new features at home, not for a live broadcast. Switching back offers the next stable
             version.
+          </p>
+          <p className="muted small">
+            Found a bug or have an idea?{' '}
+            <a href={REPORT_ISSUE_URL} target="_blank" rel="noreferrer">
+              Open an issue on GitHub
+            </a>{' '}
+            – with the version, what you did and a screenshot if possible.
           </p>
         </Card>
 

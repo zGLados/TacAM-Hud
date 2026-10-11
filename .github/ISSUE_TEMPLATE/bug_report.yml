@@ -1,0 +1,59 @@
+name: Bug report
+description: Something in TacAM HUD does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting! The more of the fields below you fill in, the faster the bug can be found.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Camera → Views & paths
+        2. Play a saved path
+        3. …
+  - type: input
+    id: version
+    attributes:
+      label: TacAM HUD version
+      description: Shown at the bottom of the sidebar (e.g. 0.2.0).
+    validations:
+      required: true
+  - type: dropdown
+    id: setup
+    attributes:
+      label: How do you run it?
+      options:
+        - Windows app (installer)
+        - From source / Node server
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - HUD in OBS
+        - Scenes / overlays
+        - Director / control panel
+        - Camera control (HLAE)
+        - Start CS2 / CS2 console
+        - Integrations (OBS, Stream Deck, Companion, signals)
+        - Imported HUD
+        - Teams / players / matches
+        - Updates / installer
+        - Other
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots, console output, logs
+      description: Screenshots of the HUD or control panel, the CS2 console output (Integrations → CS2 console), error messages. Please remove passwords, PINs and tokens.

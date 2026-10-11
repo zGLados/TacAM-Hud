@@ -2,6 +2,11 @@
 
 All notable changes to TacAM HUD. Versions follow [semantic versioning](https://semver.org/): new features raise the minor version (0.**2**.0), fixes the patch version (0.2.**1**); 1.0.0 comes once TacAM has carried a real broadcast. Betas (`-beta.N`) are test builds before a release – see [docs/development.md](docs/development.md#versions-and-releases).
 
+## [Unreleased]
+
+### Added
+- **Report a problem:** link at the bottom of the sidebar, under Settings → App updates and in the app menu (*TacAM HUD → Report a problem on GitHub…*) – opens the GitHub bug report form with your version filled in. Issue forms for bug reports and feature requests.
+
 ## [0.2.0] – 2026-10-11
 
 Camera control is complete: players, CS2 auto director, saved views and saved, smooth camera paths.

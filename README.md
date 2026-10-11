@@ -15,7 +15,7 @@ Live HUD with statistics, broadcast scenes and overlays · web-based director ·
 [![License](https://img.shields.io/github/license/zGLados/TacAM-Hud?color=555)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows%20·%20Linux%20(server)-555)
 
-[**Download**](https://github.com/zGLados/TacAM-Hud/releases/latest) · [Features](#features) · [Screenshots](#screenshots) · [Getting started](#getting-started) · [Camera control](#camera-control-hlae) · [Docs](#documentation)
+[**Download**](https://github.com/zGLados/TacAM-Hud/releases/latest) · [Report a bug](https://github.com/zGLados/TacAM-Hud/issues/new/choose) · [Features](#features) · [Screenshots](#screenshots) · [Getting started](#getting-started) · [Camera control](#camera-control-hlae) · [Docs](#documentation)
 
 <img src="docs/images/hud-live.webp" alt="TacAM HUD during a round" width="100%">
 
@@ -154,6 +154,10 @@ npm run dev          # server (tsx watch) + HUD (Vite :3500) + control (Vite :36
 npm test             # Vitest
 npm run typecheck
 ```
+
+## Bugs, questions and ideas
+
+Found a bug or something behaves oddly? Please **[open an issue on GitHub](https://github.com/zGLados/TacAM-Hud/issues/new/choose)** – the bug report form asks for everything needed (version, what you did, screenshots, CS2 console output). Ideas and feature requests are welcome there too. In the app: *TacAM HUD → Report a problem on GitHub…* or the link at the bottom of the sidebar (fills in your version).
 
 ## License & credits
 

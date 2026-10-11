@@ -13,6 +13,7 @@ import { ThemePage } from './pages/ThemePage';
 import { IntegrationsPage } from './pages/IntegrationsPage';
 import { HudsPage } from './pages/HudsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { REPORT_ISSUE_URL } from './issues';
 
 const NAV: { group: string; items: { to: string; label: string }[] }[] = [
   {
@@ -100,7 +101,12 @@ function Shell() {
           <div className={`dot ${connected ? 'ok' : 'off'}`}>Server</div>
           <div className={`dot ${gsi ? 'ok' : 'off'}`}>CS2 / GSI</div>
           {scene && scene !== 'live' && <div className="dot warn">Scene: {scene}</div>}
-          <div className="sidebar_version">TacAM HUD v{__APP_VERSION__}</div>
+          <div className="sidebar_version">
+            TacAM HUD v{__APP_VERSION__} ·{' '}
+            <a href={REPORT_ISSUE_URL} target="_blank" rel="noreferrer">
+              Report a problem
+            </a>
+          </div>
         </div>
       </aside>
       <main className="content">

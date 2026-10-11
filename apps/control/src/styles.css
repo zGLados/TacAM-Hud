@@ -1246,3 +1246,6 @@ input.grow {
   font-size: 11px;
   color: var(--muted);
 }
+.sidebar_version a {
+  color: inherit;
+}

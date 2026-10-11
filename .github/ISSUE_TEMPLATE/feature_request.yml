@@ -1,0 +1,16 @@
+name: Feature request
+description: An idea for TacAM HUD
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: Describe the feature and the situation in your broadcast where it would help.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: How do you solve it today?
+      description: Workarounds, or how other HUDs do it (screenshots welcome).
