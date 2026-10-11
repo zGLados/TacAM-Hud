@@ -47,13 +47,22 @@ Note: `google-chrome --headless --screenshot` with `--virtual-time-budget` hangs
 
 `.github/workflows/ci.yml` runs typecheck, tests and build on every push to `main` and every pull request, on Linux and Windows (some behavior differs per platform, e.g. console hints). The README shows its status (badge *CI*) next to the status of the last release build (*Release build*).
 
-## Releases
+## Versions and releases
 
-Publishing a GitHub release (tag `vX.Y.Z`) runs `.github/workflows/release.yml` on `windows-latest` with Node 22 and npm 11: `npm ci`, typecheck, tests, build, then `electron-builder --win nsis`. The version is taken from the tag, and the installer `.exe` is attached to the release together with `latest.yml` and the `.blockmap`. The desktop app (`apps/desktop/src/updater.ts`, `electron-updater`) reads `latest.yml` from the newest GitHub release on startup and offers the update; it downloads only after confirmation and installs silently on restart. The data in `userData` is never touched by the installer. Draft and pre-releases are ignored, and the portable build does not update itself. The workflow can also be started manually for an existing tag (`workflow_dispatch`).
+**Version numbers** follow semantic versioning: a release with new features raises the minor version (`0.2.0` → `0.3.0`), a release with only fixes the patch version (`0.2.0` → `0.2.1`). `1.0.0` comes once TacAM has carried a real broadcast. Test builds are betas: `0.3.0-beta.1`, `-beta.2`, … before `0.3.0`.
+
+**One version for everything:** the root `package.json` and every workspace carry the app version; internal dependencies use `*`. `npm run version:set -- 0.3.0` sets it everywhere (then `npm install` to update the lockfile). The control panel shows it in the sidebar and under Settings → App updates (`__APP_VERSION__`, `apps/control/vite.config.ts`).
+
+**Changelog:** every user-visible change goes into `CHANGELOG.md` (newest version on top, sections Added / Changed / Fixed). The GitHub release notes are taken from it.
+
+**Release build:** publishing a GitHub release runs `.github/workflows/release.yml` on `windows-latest` with Node 22 and npm 11: `npm ci`, a check that the tag (`vX.Y.Z` / `vX.Y.Z-beta.N`) matches `package.json` (otherwise it fails), typecheck, tests, build, then `electron-builder --win nsis` (`generateUpdatesFilesForAllChannels`). The installer `.exe`, the `.blockmap` and the update files `latest.yml` (+ `beta.yml` / `alpha.yml`) are attached to the release. The workflow can also be started manually for an existing tag (`workflow_dispatch`).
+
+**Updates:** the desktop app (`apps/desktop/src/updater.ts`, `electron-updater`) checks GitHub on startup and offers the update; it downloads only after confirmation and installs silently on restart. The data in `userData` is never touched. Stable installs only see normal releases. With *Settings → App updates → Also offer beta versions* (`settings.betaUpdates` → `autoUpdater.allowPrerelease`) GitHub **pre-releases** are offered too – publish betas as pre-release (`gh release create v0.3.0-beta.1 --prerelease`). Drafts are ignored, and the portable build does not update itself.
 
 Checklist:
 
-1. `npm run typecheck && npm test && npm run build`
-2. Review the demo match in the HUD and all scenes
-3. Create the GitHub release with tag `vX.Y.Z` and wait for the workflow
-4. Download the installer from the release and test it briefly
+1. `CHANGELOG.md` updated, `npm run version:set -- X.Y.Z` + `npm install`, commit
+2. `npm run typecheck && npm test && npm run build`
+3. Review the demo match in the HUD and all scenes
+4. Create the GitHub release with tag `vX.Y.Z` (beta: `--prerelease`), notes from the changelog, and wait for the workflow
+5. Download the installer from the release and test it briefly

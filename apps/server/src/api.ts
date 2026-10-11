@@ -814,6 +814,13 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
     })
   );
   api.put(
+    '/settings/updates',
+    h((req, res) => {
+      const { betaUpdates } = z.object({ betaUpdates: z.boolean() }).parse(req.body);
+      res.json({ betaUpdates: store.setDoc('settings', { ...store.doc('settings'), betaUpdates }).betaUpdates });
+    })
+  );
+  api.put(
     '/settings/keybinds',
     h((req, res) => {
       const ids = new Set(actions.map((a) => a.id));

@@ -75,7 +75,7 @@ function buildMenu() {
           { label: 'Toggle HUD overlay window', accelerator: 'Alt+H', click: toggleOverlay },
           { type: 'separator' },
           { label: 'Open data folder', click: () => shell.openPath(app.getPath('userData')) },
-          { label: `Check for updates (current: ${app.getVersion()})`, click: () => checkForUpdates(true) },
+          { label: `Check for updates (current: ${app.getVersion()})`, click: () => checkForUpdates(true, !!server?.store.doc('settings').betaUpdates) },
           { type: 'separator' },
           { role: 'quit', label: 'Quit' },
         ],
@@ -131,7 +131,7 @@ async function start() {
   registerShortcuts();
   server.store.on('change', (name: string) => name === 'settings' && registerShortcuts());
   await createMainWindow();
-  void checkForUpdates();
+  void checkForUpdates(false, server.store.doc('settings').betaUpdates);
 }
 
 if (!app.requestSingleInstanceLock()) {

@@ -100,6 +100,7 @@ function Shell() {
           <div className={`dot ${connected ? 'ok' : 'off'}`}>Server</div>
           <div className={`dot ${gsi ? 'ok' : 'off'}`}>CS2 / GSI</div>
           {scene && scene !== 'live' && <div className="dot warn">Scene: {scene}</div>}
+          <div className="sidebar_version">TacAM HUD v{__APP_VERSION__}</div>
         </div>
       </aside>
       <main className="content">

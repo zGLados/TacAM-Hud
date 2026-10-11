@@ -47,6 +47,8 @@ export interface Settings {
   /** Console commands (one per line) when a map / demo is loaded and when CS2 is back in the main menu. */
   mapLoadCommands: string;
   menuCommands: string;
+  /** Desktop app: also offer beta versions (GitHub pre-releases) as updates. */
+  betaUpdates: boolean;
   /** Start CS2 as a borderless window (-windowed -noborder): keeps drawing when unfocused. */
   launchBorderless: boolean;
   /** Secret for `/api/trigger/<action>` URLs (Stream Deck, Companion). */
@@ -91,6 +93,7 @@ const defaults = (): Database => ({
     cameraShots: [],
     cameraPaths: [],
     freeCameraOnMapLoad: true,
+    betaUpdates: false,
     mapLoadCommands: '// only the kill feed of the CS2 HUD; keep rendering when tabbed out\ncl_draw_only_deathnotices 1\nengine_no_focus_sleep 0',
     menuCommands: 'cl_draw_only_deathnotices 0\nengine_no_focus_sleep 60',
     launchBorderless: process.platform === 'win32',

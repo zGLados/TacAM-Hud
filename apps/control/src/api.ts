@@ -55,6 +55,7 @@ export interface Settings {
   launchMode: 'normal' | 'tools' | 'hlae';
   hlaePath: string;
   launchBorderless: boolean;
+  betaUpdates: boolean;
   actionKey: string;
   keybinds: Record<string, string>;
   obs: ObsSettings;
@@ -245,6 +246,7 @@ export const api = {
   },
   settings: {
     get: () => request<Settings>('GET', '/settings'),
+    updates: (betaUpdates: boolean) => request<{ betaUpdates: boolean }>('PUT', '/settings/updates', { betaUpdates }),
     save: (s: Pick<Settings, 'steamPath' | 'lanAccess' | 'accessPin' | 'telnet' | 'launchOptions' | 'launchMode' | 'hlaePath' | 'launchBorderless'>) => request<Settings>('PUT', '/settings', s),
     installGsi: () => request<{ file: string }>('POST', '/settings/install-gsi'),
     newActionKey: () => request<{ actionKey: string }>('POST', '/settings/action-key'),

@@ -1,7 +1,7 @@
 {
   "name": "@tacam/desktop",
   "productName": "TacAM HUD",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "TacAM HUD manager – CS2 broadcast HUD",
   "author": "TacAM",
@@ -17,8 +17,8 @@
     "dist": "npm run build && electron-builder"
   },
   "devDependencies": {
-    "@tacam/server": "0.1.0",
-    "@tacam/shared": "0.1.0",
+    "@tacam/server": "*",
+    "@tacam/shared": "*",
     "@types/node": "^22.20.5",
     "electron": "43.7.9",
     "electron-builder": "26.15.3",
@@ -71,6 +71,7 @@
       "allowToChangeInstallationDirectory": true,
       "artifactName": "TacAM-HUD-Setup-${version}.${ext}"
     },
+    "generateUpdatesFilesForAllChannels": true,
     "publish": {
       "provider": "github",
       "owner": "zGLados",

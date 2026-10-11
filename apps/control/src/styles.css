@@ -1240,3 +1240,9 @@ input.grow {
   text-decoration: underline;
   cursor: pointer;
 }
+
+.sidebar_version {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}

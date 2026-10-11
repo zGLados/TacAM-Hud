@@ -122,7 +122,7 @@ npm run desktop      # or: build everything and start the Electron app
 
 - Control panel: <http://localhost:1349/control/> · HUD: <http://localhost:1349/hud/>
 - Data: `~/.tacam-hud/` (override with `TACAM_DATA_DIR`); in the desktop app Electron's `userData` folder (`%APPDATA%\TacAM HUD`).
-- Releases: publishing a GitHub release with a tag like `v1.2.3` builds the Windows installer and update files automatically (`.github/workflows/release.yml`).
+- Releases: `npm run version:set -- 1.2.3`, a `CHANGELOG.md` entry, then a GitHub release with tag `v1.2.3` builds the Windows installer and update files automatically (`.github/workflows/release.yml`; betas as pre-release `v1.3.0-beta.1`).
 
 ### Keyboard shortcuts (desktop app)
 
@@ -147,6 +147,7 @@ Defaults below; every action (scenes, overlays, HUD elements, team swaps) can ge
 | [docs/development.md](docs/development.md) | Workflow, tests, visual regression, releases |
 | [docs/lhm-roadmap.md](docs/lhm-roadmap.md) | Feature plan based on LHM.gg |
 | [docs/STATUS.md](docs/STATUS.md) | Current state and open tasks |
+| [CHANGELOG.md](CHANGELOG.md) | What changed in each version |
 
 ```bash
 npm run dev          # server (tsx watch) + HUD (Vite :3500) + control (Vite :3600)

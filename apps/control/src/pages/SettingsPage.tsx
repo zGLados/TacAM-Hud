@@ -171,6 +171,22 @@ export function SettingsPage() {
           )}
         </Card>
 
+        <Card title="App updates">
+          <p className="muted small">
+            Installed version: <b>v{__APP_VERSION__}</b>. The desktop app checks GitHub for new versions on startup (and via <em>TacAM HUD → Check for updates</em>);
+            your data stays when updating.
+          </p>
+          <Toggle
+            checked={settings.betaUpdates}
+            onChange={(betaUpdates) => run(() => api.settings.updates(betaUpdates), betaUpdates ? 'Beta versions will be offered' : 'Only stable versions will be offered').then(reload)}
+            label="Also offer beta versions"
+          />
+          <p className="muted small">
+            Betas (e.g. v0.3.0-beta.1) are test builds before a release – for testing new features at home, not for a live broadcast. Switching back offers the next stable
+            version.
+          </p>
+        </Card>
+
         <Card title="Access from other devices" className="span_two">
           <Toggle checked={draft.lanAccess} onChange={(lanAccess) => set({ lanAccess })} label="Allow LAN access (director on a tablet / second PC)" />
           <Field label="PIN" hint="4–12 digits. Asked once on other devices.">

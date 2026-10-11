@@ -25,14 +25,18 @@ export function updatesSupported() {
   return app.isPackaged && process.platform === 'win32' && !process.env.PORTABLE_EXECUTABLE_DIR;
 }
 
-/** `manual` reports "up to date" and errors; the startup check stays silent unless there is an update. */
-export async function checkForUpdates(manual = false) {
+/**
+ * `manual` reports "up to date" and errors; the startup check stays silent unless there is an update.
+ * `beta` (Settings → App updates) also offers GitHub pre-releases (v1.2.3-beta.1, channel file beta.yml).
+ */
+export async function checkForUpdates(manual = false, beta = false) {
   if (busy) return;
   if (!updatesSupported()) {
     if (manual) await showMessage({ type: 'info', message: 'Updates are only available in the installed Windows version.' });
     return;
   }
   busy = true;
+  autoUpdater.allowPrerelease = beta;
   try {
     const result = await autoUpdater.checkForUpdates();
     const latest = result?.updateInfo.version;

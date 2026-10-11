@@ -1,6 +1,6 @@
 {
   "name": "tacam-hud",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "TacAM HUD – CS2 broadcast HUD and HUD manager",
   "license": "GPL-3.0-only",
@@ -19,6 +19,7 @@
     "desktop": "npm run build && npm run start -w @tacam/desktop",
     "dist": "npm run build && npm run dist -w @tacam/desktop",
     "typecheck": "npm run build -w @tacam/shared && npm run build -w @tacam/server && npm run typecheck --workspaces --if-present",
+    "version:set": "npm version --workspaces --include-workspace-root --no-git-tag-version --allow-same-version",
     "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
