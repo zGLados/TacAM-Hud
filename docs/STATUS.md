@@ -1,15 +1,16 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.1.17** (camera control via HLAE, README redesign).
+Hand-over state for the next session. Latest release: **v0.1.18** (player selection, free camera on demo load, camera fixes).
 
 ## Open tasks
 
 ### Camera control (owner tested 2026-10-11)
 
 - **Works on the owner's PC (v0.1.17):** CS2 via HLAE, HLAE detection, HLAE free camera (`mirv_input camera`), camera path playback. Console test buttons now use HLAE commands (`spec_goto`/`spec_lerpto` are not needed).
-- **Player selection done, not released yet:** Camera page *Players* (one button per player → `spec_player "<name>"` + `spec_mode 1`, after leaving HLAE camera/path), *Previous/Next player*, Stream Deck actions *Spectate player on slot 1–0*. Tested against a fake console with the demo match. **Owner to test in CS2:** does a click switch to the right player in a demo / as GOTV spectator, also after a free camera or a path? Names starting with a digit cannot be targeted (CS2 limitation) → Next/Previous.
-- **Fixed after the owner's test (not released yet):** jumping to a saved view tilted the camera sideways – `mirv_input angles` takes pitch yaw roll (HLAE's usage text says otherwise). Black screen after loading another demo: TacAM now ends HLAE camera/path when GSI reports a new map. If it stays black, the console command `mirv_input end; mirv_campath enabled 0` or *Back to game view* should help – owner to confirm.
-- **Free camera on demo / map load (owner's wish, not released yet):** TacAM ends camera/path and enters `mirv_input camera` from the current game view (toggle on the Camera page, default on), plus a key overview. Owner's report "picture shrinks to a white dot after a disconnect" = HLAE FOV growing to 180° (Page Down / Numpad 1 or wheel seen as held) – Home resets it; entering the free camera fresh resets it too.
+- **Player selection, released in v0.1.18:** Camera page *Players* (one button per player → `spec_player "<name>"` + `spec_mode 1`, after leaving HLAE camera/path), *Previous/Next player*, Stream Deck actions *Spectate player on slot 1–0*. Tested against a fake console with the demo match. **Owner to test in CS2:** does a click switch to the right player in a demo / as GOTV spectator, also after a free camera or a path? Names starting with a digit cannot be targeted (CS2 limitation) → Next/Previous.
+- **Fixed after the owner's test (v0.1.18):** jumping to a saved view tilted the camera sideways – `mirv_input angles` takes pitch yaw roll (HLAE's usage text says otherwise). Black screen after loading another demo: TacAM now ends HLAE camera/path when GSI reports a new map. If it stays black, the console command `mirv_input end; mirv_campath enabled 0` or *Back to game view* should help – owner to confirm.
+- **Free camera on demo / map load (v0.1.18):** TacAM ends camera/path and enters `mirv_input camera` from the current game view (toggle on the Camera page, default on), plus a key overview. Owner's report "picture shrinks to a white dot after a disconnect" = HLAE FOV growing to 180° (Page Down / Numpad 1 or wheel seen as held) – Home resets it; entering the free camera fresh resets it too.
+- **Proposed for v0.1.19 (waiting for the owner):** editable console command lists on the Camera page for "demo / map loaded" and "back to the main menu" (e.g. `cl_draw_only_deathnotices 1/0`, `engine_no_focus_sleep 0/60`). `ignoremsg` / `ignorerad` are toggles, so they cannot be set reliably on every load. Open question: CS2 kill feed or TacAM kill feed in the stream (both visible = duplicate).
 - **Later: auto observer (#17)** on the same console bridge (switch to the player in the duel / with the bomb / last alive, with a minimum dwell time, manual takeover pauses it).
 - Other ideas: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path).
 
@@ -29,7 +30,7 @@ Hand-over state for the next session. Latest release: **v0.1.17** (camera contro
 
 ## Releases
 
-- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.17).
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.1.18).
 - Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 → 0.1.7 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies
