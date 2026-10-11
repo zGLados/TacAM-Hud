@@ -228,13 +228,13 @@ function TriggerUrls({ settings, onKeyChange }: { settings: Settings; onKeyChang
 }
 
 
-/** Quick checks for camera control: which console commands CS2 accepts as a spectator. */
+/** Quick checks over the console; camera control itself uses the HLAE commands (see the Camera page). */
 const CONSOLE_TESTS: { label: string; command: string }[] = [
-  { label: 'Position', command: 'getpos' },
-  { label: 'Free camera', command: 'spec_mode 5' },
-  { label: 'Camera jump', command: 'spec_goto 0 0 500 45 90' },
-  { label: 'Camera path (3 s)', command: 'spec_lerpto 0 0 500 45 90 500 500 600 30 180 3' },
-  { label: 'Player 3', command: 'spec_player 3' },
+  { label: 'HLAE active?', command: 'mirv_input' },
+  { label: 'Current view', command: 'mirv_campath print' },
+  { label: 'Free camera on', command: 'mirv_input camera' },
+  { label: 'Free camera off', command: 'mirv_input end' },
+  { label: 'Game position', command: 'getpos' },
 ];
 
 /** Plain-language result of the Windows console check (game.ts diagnoseConsole). */
@@ -306,7 +306,7 @@ function GameConsoleCard({ settings, onSaved }: { settings: Settings; onSaved: (
         </button>
         {diagnosis && <span className="muted small">{explainDiagnosis(diagnosis, settings.telnet.port)}</span>}
       </div>
-      <Group label="Tests for camera control">
+      <Group label="Quick tests (HLAE)">
         <div className="row wrap">
           {CONSOLE_TESTS.map((t) => (
             <button key={t.command} className="button small" title={t.command} onClick={() => send(t.command)}>

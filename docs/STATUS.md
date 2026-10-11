@@ -4,11 +4,12 @@ Hand-over state for the next session. Latest release: **v0.1.17** (camera contro
 
 ## Open tasks
 
-### Camera control (in progress)
+### Camera control (owner tested 2026-10-11)
 
-- **Done, released in v0.1.17:** page *Camera* built on HLAE commands (from the HLAE source): HLAE detection ("Running via HLAE"), save current view per map (`mirv_campath print`), jump to a view (`mirv_input camera/position/angles/fov`), camera path through chosen views (campath XML + `mirv_campath load/offset current/enabled 1`), back to game view. Tested against a fake HLAE console only. Also in v0.1.17: HLAE in its own settings card, README redesign with the TacAM logo, LICENSE file.
-- **Next:** the owner tests on Windows with CS2 via HLAE (spectating a demo / GOTV). Open questions: does `mirv_input camera` take over the view while spectating, does `mirv_campath load` accept the absolute path with spaces (AppData\TacAM HUD), do paths look smooth.
-- Ideas after that: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path), auto observer (#17) on the same console bridge.
+- **Works on the owner's PC (v0.1.17):** CS2 via HLAE, HLAE detection, HLAE free camera (`mirv_input camera`), camera path playback. Console test buttons now use HLAE commands (`spec_goto`/`spec_lerpto` are not needed).
+- **Next: choose each player individually on the Camera page** (one button per player of the running game, also for Stream Deck). Note: `spec_player <n>` behaved oddly – it could not step through all players. Find the right way first (e.g. `spec_player` with the player name or the observer slot from GSI, or `spec_next`/`spec_prev`), test it with the console tab, then build the buttons; leaving HLAE camera mode (`mirv_input end`) must come first.
+- **Later: auto observer (#17)** on the same console bridge (switch to the player in the duel / with the bomb / last alive, with a minimum dwell time, manual takeover pauses it).
+- Other ideas: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path).
 
 - HUD import (LHM / JTs-Hud format) **done**, released in v0.1.10. Tested with the official LHM CS2 default HUD (lexogrine/cs2-react-hud, built locally): live data, teams, radar, match series, settings panel (trivia, side boxes). Still to test: other community HUDs and a JTs-Hud HUD package.
 - LHM roadmap ([lhm-roadmap.md](lhm-roadmap.md)): **phase 1 done** (#1–#7) and released in v0.1.7.
