@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { CameraShot } from '@tacam/shared';
+import type { CameraShot, CameraState } from '@tacam/shared';
 import type { GameConsole } from './game.js';
 
 /**
@@ -169,5 +169,69 @@ export function commandLines(text: string) {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith('//'));
+}
+
+/**
+ * All camera moves go through here, so TacAM knows what CS2 shows: the HUD hides
+ * the focused player during a free camera / view / path, and the auto director
+ * is switched off by any manual move (as in CS2, where picking a player ends it).
+ */
+export class CameraControl {
+  state: CameraState = { mode: 'game', autoDirector: false };
+  private version = 0;
+
+  constructor(
+    private console: GameConsole,
+    private dataDir: string,
+    private onChange: (state: CameraState) => void = () => {}
+  ) {}
+
+  private set(patch: Partial<CameraState>) {
+    this.version++;
+    this.state = { ...this.state, ...patch };
+    this.onChange(this.state);
+  }
+
+  async goTo(view: View) {
+    await this.console.sendAll(['spec_autodirector 0', ...goToCommands(view)]);
+    this.set({ mode: 'view', autoDirector: false });
+  }
+
+  async playPath(views: View[], duration: number, hold: boolean) {
+    await this.console.sendAll(['spec_autodirector 0', ...playPathCommands(this.dataDir, views, duration, hold)]);
+    this.set({ mode: 'path', autoDirector: false });
+    if (!hold) {
+      // Without hold HLAE hands back to the game view at the end of the path.
+      const version = this.version;
+      setTimeout(() => version === this.version && this.set({ mode: 'game' }), duration * 1000).unref?.();
+    }
+  }
+
+  async free() {
+    await this.console.sendAll(['spec_autodirector 0']);
+    await freeCamera(this.console);
+    this.set({ mode: 'free', autoDirector: false });
+  }
+
+  async release() {
+    await this.console.sendAll(releaseCommands);
+    this.set({ mode: 'game' });
+  }
+
+  async spectate(name: string) {
+    await this.console.sendAll(['spec_autodirector 0', ...spectateCommands(name)]);
+    this.set({ mode: 'game', autoDirector: false });
+  }
+
+  async step(direction: 'next' | 'prev') {
+    await this.console.sendAll(['spec_autodirector 0', ...stepCommands(direction)]);
+    this.set({ mode: 'game', autoDirector: false });
+  }
+
+  /** CS2's own auto director, like in a normal demo / GOTV; ends HLAE camera and path first. */
+  async autoDirector(on: boolean) {
+    await this.console.sendAll(on ? [...releaseCommands, 'spec_autodirector 1'] : ['spec_autodirector 0']);
+    this.set({ mode: 'game', autoDirector: on });
+  }
 }
 

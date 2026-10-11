@@ -1,6 +1,6 @@
 import type { Bomb, CSGO, Grenade, Player } from 'csgogsi';
 import { normalizeMapName } from '@tacam/shared';
-import { GSI } from '../../state/store';
+import { GSI, useHud } from '../../state/store';
 import { RADAR_CONTENT_TOP, RADAR_MAPS, type RadarMap, type RadarTransform } from './maps';
 
 /** Space between the map strip and the visible radar image. */
@@ -185,6 +185,7 @@ function BombMarker({ bomb, map }: { bomb: Bomb | null; map: RadarMap }) {
 }
 
 export function Radar({ game, size }: { game: CSGO; size: number }) {
+  const cameraMode = useHud((s) => s.camera.mode);
   const mapName = normalizeMapName(game.map.name);
   const offset = (size - (size * size) / 1024) / 2;
   // The map is drawn 1.15× larger around its center (radar.css), so it starts
@@ -200,7 +201,8 @@ export function Radar({ game, size }: { game: CSGO; size: number }) {
       </div>
     );
   }
-  const observed = game.player?.steamid ?? null;
+  // No observed marker while a HLAE camera / path shows the map instead of a player.
+  const observed = cameraMode === 'game' ? (game.player?.steamid ?? null) : null;
   const players = game.players.flatMap((p) => radarPlayers(p, observed, map));
   const grenades = game.grenades.flatMap((g) =>
     radarGrenades(g, game.players.find((p) => p.steamid === g.owner)?.team.side ?? 'CT', map)

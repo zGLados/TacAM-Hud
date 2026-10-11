@@ -16,7 +16,7 @@ import { isAccelerator, triggerStatus, TriggerError, validActionKey, type Trigge
 import { captainVetoRoutes } from './captainVeto.js';
 import { diagnoseConsole, GameLaunchError, launchCs2, withNetconPort, type GameConsole } from './game.js';
 import { HlaeError, installHlae, installedHlae, latestHlae } from './hlae.js';
-import { CameraError, freeCamera, goToCommands, hlaeActive, playPathCommands, readView, releaseCommands, spectateCommands, stepCommands } from './camera.js';
+import { CameraError, hlaeActive, readView, type CameraControl } from './camera.js';
 import { matchzyConfig } from './matchzy.js';
 import { buildHudConfig, emitHudAction, emitHudConfig, emitHudPanelAction, emitKeybindAction, emitRefresh, type PanelSection } from './lhm.js';
 import { getHud, hudFile, HudImportError, importHudZip, listHuds, removeHud } from './huds.js';
@@ -165,12 +165,13 @@ export interface ApiOptions {
   obs: ObsBridge;
   signals: SignalEngine;
   gameConsole: GameConsole;
+  cameraControl: CameraControl;
   uploadsDir: string;
   gsiPort: number;
   demo: DemoMatch;
 }
 
-export function createApi({ store, live, io, actions, obs, signals, gameConsole, uploadsDir, gsiPort, demo }: ApiOptions) {
+export function createApi({ store, live, io, actions, obs, signals, gameConsole, cameraControl, uploadsDir, gsiPort, demo }: ApiOptions) {
   const api = express.Router();
   api.use(express.json({ limit: '1mb' }));
 
@@ -189,6 +190,7 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
         players: live.playerExtensions(),
         stats: live.tracker.snapshot(),
         killfeed: live.killfeed,
+        camera: cameraControl.state,
       };
       res.json(data);
     })
@@ -481,7 +483,7 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
   };
   api.get('/camera-control', (_req, res) => {
     const status = gameConsole.status();
-    res.json({ connected: status.connected, error: status.error, map: live.last ? normalizeMapName(live.last.map.name) : null, shots: shots(), ...cameraOptions() });
+    res.json({ connected: status.connected, error: status.error, map: live.last ? normalizeMapName(live.last.map.name) : null, shots: shots(), ...cameraOptions(), camera: cameraControl.state });
   });
   const commandText = z
     .string()
@@ -527,7 +529,7 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
     camera(async (req, res) => {
       const shot = shots().find((s) => s.id === req.params.id);
       if (!shot) return res.status(404).json({ error: 'not found' });
-      await gameConsole.sendAll(goToCommands(shot));
+      await cameraControl.goTo(shot);
       res.json({ ok: true });
     })
   );
@@ -537,7 +539,7 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
       const { shotIds, duration, hold } = z.object({ shotIds: z.array(str).min(2).max(20), duration: z.number().min(0.5).max(120), hold: z.boolean() }).parse(req.body);
       const views = shotIds.map((id) => shots().find((s) => s.id === id)).filter((s): s is CameraShot => !!s);
       if (views.length < 2) return res.status(400).json({ error: 'Select at least two views' });
-      await gameConsole.sendAll(playPathCommands(store.dataDir, views, duration, hold));
+      await cameraControl.playPath(views, duration, hold);
       res.json({ ok: true });
     })
   );
@@ -547,14 +549,14 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
       const { steamid } = z.object({ steamid: str.min(1) }).parse(req.body);
       const player = live.summary()?.players.find((p) => p.steamid === steamid);
       if (!player) return res.status(404).json({ error: 'Player not in the running game' });
-      await gameConsole.sendAll(spectateCommands(player.name));
+      await cameraControl.spectate(player.name);
       res.json({ ok: true });
     })
   );
   api.post(
     '/camera-control/free',
     camera(async (_req, res) => {
-      await freeCamera(gameConsole);
+      await cameraControl.free();
       res.json({ ok: true });
     })
   );
@@ -562,15 +564,23 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
     '/camera-control/step',
     camera(async (req, res) => {
       const { direction } = z.object({ direction: z.enum(['next', 'prev']) }).parse(req.body);
-      await gameConsole.sendAll(stepCommands(direction));
+      await cameraControl.step(direction);
       res.json({ ok: true });
     })
   );
   api.post(
     '/camera-control/release',
     camera(async (_req, res) => {
-      await gameConsole.sendAll(releaseCommands);
+      await cameraControl.release();
       res.json({ ok: true });
+    })
+  );
+  api.post(
+    '/camera-control/auto-director',
+    camera(async (req, res) => {
+      const { on } = z.object({ on: z.boolean() }).parse(req.body);
+      await cameraControl.autoDirector(on);
+      res.json(cameraControl.state);
     })
   );
 

@@ -1,4 +1,4 @@
-import { useHud } from '../state/store';
+import { focusedPlayer, useHud } from '../state/store';
 import { ArmorHalf, ArmorHelmet, Bullets, Health, WeaponIcon } from '../lib/assets';
 import { EquipmentIcons, useAvatar } from './TeamPanel';
 import type { Player } from 'csgogsi';
@@ -28,7 +28,7 @@ function ActiveWeapon({ player }: { player: Player }) {
 
 /** The spectated player: large avatar, health, armor, ammo and match stats. */
 export function FocusPlayer() {
-  const player = useHud((s) => s.game?.player ?? null);
+  const player = useHud(focusedPlayer);
   const stats = useHud((s) => s.stats);
   if (!player) return null;
   return <FocusPlayerCard player={player} matchStats={stats.players.find((p) => p.steamid === player.steamid)} />;

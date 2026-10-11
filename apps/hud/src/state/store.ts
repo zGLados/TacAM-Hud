@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import { CSGOGSI, type CSGO, type CSGORaw, type PlayerExtension } from 'csgogsi';
 import {
+  type CameraState,
   DEFAULT_HUD_CONFIG,
   DEFAULT_SCENE,
   DEFAULT_THEME,
@@ -34,6 +35,8 @@ export interface HudState {
   demo: boolean;
   /** Server says: show left/right swapped (keep team sides after halftime). */
   flip: boolean;
+  /** HLAE free camera / view / path: no player is spectated, see focusedPlayer. */
+  camera: CameraState;
 }
 
 /** Shared csgogsi instance; components can subscribe to its events (roundEnd, bombPlant, …). */
@@ -52,6 +55,7 @@ let state: HudState = {
   players: [],
   stats: { map: null, players: [], rounds: [] },
   killfeed: [],
+  camera: { mode: 'game', autoDirector: false },
   connected: false,
   demo: false,
   flip: false,
@@ -74,6 +78,9 @@ export function useHud<T>(selector: (s: HudState) => T): T {
 }
 
 export const getHudState = () => state;
+
+/** The spectated player – none while TacAM runs a HLAE free camera, saved view or camera path. */
+export const focusedPlayer = (s: HudState) => (s.camera.mode === 'game' ? (s.game?.player ?? null) : null);
 
 // --- HUD actions (keybinds / control panel buttons) ------------------------
 
@@ -130,6 +137,7 @@ socket.on('action', (action) => {
   for (const listener of actionListeners) listener(action);
 });
 socket.on('refresh', () => window.location.reload());
+socket.on('camera', (camera) => set({ camera }));
 
 // The theme editor previews unsaved themes by posting them into its HUD iframe.
 window.addEventListener('message', (event) => {

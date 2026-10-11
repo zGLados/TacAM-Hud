@@ -32,7 +32,7 @@ All paths are below `http://localhost:1349/api`. Bodies are JSON and validated w
 | `POST /live/quick-setup` `{ left, right, reassign, setMatch }` | Live tab quick setup (`left`/`right`: `{ teamId }` or `{ name, shortName }`) |
 | `GET /actions` | Trigger actions (id, group, label) |
 | `POST /game/launch` | Start CS2 with the launch options and launch mode |
-| `GET /camera-control`, `POST /camera-control/check`, `POST/PUT /camera-control/shots`, `DELETE /camera-control/shots/:id`, `POST /camera-control/shots/:id/go`, `POST /camera-control/path` `{ shotIds, duration, hold }`, `POST /camera-control/release`, `POST /camera-control/free`, `PUT /camera-control/options` `{ freeCameraOnMapLoad?, mapLoadCommands?, menuCommands? }`, `POST /camera-control/spectate` `{ steamid }`, `POST /camera-control/step` `{ direction: 'next' \| 'prev' }` | Camera control via HLAE (views, jumps, paths) and player selection |
+| `GET /camera-control`, `POST /camera-control/check`, `POST/PUT /camera-control/shots`, `DELETE /camera-control/shots/:id`, `POST /camera-control/shots/:id/go`, `POST /camera-control/path` `{ shotIds, duration, hold }`, `POST /camera-control/release`, `POST /camera-control/free`, `POST /camera-control/auto-director` `{ on }`, `PUT /camera-control/options` `{ freeCameraOnMapLoad?, mapLoadCommands?, menuCommands? }`, `POST /camera-control/spectate` `{ steamid }`, `POST /camera-control/step` `{ direction: 'next' \| 'prev' }` | Camera control via HLAE (views, jumps, paths) and player selection |
 | `GET /hlae[?check=1]`, `POST /hlae/install` | Installed/latest HLAE; install or update HLAE from the advancedfx GitHub releases |
 | `GET /game/console[?connect=1]`, `POST /game/console` `{ command }`, `GET /game/console/diagnose` | CS2 console over -netconport: state + recent lines, send a command, Windows diagnosis |
 | `GET /huds`, `POST /huds/import` (zip body), `DELETE /huds/:dir` | Imported HUDs |
@@ -65,6 +65,7 @@ Server → client (types in `packages/shared/src/types.ts`, `ServerToClientEvent
 | `refresh` | reload the page | all |
 | `live` | `LiveSummary` (max. 2/s) | `control` |
 | `gsiStatus` | `{ connected, lastUpdate, map, phase }` (every 2 s) | `control` |
+| `camera` | `CameraState` `{ mode: 'game' \| 'free' \| 'view' \| 'path', autoDirector }` – the HUD hides the focused player outside `game`; also in `GET /bootstrap` and `GET /camera-control` | all |
 
 ## GSI
 

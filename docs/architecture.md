@@ -25,7 +25,7 @@ Server modules (`apps/server/src`):
 | `captainVeto.ts` | veto links for team captains |
 | `matchzy.ts` | MatchZy match config export |
 | `huds.ts`, `lhm.ts` | imported HUDs (zip import) and the LHM-compatible interface they need |
-| `game.ts`, `hlae.ts`, `camera.ts` | start CS2 (normal / Workshop Tools / HLAE), CS2 console over `-netconport`, HLAE install, camera views and paths |
+| `game.ts`, `hlae.ts`, `camera.ts` | start CS2 (normal / Workshop Tools / HLAE), CS2 console over `-netconport`, HLAE install, camera views and paths; `CameraControl` tracks the camera mode (HUD hides the focused player during HLAE camera / paths) |
 | `demo.ts` | simulated match |
 | `gsiInstall.ts`, `defaultMedia.ts`, `paths.ts` | GSI config, default sponsors/logo, data folder |
 

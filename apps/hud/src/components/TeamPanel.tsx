@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import type { Player, Team } from 'csgogsi';
-import { useHud } from '../state/store';
+import { useHud, focusedPlayer } from '../state/store';
 import { ArmorHalf, ArmorHelmet, BombIcon, Defuse, KillsIcon, Skull, WeaponIcon, defaultAvatar } from '../lib/assets';
 
 /** Avatar respecting the "team logo as avatar" option from the control panel. */
@@ -99,7 +99,7 @@ const MemoPlayerCard = memo(PlayerCard);
 
 /** The five player cards of one team, bottom left or bottom right. */
 export function TeamPanel({ team, players, align }: { team: Team; players: Player[]; align: 'left' | 'right' }) {
-  const focused = useHud((s) => s.game?.player?.steamid ?? null);
+  const focused = useHud((s) => focusedPlayer(s)?.steamid ?? null);
   return (
     <div className="team-panel" data-align={align} data-side={team.side}>
       {players.map((p) => (

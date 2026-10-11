@@ -10,7 +10,7 @@ import { createApi } from './api.js';
 import { createActions, type TriggerAction } from './actions.js';
 import { ObsBridge } from './obs.js';
 import { GameConsole } from './game.js';
-import { commandLines, freeCamera, mapLoadWatcher, releaseCommands } from './camera.js';
+import { CameraControl, commandLines, mapLoadWatcher } from './camera.js';
 import { attachLhmSocket, buildHudConfig, lhmRoutes, type PanelSection } from './lhm.js';
 import { hudFile, hudsDir } from './huds.js';
 import { SignalEngine } from './signals.js';
@@ -74,7 +74,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
         const settings = store.doc('settings');
         const commands = commandLines(settings.mapLoadCommands);
         if (commands.length) await gameConsole.sendAll(commands);
-        await (settings.freeCameraOnMapLoad ? freeCamera(gameConsole) : gameConsole.sendAll(releaseCommands));
+        await (settings.freeCameraOnMapLoad ? cameraControl.free() : cameraControl.release());
       }),
     () =>
       toConsole('Main menu commands', async () => {
@@ -82,7 +82,8 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
         if (commands.length) await gameConsole.sendAll(commands);
       })
   );
-  const actions = createActions(store, live, io, gameConsole);
+  const cameraControl = new CameraControl(gameConsole, store.dataDir, (state) => io.emit('camera', state));
+  const actions = createActions(store, live, io, cameraControl);
   const obs = new ObsBridge(store);
   const signals = new SignalEngine(store, actions, obs, (side) => live.displaySlot(side));
   live.onEvents = (events) => signals.handle(events);
@@ -136,7 +137,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
 
   app.use(authMiddleware(store));
   app.use('/api', lhmRoutes(store, live, uploadsDir, options.hudDir));
-  app.use('/api', createApi({ store, live, io, actions, obs, signals, gameConsole, uploadsDir, gsiPort, demo }));
+  app.use('/api', createApi({ store, live, io, actions, obs, signals, gameConsole, cameraControl, uploadsDir, gsiPort, demo }));
   app.use(
     '/uploads',
     express.static(uploadsDir, {

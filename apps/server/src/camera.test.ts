@@ -2,8 +2,9 @@ import fs from 'node:fs';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
-import { campathXml, commandLines, goToCommands, hlaeActive, mapLoadWatcher, parseCurrentView, playPathCommands, readView, spectateCommands, stepCommands } from './camera.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { CameraState } from '@tacam/shared';
+import { CameraControl, campathXml, commandLines, goToCommands, hlaeActive, mapLoadWatcher, parseCurrentView, playPathCommands, readView, spectateCommands, stepCommands } from './camera.js';
 import { GameConsole } from './game.js';
 
 // Output formats as printed by advancedfx/shared/MirvInput.cpp and MirvCampath.cpp.
@@ -123,5 +124,44 @@ describe('mapLoadWatcher', () => {
 describe('commandLines', () => {
   it('takes one command per line and skips empty lines and comments', () => {
     expect(commandLines('// HUD\r\ncl_draw_only_deathnotices 1\n\n  engine_no_focus_sleep 0  \n')).toEqual(['cl_draw_only_deathnotices 1', 'engine_no_focus_sleep 0']);
+  });
+});
+
+describe('CameraControl', () => {
+  const setup = () => {
+    const sent: string[] = [];
+    const fake = { sendAll: async (commands: string[]) => (sent.push(...commands), []) } as unknown as GameConsole;
+    const states: CameraState[] = [];
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tacam-camctl-'));
+    return { sent, states, dir, control: new CameraControl(fake, dir, (s) => states.push(s)) };
+  };
+  const view = { x: 0, y: 0, z: 0, pitch: 0, yaw: 0, roll: 0, fov: 90 };
+
+  it('tracks the mode; a manual move switches the auto director off', async () => {
+    const { sent, states, dir, control } = setup();
+    await control.autoDirector(true);
+    expect(sent.at(-1)).toBe('spec_autodirector 1');
+    expect(control.state).toEqual({ mode: 'game', autoDirector: true });
+    await control.goTo(view);
+    expect(control.state).toEqual({ mode: 'view', autoDirector: false });
+    expect(sent).toContain('spec_autodirector 0');
+    await control.spectate('nexo');
+    expect(control.state.mode).toBe('game');
+    expect(states.map((s) => s.mode)).toEqual(['game', 'view', 'game']);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('goes back to the game view after a path without hold', async () => {
+    vi.useFakeTimers();
+    const { dir, control } = setup();
+    await control.playPath([view, { ...view, x: 100 }], 2, false);
+    expect(control.state.mode).toBe('path');
+    vi.advanceTimersByTime(2100);
+    expect(control.state.mode).toBe('game');
+    await control.playPath([view, { ...view, x: 100 }], 2, true);
+    vi.advanceTimersByTime(5000);
+    expect(control.state.mode).toBe('path');
+    vi.useRealTimers();
+    fs.rmSync(dir, { recursive: true, force: true });
   });
 });

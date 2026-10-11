@@ -445,6 +445,18 @@ export interface HudTeamExtension {
   extra: Record<string, string>;
 }
 
+/**
+ * What the CS2 camera shows, as far as TacAM controls it (camera.ts): the game's
+ * spectator view or a HLAE free camera / saved view / camera path. Outside of
+ * `game` no player is spectated, so the HUD hides the focused player.
+ */
+export type CameraMode = 'game' | 'free' | 'view' | 'path';
+export interface CameraState {
+  mode: CameraMode;
+  /** CS2 auto director (`spec_autodirector`) switched on by TacAM. */
+  autoDirector: boolean;
+}
+
 export interface HudBootstrap {
   config: HudConfig;
   theme: Theme;
@@ -455,6 +467,7 @@ export interface HudBootstrap {
   stats: StatsSnapshot;
   /** Kills of the current round, so a reloaded HUD shows the full killfeed. */
   killfeed: KillFeedEntry[];
+  camera: CameraState;
 }
 
 /** Socket.io events sent from server to HUD/control clients. */
@@ -513,6 +526,7 @@ export interface ServerToClientEvents {
   action: (action: HudAction) => void;
   refresh: () => void;
   gsiStatus: (status: GsiStatus) => void;
+  camera: (state: CameraState) => void;
 }
 
 export interface ClientToServerEvents {

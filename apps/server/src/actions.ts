@@ -2,8 +2,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { SCENE_IDS, SCENE_LABELS, type HudAction, type HudConfig } from '@tacam/shared';
 import type { HudServer } from './io.js';
 import { emitHudAction, emitRefresh } from './lhm.js';
-import type { GameConsole } from './game.js';
-import { freeCamera, releaseCommands, spectateCommands, stepCommands } from './camera.js';
+import type { CameraControl } from './camera.js';
 import type { LiveHub } from './live.js';
 import type { Store } from './store.js';
 
@@ -25,7 +24,7 @@ type VisibilityKey = keyof HudConfig['visibility'];
 
 const OVERLAY_LABELS = { scoreboard: 'Scoreboard', economy: 'Economy graph', comparison: 'Player comparison' };
 
-export function createActions(store: Store, live: LiveHub, io: HudServer, gameConsole?: GameConsole): TriggerAction[] {
+export function createActions(store: Store, live: LiveHub, io: HudServer, cameraControl?: CameraControl): TriggerAction[] {
   const config = () => store.doc('hudConfig');
   const patchConfig = (patch: Partial<HudConfig>) => store.setDoc('hudConfig', { ...config(), ...patch });
   const hudAction = (type: HudAction['type']) => () => emitHudAction(io, type);
@@ -42,9 +41,9 @@ export function createActions(store: Store, live: LiveHub, io: HudServer, gameCo
   }));
 
   // Camera actions talk to CS2 over the console; failures are logged, a button press has no answer channel.
-  const toConsole = (commands: () => string[]) => () => {
-    if (!gameConsole) throw new TriggerError(503, 'No CS2 console');
-    void gameConsole.sendAll(commands()).catch((error) => console.warn('Camera action failed:', (error as Error).message));
+  const toCamera = (move: (camera: CameraControl) => Promise<unknown>) => () => {
+    if (!cameraControl) throw new TriggerError(503, 'No CS2 console');
+    void move(cameraControl).catch((error) => console.warn('Camera action failed:', (error as Error).message));
   };
   const slotName = (slot: number) => {
     const player = live.summary()?.players.find((p) => p.observerSlot === slot);
@@ -57,21 +56,23 @@ export function createActions(store: Store, live: LiveHub, io: HudServer, gameCo
         id: `spectate-slot-${slot}`,
         group: 'Camera',
         label: `Spectate player on slot ${slot}`,
-        run: toConsole(() => spectateCommands(slotName(slot))),
+        run: () => {
+          const name = slotName(slot); // 404 for the trigger URL before anything is sent
+          toCamera((camera) => camera.spectate(name))();
+        },
       })
     ),
-    { id: 'spectate-next', group: 'Camera', label: 'Next player', run: toConsole(() => stepCommands('next')) },
-    { id: 'spectate-prev', group: 'Camera', label: 'Previous player', run: toConsole(() => stepCommands('prev')) },
+    { id: 'spectate-next', group: 'Camera', label: 'Next player', run: toCamera((camera) => camera.step('next')) },
+    { id: 'spectate-prev', group: 'Camera', label: 'Previous player', run: toCamera((camera) => camera.step('prev')) },
+    { id: 'camera-free', group: 'Camera', label: 'HLAE free camera (from the current view)', run: toCamera((camera) => camera.free()) },
+    { id: 'camera-release', group: 'Camera', label: 'Back to game view (end camera / path)', run: toCamera((camera) => camera.release()) },
     {
-      id: 'camera-free',
+      id: 'auto-director',
       group: 'Camera',
-      label: 'HLAE free camera (from the current view)',
-      run: () => {
-        if (!gameConsole) throw new TriggerError(503, 'No CS2 console');
-        void freeCamera(gameConsole).catch((error) => console.warn('Camera action failed:', (error as Error).message));
-      },
+      label: 'CS2 auto director on/off',
+      run: toCamera((camera) => camera.autoDirector(!camera.state.autoDirector)),
+      isActive: () => !!cameraControl?.state.autoDirector,
     },
-    { id: 'camera-release', group: 'Camera', label: 'Back to game view (end camera / path)', run: toConsole(() => releaseCommands) },
   ];
 
   return [

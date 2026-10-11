@@ -14,6 +14,7 @@ import type {
   TeamProfile,
   Theme,
   CameraShot,
+  CameraState,
   ObsSettings,
   ObsStatus,
   SignalLogEntry,
@@ -81,6 +82,7 @@ export interface CameraStatus {
   freeCameraOnMapLoad: boolean;
   mapLoadCommands: string;
   menuCommands: string;
+  camera: CameraState;
 }
 
 export interface HlaeStatus {
@@ -194,6 +196,7 @@ export const api = {
     release: () => request<void>('POST', '/camera-control/release'),
     spectate: (steamid: string) => request<void>('POST', '/camera-control/spectate', { steamid }),
     free: () => request<void>('POST', '/camera-control/free'),
+    autoDirector: (on: boolean) => request<CameraState>('POST', '/camera-control/auto-director', { on }),
     options: (o: Partial<Pick<CameraStatus, 'freeCameraOnMapLoad' | 'mapLoadCommands' | 'menuCommands'>>) =>
       request<Pick<CameraStatus, 'freeCameraOnMapLoad' | 'mapLoadCommands' | 'menuCommands'>>('PUT', '/camera-control/options', o),
     step: (direction: 'next' | 'prev') => request<void>('POST', '/camera-control/step', { direction }),

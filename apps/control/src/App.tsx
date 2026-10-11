@@ -106,7 +106,8 @@ function Shell() {
         <Routes>
           <Route path="/live" element={<LivePage />} />
           <Route path="/director" element={<DirectorPage />} />
-          <Route path="/camera" element={<CameraPage />} />
+          <Route path="/camera" element={<Navigate to="/camera/players" replace />} />
+          <Route path="/camera/:tab" element={<CameraPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/matches" element={<MatchesPage />} />
           <Route path="/teams" element={<TeamsPage />} />
