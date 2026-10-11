@@ -10,7 +10,7 @@ import { createApi } from './api.js';
 import { createActions, type TriggerAction } from './actions.js';
 import { ObsBridge } from './obs.js';
 import { GameConsole } from './game.js';
-import { releaseCommands } from './camera.js';
+import { freeCamera, mapLoadWatcher, releaseCommands } from './camera.js';
 import { attachLhmSocket, buildHudConfig, lhmRoutes, type PanelSection } from './lhm.js';
 import { hudFile, hudsDir } from './huds.js';
 import { SignalEngine } from './signals.js';
@@ -61,16 +61,13 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
   const demo = new DemoMatch((raw) => live.ingest(raw, true));
   // One console connection to CS2 (-netconport), shared by API, actions and camera control.
   const gameConsole = new GameConsole(() => store.doc('settings').telnet);
-  // A HLAE camera or held path survives a map / demo change and would then sit
-  // somewhere in the new map (often inside a wall → black screen), so end it.
-  let lastMap: string | null = null;
-  const releaseCameraOnMapChange = (map: string | undefined) => {
-    if (!map) return;
-    if (lastMap && map !== lastMap && gameConsole.status().connected) {
-      void gameConsole.sendAll(releaseCommands).catch((error) => console.warn('Camera release failed:', (error as Error).message));
-    }
-    lastMap = map;
-  };
+  // On a map / demo load: HLAE free camera (owner's wish) or back to the game view. A camera
+  // or held path from before would otherwise stay at its old spot, often inside a wall.
+  const onGsiMap = mapLoadWatcher(() => {
+    if (!gameConsole.status().connected) return;
+    const task = store.doc('settings').freeCameraOnMapLoad ? freeCamera(gameConsole) : gameConsole.sendAll(releaseCommands);
+    void task.catch((error) => console.warn('Camera on map load failed:', (error as Error).message));
+  });
   const actions = createActions(store, live, io, gameConsole);
   const obs = new ObsBridge(store);
   const signals = new SignalEngine(store, actions, obs, (side) => live.displaySlot(side));
@@ -161,7 +158,7 @@ export function createTacamServer(options: TacamServerOptions): TacamServer {
     if (raw?.auth?.token !== store.doc('settings').gsiToken) return res.status(401).end();
     if (demo.running) demo.stop();
     live.ingest(raw);
-    releaseCameraOnMapChange(raw.map?.name);
+    onGsiMap(raw.map?.name);
     res.status(200).end();
   });
   const gsiHttp = createServer(gsiApp);

@@ -31,7 +31,7 @@ Inspired by [JTs-Hud](https://github.com/JohnTimmermann/JTs-Hud) and [LHM.gg](ht
 | 📊 **Live statistics** | ADR, KAST (incl. trades), HS %, KPR, opening kills, clutches, multi-kills, HLTV 1.0 rating, round history and economy with buy classification |
 | 🧩 **Overlays** | Scoreboard, economy graph and player comparison over the live HUD; round win probability bar (estimate); teams can keep their HUD side after halftime; wingman / custom rounds per half |
 | 🎬 **Scenes** | Starting soon (optional countdown), BRB, technical pause, halftime, map veto, scoreboard, match end with MVP, upcoming matches, player to watch; background videos; automatic, by click (preview → take) or a fixed OBS URL per scene |
-| 🎥 **Camera control (HLAE)** | Start CS2 via HLAE from the app, save camera views per map, jump to them with one click, fly smooth camera paths through them and pick each player to spectate (also from the Stream Deck) |
+| 🎥 **Camera control (HLAE)** | Start CS2 via HLAE from the app, save camera views per map, jump to them with one click, fly smooth camera paths through them, pick each player to spectate (also from the Stream Deck); starts in the free camera when a demo loads |
 | 🎛️ **Director** | Control panel in the browser, also on a tablet or a second PC (LAN with PIN); captain veto links for the team captains' phones |
 | 🔌 **Integrations** | Stream Deck / Bitfocus Companion URLs with button feedback, configurable global shortcuts, OBS WebSocket (OBS follows the TacAM scene), signals (game events → overlays, Companion buttons, webhooks, OBS replay buffer), MatchZy config export |
 | 🖼️ **HUD import** | Import HUDs in the LHM / JTs-Hud format (zip with `hud.json`) and run them as their own OBS source, with their own settings panel |
@@ -105,7 +105,7 @@ On Windows CS2 only opens its console for other programs when started via [HLAE]
 1. **Settings → HLAE (camera control) → Install HLAE** (downloaded from the official advancedfx release, checksum verified; updates are offered there too).
 2. Close CS2, then **Settings → Start CS2** (launch mode HLAE).
 3. **Integrations → CS2 console → Connect.** The **Camera** page now shows *Running via HLAE*.
-4. Fly to a spot (`mirv_input camera`, WASD + mouse) and **Save current view**; click a view to jump there, mark several with **+ Path** and **Play path** for a smooth camera flight.
+4. Loading a demo / map puts you straight into HLAE's free camera (WASD + mouse, key overview on the Camera page). Fly to a spot and **Save current view**; click a view to jump there, mark several with **+ Path** and **Play path** for a smooth camera flight.
 
 HLAE runs CS2 in insecure mode: fine for demos and your own servers, not for VAC-secured servers.
 

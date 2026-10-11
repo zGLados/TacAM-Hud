@@ -78,6 +78,7 @@ export interface CameraStatus {
   /** Map being played (GSI), shots are filtered by it. */
   map: string | null;
   shots: CameraShot[];
+  freeCameraOnMapLoad: boolean;
 }
 
 export interface HlaeStatus {
@@ -190,6 +191,8 @@ export const api = {
     path: (shotIds: string[], duration: number, hold: boolean) => request<void>('POST', '/camera-control/path', { shotIds, duration, hold }),
     release: () => request<void>('POST', '/camera-control/release'),
     spectate: (steamid: string) => request<void>('POST', '/camera-control/spectate', { steamid }),
+    free: () => request<void>('POST', '/camera-control/free'),
+    options: (o: { freeCameraOnMapLoad: boolean }) => request<{ freeCameraOnMapLoad: boolean }>('PUT', '/camera-control/options', o),
     step: (direction: 'next' | 'prev') => request<void>('POST', '/camera-control/step', { direction }),
   },
   hlae: {

@@ -3,7 +3,7 @@ import { SCENE_IDS, SCENE_LABELS, type HudAction, type HudConfig } from '@tacam/
 import type { HudServer } from './io.js';
 import { emitHudAction, emitRefresh } from './lhm.js';
 import type { GameConsole } from './game.js';
-import { releaseCommands, spectateCommands, stepCommands } from './camera.js';
+import { freeCamera, releaseCommands, spectateCommands, stepCommands } from './camera.js';
 import type { LiveHub } from './live.js';
 import type { Store } from './store.js';
 
@@ -62,6 +62,15 @@ export function createActions(store: Store, live: LiveHub, io: HudServer, gameCo
     ),
     { id: 'spectate-next', group: 'Camera', label: 'Next player', run: toConsole(() => stepCommands('next')) },
     { id: 'spectate-prev', group: 'Camera', label: 'Previous player', run: toConsole(() => stepCommands('prev')) },
+    {
+      id: 'camera-free',
+      group: 'Camera',
+      label: 'HLAE free camera (from the current view)',
+      run: () => {
+        if (!gameConsole) throw new TriggerError(503, 'No CS2 console');
+        void freeCamera(gameConsole).catch((error) => console.warn('Camera action failed:', (error as Error).message));
+      },
+    },
     { id: 'camera-release', group: 'Camera', label: 'Back to game view (end camera / path)', run: toConsole(() => releaseCommands) },
   ];
 

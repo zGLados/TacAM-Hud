@@ -39,6 +39,8 @@ export interface Settings {
   hlaePath: string;
   /** Saved camera views (HLAE), see camera.ts. */
   cameraShots: CameraShot[];
+  /** Enter the HLAE free camera when a map / demo is loaded (else: back to the game view). */
+  freeCameraOnMapLoad: boolean;
   /** Start CS2 as a borderless window (-windowed -noborder): keeps drawing when unfocused. */
   launchBorderless: boolean;
   /** Secret for `/api/trigger/<action>` URLs (Stream Deck, Companion). */
@@ -81,6 +83,7 @@ const defaults = (): Database => ({
     launchMode: process.platform === 'win32' ? 'tools' : 'normal',
     hlaePath: '',
     cameraShots: [],
+    freeCameraOnMapLoad: true,
     launchBorderless: process.platform === 'win32',
     actionKey: randomUUID().replace(/-/g, ''),
     keybinds: { ...DEFAULT_KEYBINDS },

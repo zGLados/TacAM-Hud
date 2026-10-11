@@ -1187,3 +1187,22 @@ input.grow {
     grid-template-columns: 1fr;
   }
 }
+
+.camera_keys {
+  width: 100%;
+  margin: 12px 0 6px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.camera_keys td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.camera_keys td:nth-child(odd) {
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.camera_keys td:nth-child(even) {
+  color: var(--muted);
+}

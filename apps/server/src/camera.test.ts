@@ -3,7 +3,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { campathXml, goToCommands, hlaeActive, parseCurrentView, playPathCommands, readView, spectateCommands, stepCommands } from './camera.js';
+import { campathXml, goToCommands, hlaeActive, mapLoadWatcher, parseCurrentView, playPathCommands, readView, spectateCommands, stepCommands } from './camera.js';
 import { GameConsole } from './game.js';
 
 // Output formats as printed by advancedfx/shared/MirvInput.cpp and MirvCampath.cpp.
@@ -93,5 +93,19 @@ describe('camera (HLAE)', () => {
     expect(spectateCommands('Team "X"; quit')[2]).toBe('spec_player "Team X quit"');
     expect(() => spectateCommands('"";')).toThrow('empty');
     expect(stepCommands('next')).toEqual(['mirv_campath enabled 0', 'mirv_input end', 'spec_next', 'spec_mode 1']);
+  });
+});
+
+describe('mapLoadWatcher', () => {
+  it('fires on a map / demo load, not on the first packet after start or the same map', () => {
+    let loads = 0;
+    const seen = mapLoadWatcher(() => loads++);
+    seen('de_mirage'); // TacAM just started: keep the running view
+    seen('de_mirage');
+    expect(loads).toBe(0);
+    seen(undefined); // main menu between two demos
+    seen('de_mirage'); // same map loaded again
+    seen('de_inferno');
+    expect(loads).toBe(2);
   });
 });

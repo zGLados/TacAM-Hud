@@ -133,6 +133,31 @@ export function CameraPage() {
         </Card>
       )}
 
+      <Card title="Free camera (HLAE)">
+        <div className="row">
+          <button className="button primary" onClick={() => run(api.camera.free)}>
+            Free camera from the current view
+          </button>
+          <Toggle
+            checked={status.freeCameraOnMapLoad}
+            onChange={(freeCameraOnMapLoad) => run(() => api.camera.options({ freeCameraOnMapLoad })).then(load)}
+            label="Start in the free camera when a demo / map loads"
+          />
+        </div>
+        <table className="camera_keys">
+          <tbody>
+            <tr><td>W A S D</td><td>move</td><td>R / F</td><td>up / down</td></tr>
+            <tr><td>Mouse</td><td>look</td><td>Z / X</td><td>tilt (roll)</td></tr>
+            <tr><td>Page Up / Page Down, mouse wheel</td><td>zoom (FOV)</td><td>Home / Numpad 5</td><td>reset view (FOV 90°, no tilt)</td></tr>
+            <tr><td>Numpad + / −</td><td>faster / slower</td><td>Esc</td><td>end free camera</td></tr>
+          </tbody>
+        </table>
+        <p className="muted small">
+          HLAE keys while CS2 has the focus. If the picture shrinks to a dot or stays tilted, a key got stuck (e.g. after tabbing out): press Home, or use the button
+          above / <em>Back to game view</em>.
+        </p>
+      </Card>
+
       <Card title="Players">
         <p className="muted small">
           Follow a player in first person – ends a free camera or camera path first. Also available as Stream Deck actions (Spectate player on slot 1–0, Next/Previous player).

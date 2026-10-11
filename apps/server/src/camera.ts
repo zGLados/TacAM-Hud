@@ -135,3 +135,28 @@ export function spectateCommands(name: string) {
 export function stepCommands(direction: 'next' | 'prev') {
   return [...releaseCommands, direction === 'next' ? 'spec_next' : 'spec_prev', 'spec_mode 1'];
 }
+
+/**
+ * HLAE free camera starting at the current game view. HLAE only takes over the
+ * game view when camera mode was off for at least one frame (MirvInput.cpp
+ * resets m_InputOn only then), so end it first; sendAll waits 300 ms in between.
+ * Also resets a FOV that a stuck Page Down / mouse wheel had changed.
+ */
+export async function freeCamera(console: GameConsole) {
+  await console.sendAll(releaseCommands);
+  await console.sendAll(['mirv_input camera']);
+}
+
+/**
+ * Tracks the map from GSI and calls `onLoad` when a map / demo gets loaded –
+ * not for the first packet after TacAM starts (a running broadcast keeps its view).
+ */
+export function mapLoadWatcher(onLoad: () => void) {
+  let last: string | null | undefined;
+  return (map: string | undefined) => {
+    const previous = last;
+    last = map ?? null;
+    if (previous !== undefined && map && map !== previous) onLoad();
+  };
+}
+

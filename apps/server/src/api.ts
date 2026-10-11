@@ -16,7 +16,7 @@ import { isAccelerator, triggerStatus, TriggerError, validActionKey, type Trigge
 import { captainVetoRoutes } from './captainVeto.js';
 import { diagnoseConsole, GameLaunchError, launchCs2, withNetconPort, type GameConsole } from './game.js';
 import { HlaeError, installHlae, installedHlae, latestHlae } from './hlae.js';
-import { CameraError, goToCommands, hlaeActive, playPathCommands, readView, releaseCommands, spectateCommands, stepCommands } from './camera.js';
+import { CameraError, freeCamera, goToCommands, hlaeActive, playPathCommands, readView, releaseCommands, spectateCommands, stepCommands } from './camera.js';
 import { matchzyConfig } from './matchzy.js';
 import { buildHudConfig, emitHudAction, emitHudConfig, emitHudPanelAction, emitKeybindAction, emitRefresh, type PanelSection } from './lhm.js';
 import { getHud, hudFile, HudImportError, importHudZip, listHuds, removeHud } from './huds.js';
@@ -477,8 +477,16 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
     });
   api.get('/camera-control', (_req, res) => {
     const status = gameConsole.status();
-    res.json({ connected: status.connected, error: status.error, map: live.last ? normalizeMapName(live.last.map.name) : null, shots: shots() });
+    res.json({ connected: status.connected, error: status.error, map: live.last ? normalizeMapName(live.last.map.name) : null, shots: shots(), freeCameraOnMapLoad: store.doc('settings').freeCameraOnMapLoad });
   });
+  api.put(
+    '/camera-control/options',
+    h((req, res) => {
+      const { freeCameraOnMapLoad } = z.object({ freeCameraOnMapLoad: z.boolean() }).parse(req.body);
+      store.setDoc('settings', { ...store.doc('settings'), freeCameraOnMapLoad });
+      res.json({ freeCameraOnMapLoad });
+    })
+  );
   api.post(
     '/camera-control/check',
     camera(async (_req, res) => res.json({ hlae: await hlaeActive(gameConsole) }))
@@ -532,6 +540,13 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
       const player = live.summary()?.players.find((p) => p.steamid === steamid);
       if (!player) return res.status(404).json({ error: 'Player not in the running game' });
       await gameConsole.sendAll(spectateCommands(player.name));
+      res.json({ ok: true });
+    })
+  );
+  api.post(
+    '/camera-control/free',
+    camera(async (_req, res) => {
+      await freeCamera(gameConsole);
       res.json({ ok: true });
     })
   );
