@@ -35,6 +35,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 - `.hud__layout` has `perspective` → containing block for `position: fixed`; wrappers must be 100 % high.
 - The iframe preview in the (dark) control panel needs `color-scheme: light`, otherwise it gets an opaque white background.
 - `crypto.randomUUID`/`navigator.clipboard` are missing for LAN access over http → use fallbacks.
+- `window.prompt` does not exist in Electron (the desktop app) → never use it in the control panel; edit inline (see `NameInput` in `CameraPage.tsx`).
 - `import.meta.url` does not exist in the Electron CJS bundle → only use it lazily (`paths.ts`).
 - CS2 GSI has no kill events; kill feed and stats are based on counter diffs (`inferKills`).
 

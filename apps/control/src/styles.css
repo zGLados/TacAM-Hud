@@ -1246,6 +1246,18 @@ input.grow {
   font-size: 11px;
   color: var(--muted);
 }
-.sidebar_version a {
-  color: inherit;
+.sidebar_links {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.sidebar_links .button {
+  flex: 1;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+}
+.camera_name_input {
+  width: 100%;
+  font-weight: 600;
 }

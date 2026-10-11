@@ -67,6 +67,30 @@ function PlayerPicker({ inGameView }: { inGameView: boolean }) {
   );
 }
 
+/**
+ * Inline name editor. window.prompt does not exist in Electron (the desktop app returned
+ * nothing, so saving / renaming silently did nothing) – names are edited in place instead.
+ */
+function NameInput({ value, onSave, onCancel }: { value: string; onSave: (name: string) => void; onCancel: () => void }) {
+  const [name, setName] = useState(value);
+  const commit = () => (name.trim() && name.trim() !== value ? onSave(name.trim()) : onCancel());
+  return (
+    <input
+      className="camera_name_input"
+      autoFocus
+      value={name}
+      maxLength={60}
+      onChange={(e) => setName(e.target.value)}
+      onFocus={(e) => e.target.select()}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') commit();
+        if (e.key === 'Escape') onCancel();
+      }}
+    />
+  );
+}
+
 /** Console commands TacAM runs when a demo / map loads and when CS2 is back in the main menu. */
 function MapCommands({ status, onSaved }: { status: CameraStatus; onSaved: () => void }) {
   const run = useRun();
@@ -109,6 +133,9 @@ export function CameraPage() {
   const [hold, setHold] = useState(false);
   /** Saved path loaded into the editor with “Edit”. */
   const [editing, setEditing] = useState<CameraPath | null>(null);
+  const [pathName, setPathName] = useState('');
+  /** Id of the view or saved path whose name is being edited. */
+  const [renaming, setRenaming] = useState<string | null>(null);
 
   const load = () => api.camera.status().then(setStatus).catch(() => {});
   useEffect(() => {
@@ -142,9 +169,11 @@ export function CameraPage() {
   const calmDuration = Math.ceil(pathLength / CALM_SPEED);
   const savedPaths = status.paths.filter((p) => allMaps || !status.map || p.map === status.map);
   const savePath = async () => {
-    const pathName = window.prompt('Name of the camera path', `Path ${status.paths.length + 1}`)?.trim();
-    if (!pathName) return;
-    if (await run(() => api.camera.savePath({ name: pathName, shotIds: pathIds, duration, hold }), 'Camera path saved')) load();
+    const name = pathName.trim() || `Path ${status.paths.length + 1}`;
+    if (await run(() => api.camera.savePath({ name, shotIds: pathIds, duration, hold }), 'Camera path saved')) {
+      setPathName('');
+      load();
+    }
   };
   const loadPath = (saved: CameraPath) => {
     setPathIds(saved.shotIds.filter((id) => status.shots.some((s) => s.id === id)));
@@ -158,9 +187,9 @@ export function CameraPage() {
       load();
     }
   };
-  const renamePath = async (saved: CameraPath) => {
-    const next = window.prompt('Name of the camera path', saved.name)?.trim();
-    if (next && (await run(() => api.camera.updatePath(saved.id, { name: next })))) load();
+  const renamePath = async (saved: CameraPath, name: string) => {
+    setRenaming(null);
+    if (await run(() => api.camera.updatePath(saved.id, { name }))) load();
   };
   const togglePath = (id: string) => setPathIds(pathIds.includes(id) ? pathIds.filter((x) => x !== id) : [...pathIds, id]);
   const move = async (shot: CameraShot, delta: number) => {
@@ -172,10 +201,9 @@ export function CameraPage() {
     await run(() => api.camera.update(list.map(({ id, name }) => ({ id, name }))));
     load();
   };
-  const rename = async (shot: CameraShot) => {
-    const next = window.prompt('Name of the view', shot.name)?.trim();
-    if (!next) return;
-    await run(() => api.camera.update(status.shots.map((s) => ({ id: s.id, name: s.id === shot.id ? next : s.name }))));
+  const rename = async (shot: CameraShot, name: string) => {
+    setRenaming(null);
+    await run(() => api.camera.update(status.shots.map((s) => ({ id: s.id, name: s.id === shot.id ? name : s.name }))));
     load();
   };
 
@@ -276,9 +304,13 @@ export function CameraPage() {
                   const order = pathIds.indexOf(shot.id);
                   return (
                     <div key={shot.id} className={`camera_shot ${order >= 0 ? 'is-in-path' : ''}`}>
-                      <button className="button primary camera_go" onClick={() => run(() => api.camera.go(shot.id))}>
-                        {shot.name}
-                      </button>
+                      {renaming === shot.id ? (
+                        <NameInput value={shot.name} onSave={(name) => rename(shot, name)} onCancel={() => setRenaming(null)} />
+                      ) : (
+                        <button className="button primary camera_go" onClick={() => run(() => api.camera.go(shot.id))}>
+                          {shot.name}
+                        </button>
+                      )}
                       <div className="muted small">
                         {allMaps && `${prettyMapName(shot.map)} · `}fov {Math.round(shot.fov)}
                       </div>
@@ -292,7 +324,7 @@ export function CameraPage() {
                         <button className="icon_button" aria-label="Move down" onClick={() => move(shot, 1)}>
                           ↓
                         </button>
-                        <button className="icon_button" aria-label="Rename" onClick={() => rename(shot)}>
+                        <button className="icon_button" aria-label="Rename" onClick={() => setRenaming(shot.id)}>
                           ✎
                         </button>
                         <ConfirmButton className="small danger" onConfirm={() => run(() => api.camera.remove(shot.id), 'View deleted').then(load)}>
@@ -314,6 +346,9 @@ export function CameraPage() {
               speed and a soft start and stop; the path starts right away and runs over the given duration.
             </p>
             <div className="row wrap">
+              <Field label="Name (for saving)">
+                <input value={pathName} maxLength={60} placeholder={editing ? editing.name : `Path ${status.paths.length + 1}`} onChange={(e) => setPathName(e.target.value)} />
+              </Field>
               <Field label="Duration (seconds)">
                 <input type="number" min={0.5} max={120} step={0.5} value={duration} onChange={(e) => setDuration(Number(e.target.value) || 5)} />
               </Field>
@@ -364,9 +399,13 @@ export function CameraPage() {
                   const present = saved.shotIds.filter((id) => status.shots.some((s) => s.id === id)).length;
                   return (
                     <div key={saved.id} className="camera_path">
-                      <button className="button primary camera_go" disabled={present < 2} onClick={() => run(() => api.camera.playPath(saved.id)).then(load)}>
-                        ▶ {saved.name}
-                      </button>
+                      {renaming === saved.id ? (
+                        <NameInput value={saved.name} onSave={(name) => renamePath(saved, name)} onCancel={() => setRenaming(null)} />
+                      ) : (
+                        <button className="button primary camera_go" disabled={present < 2} onClick={() => run(() => api.camera.playPath(saved.id)).then(load)}>
+                          ▶ {saved.name}
+                        </button>
+                      )}
                       <div className={`small ${present < saved.shotIds.length ? 'camera_speed is-fast' : 'muted'}`}>
                         {allMaps && `${prettyMapName(saved.map)} · `}
                         {present < saved.shotIds.length ? `${saved.shotIds.length - present} of ${saved.shotIds.length} views deleted` : `${saved.shotIds.length} views`} · {saved.duration} s
@@ -376,7 +415,7 @@ export function CameraPage() {
                         <button className="button small ghost" onClick={() => loadPath(saved)} title="Load into the editor above (change views, duration, then save again)">
                           Edit
                         </button>
-                        <button className="icon_button" aria-label="Rename" onClick={() => renamePath(saved)}>
+                        <button className="icon_button" aria-label="Rename" onClick={() => setRenaming(saved.id)}>
                           ✎
                         </button>
                         <ConfirmButton className="small danger" onConfirm={() => run(() => api.camera.removePath(saved.id), 'Camera path deleted').then(load)}>

@@ -157,7 +157,7 @@ npm run typecheck
 
 ## Bugs, questions and ideas
 
-Found a bug or something behaves oddly? Please **[open an issue on GitHub](https://github.com/zGLados/TacAM-Hud/issues/new/choose)** – the bug report form asks for everything needed (version, what you did, screenshots, CS2 console output). Ideas and feature requests are welcome there too. In the app: *TacAM HUD → Report a problem on GitHub…* or the link at the bottom of the sidebar (fills in your version).
+Found a bug or something behaves oddly? Please **[open an issue on GitHub](https://github.com/zGLados/TacAM-Hud/issues/new/choose)** – the bug report form asks for everything needed (version, what you did, screenshots, CS2 console output). Ideas and feature requests are welcome there too. In the app: *TacAM HUD → Report a problem on GitHub…* or the *Report issue* button at the bottom of the sidebar (fills in your version); the *GitHub* button next to it opens the project.
 
 ## Code signing policy
 
