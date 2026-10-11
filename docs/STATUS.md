@@ -4,6 +4,13 @@ Hand-over state for the next session. Latest release: **v0.2.0** (saved and smoo
 
 ## Open tasks
 
+### Export / import of settings (owner's wish, 2026-10-11)
+
+- Every page should be able to **export and import** its data as a file, e.g. to move to another PC, share a setup or keep a backup before a broadcast.
+- **Most important:** players and teams (incl. logos / avatars), the HUD settings together with the current HUD (theme, sponsors, logo, HUD elements, imported HUD and its panel values) and the camera data (saved views and paths per map).
+- Then the rest: matches / veto, integrations (OBS, signals, shortcuts, Stream Deck key), scene content, camera console commands.
+- Ideas: one JSON (or zip with the uploads) per area plus "export everything"; import with a preview and "merge / replace", matched by id or SteamID / team name so nothing is duplicated; never export secrets (PIN, GSI token, action key) unless asked. Players / teams already have CSV import – keep it, the new export is the full format.
+
 ### Camera control (owner tested 2026-10-11)
 
 - **Works on the owner's PC (v0.1.17):** CS2 via HLAE, HLAE detection, HLAE free camera (`mirv_input camera`), camera path playback. Console test buttons now use HLAE commands (`spec_goto`/`spec_lerpto` are not needed).
