@@ -11,6 +11,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 - `apps/desktop`: Electron main (`src/main.ts`), bundled to CJS with esbuild.
 - `.github/workflows/ci.yml`: typecheck + tests + build on every push/PR (Linux and Windows).
 - `.github/workflows/release.yml`: builds the Windows installer (+ `latest.yml` for the in-app updater) when a GitHub release is published; tests run on Windows there. Signs it via SignPath once configured (`docs/development.md` → Code signing; `apps/desktop/scripts/refresh-update-info.mjs` fixes the update hashes after signing).
+- `website/`: static project page for hud.tac.am (hosted by the owner; images are copies of `docs/images`).
 - Docs: `README.md`, `CHANGELOG.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state.**
 
 ## Commands
@@ -21,7 +22,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 
 - **Documentation and code comments are English.** Comments are sparse and explain the why. UI texts are English as well (control panel, desktop app, API error messages, HUD).
 - **Versions:** semantic versioning (features → minor, fixes → patch, tests → `-beta.N` pre-release); `npm run version:set -- X.Y.Z` + `npm install` and a `CHANGELOG.md` entry before every release (see `docs/development.md`). The release build fails if the tag does not match `package.json`.
-- **Keep the docs current with every change** (owner's request): update `README.md` (feature list, screenshots when the UI changes visibly), `docs/features.md`, `docs/api.md`, `docs/architecture.md`, this file and `docs/STATUS.md` in the same commit as the code – not later.
+- **Keep the docs current with every change** (owner's request): update `README.md` (feature list, screenshots when the UI changes visibly – and the copies in `website/images`), `docs/features.md`, `docs/api.md`, `docs/architecture.md`, this file and `docs/STATUS.md` in the same commit as the code – not later.
 - Node ≥ 22.12 + npm ≥ 11 (npm 10 crashes on Vitest's peer deps). Locally Node 22 lives in `~/.local/node22` (`export PATH=~/.local/node22/bin:$PATH`); the system Node is 18 and too old. New packages with install scripts must be approved in `allowScripts` (`npm install-scripts approve <pkg>`).
 - HUD CSS: BEM in kebab-case, `data-side`/`data-align`/`data-state`, states `is-*`; no IDs; colors only via `--color-*` variables (see `docs/hud-styling.md`). New elements get their own file in `styles/` + an import in `styles/index.css`.
 - Theme colors = `THEME_COLOR_KEYS` in `shared/types.ts`; the HUD sets `--color-<key>`. Add new keys to the control panel as well (`ThemePage` labels).

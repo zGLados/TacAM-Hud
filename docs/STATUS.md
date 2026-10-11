@@ -4,6 +4,10 @@ Hand-over state for the next session. Latest release: **v0.3.0** (CSV export, fi
 
 ## Open tasks
 
+### Website hud.tac.am
+
+- `website/` (static, see `website/README.md`) created 2026-10-11; the owner hosts it. Once it is online: link it in the README header and set it as the GitHub repo homepage; SignPath's code signing policy mention is already in the footer.
+
 ### Code signing (SignPath Foundation) – prepared, waiting for the owner
 
 - Prepared: README *Code signing policy* + *Privacy*, optional signing steps in `release.yml` (active once `SIGNPATH_ORGANIZATION_ID` is set), `apps/desktop/scripts/refresh-update-info.mjs` (tested locally with a fake signed exe), setup guide in `docs/development.md` → Code signing.
