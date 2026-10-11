@@ -2,9 +2,10 @@
 
 All notable changes to TacAM HUD. Versions follow [semantic versioning](https://semver.org/): new features raise the minor version (0.**2**.0), fixes the patch version (0.2.**1**); 1.0.0 comes once TacAM has carried a real broadcast. Betas (`-beta.N`) are test builds before a release – see [docs/development.md](docs/development.md#versions-and-releases).
 
-## [Unreleased]
+## [0.3.0] – 2026-10-11
 
 ### Added
+- **CSV export** for players and teams (Players / Teams → Export CSV) in the import format: edit in Excel and import again, or move to another PC.
 - **Code signing prepared** (SignPath Foundation, free for open source): code signing policy and privacy statement in the README; the release build signs the installer once SignPath is set up.
 - **GitHub and Report issue buttons** under the version at the bottom left.
 - **Report a problem:** button at the bottom of the sidebar, under Settings → App updates and in the app menu (*TacAM HUD → Report a problem on GitHub…*) – opens the GitHub bug report form with your version filled in. Issue forms for bug reports and feature requests.
@@ -96,6 +97,7 @@ Camera control is complete: players, CS2 auto director, saved views and saved, s
 ## [0.1.0] – 2026-10-10
 - First release: broadcast HUD, live statistics, scenes, director, manager, Windows app.
 
+[0.3.0]: https://github.com/zGLados/TacAM-Hud/releases/tag/v0.3.0
 [0.2.0]: https://github.com/zGLados/TacAM-Hud/releases/tag/v0.2.0
 [0.1.19]: https://github.com/zGLados/TacAM-Hud/releases/tag/v0.1.19
 [0.1.18]: https://github.com/zGLados/TacAM-Hud/releases/tag/v0.1.18

@@ -36,7 +36,7 @@ Inspired by [JTs-Hud](https://github.com/JohnTimmermann/JTs-Hud) and [LHM.gg](ht
 | 🔌 **Integrations** | Stream Deck / Bitfocus Companion URLs with button feedback, configurable global shortcuts, OBS WebSocket (OBS follows the TacAM scene), signals (game events → overlays, Companion buttons, webhooks, OBS replay buffer), MatchZy config export |
 | 🖼️ **HUD import** | Import HUDs in the LHM / JTs-Hud format (zip with `hud.json`) and run them as their own OBS source, with their own settings panel |
 | 🎨 **Theme editor** | Colors, corner radius, font, sponsors, brand and tournament logo – with live preview |
-| 🗂️ **Manager** | Players and teams (CSV import, quick setup from the live game), matches with veto editor, automatic map results, GSI config installation, demo match |
+| 🗂️ **Manager** | Players and teams (CSV import and export, quick setup from the live game), matches with veto editor, automatic map results, GSI config installation, demo match |
 | ⬆️ **Desktop app** | Windows installer with automatic updates; your data stays when updating |
 
 ## Screenshots

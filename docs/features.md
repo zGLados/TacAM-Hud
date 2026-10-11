@@ -98,11 +98,12 @@ OBS keeps a browser source loaded across TacAM updates: the socket reconnects, b
 
 `apps/server/src/actions.ts` defines one-click actions (scenes, HUD toggles, overlays, swap teams, swap map sides) as `/api/trigger/<id>?key=<actionKey>`, callable with GET or POST because many button tools can only open a URL. The key lives in the settings, is required even for local requests (so a web page in the browser cannot fire actions against 127.0.0.1) and can be renewed under Integrations → Stream Deck / Companion, which also lists all URLs. From another computer the server needs LAN access. For button feedback, actions with an on/off state (scenes, toggles, overlays) report it via `/api/trigger-status/<id>?key=…&format=text` (`1`/`0`, e.g. for a Companion feedback that polls the URL) and `/api/trigger-status?key=…` (JSON with scene, overlay and all states); that tab has a “State” button per action.
 
-## Quick setup and CSV import
+## Quick setup and CSV import / export
 
 - **Quick setup** (Live tab): for both sides of the running game pick an existing team or name a new one, then *Apply* (`POST /api/live/quick-setup`) creates the team, all unknown players of that side, optionally moves known players and sets the teams of the current match (or creates a current BO1). The dialog preselects a team named like the server's `mp_teamname` (`LiveSummary.gsiName`), else a new team with that name, else the team TacAM already assumes. Everything is validated before anything is created.
 - **Teams CSV** (Teams → Import CSV): `name;short name;country`, matched by name; logos are added afterwards.
 - **Players CSV**: teams named in the last column that do not exist yet are created first, so one file is enough.
+- **Export CSV** (Players / Teams): writes exactly the import format (`packages/shared/src/csv.ts`, semicolons, UTF-8 with BOM for Excel, header row), so export → edit → import round-trips without duplicates (players by SteamID, teams by name). Not in the CSV: logos, avatars, coach flag. The import ignores Excel's BOM.
 
 ## MatchZy server config
 

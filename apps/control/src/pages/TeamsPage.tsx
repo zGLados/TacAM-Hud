@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { countryFlagEmoji, type TeamProfile } from '@tacam/shared';
+import { countryFlagEmoji, type TeamProfile, csvRows, teamsToCsv } from '@tacam/shared';
+import { datedFileName, downloadText } from '../download';
 import { api, uploadUrl, useData, type TeamInput } from '../api';
 import { Card, ConfirmButton, CountrySelect, Field, ImageUpload, Modal, PageHeader, useRun, useToast } from '../components/ui';
 
@@ -48,10 +49,7 @@ function TeamForm({ initial, onClose }: { initial: TeamProfile | null; onClose: 
 
 /** Parses "name;shortName;country" (comma or semicolon separated, header optional). */
 function parseTeamCsv(text: string) {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const separator = lines[0]?.includes(';') ? ';' : ',';
-  return lines
-    .map((line) => line.split(separator).map((c) => c.trim().replace(/^"|"$/g, '')))
+  return csvRows(text)
     .filter(([name], i) => name && !(i === 0 && name.toLowerCase() === 'name'))
     .map(([name, shortName = '', country = '']) => ({ name, shortName: shortName.slice(0, 8), country: country ? country.toUpperCase() : null }));
 }
@@ -73,6 +71,14 @@ export function TeamsPage() {
           <>
             <button className="button ghost" onClick={() => fileInput.current?.click()}>
               Import CSV
+            </button>
+            <button
+              className="button ghost"
+              disabled={!teams.length}
+              title="Same format as the import (logos are not part of the CSV)"
+              onClick={() => downloadText(datedFileName('teams', 'csv'), teamsToCsv(teams))}
+            >
+              Export CSV
             </button>
             <button className="button primary" onClick={() => setEditing('new')}>
               + Team

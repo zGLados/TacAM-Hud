@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
-import { countryFlagEmoji, type PlayerProfile, type TeamProfile } from '@tacam/shared';
+import { countryFlagEmoji, csvRows, playersToCsv, type PlayerProfile, type TeamProfile } from '@tacam/shared';
+import { datedFileName, downloadText } from '../download';
 import { api, uploadUrl, useData, type PlayerInput } from '../api';
 import { Card, ConfirmButton, CountrySelect, Field, ImageUpload, Modal, PageHeader, Toggle, useRun, useToast } from '../components/ui';
 
@@ -80,10 +81,7 @@ function PlayerForm({ initial, teams, onClose }: { initial: PlayerProfile | null
 
 /** Parses "steamid;username;firstName;lastName;country;team" (comma or semicolon separated, header optional). */
 function parseCsv(text: string, teams: TeamProfile[]): PlayerInput[] {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const separator = lines[0]?.includes(';') ? ';' : ',';
-  return lines
-    .map((line) => line.split(separator).map((c) => c.trim().replace(/^"|"$/g, '')))
+  return csvRows(text)
     .filter((cols) => /^\d{17}$/.test(cols[0]))
     .map(([steamid, username, firstName = '', lastName = '', country = '', team = '']) => ({
       ...emptyPlayer,
@@ -98,10 +96,7 @@ function parseCsv(text: string, teams: TeamProfile[]): PlayerInput[] {
 
 /** Team names in the last column of a player CSV. */
 function csvTeamNames(text: string) {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const separator = lines[0]?.includes(';') ? ';' : ',';
-  return lines
-    .map((line) => line.split(separator).map((c) => c.trim().replace(/^"|"$/g, '')))
+  return csvRows(text)
     .filter((cols) => /^\d{17}$/.test(cols[0]) && cols[5])
     .map((cols) => cols[5]);
 }
@@ -132,6 +127,14 @@ export function PlayersPage() {
           <>
             <button className="button ghost" onClick={() => fileInput.current?.click()}>
               Import CSV
+            </button>
+            <button
+              className="button ghost"
+              disabled={!players.length}
+              title="Same format as the import – edit in Excel and import again, or move to another PC"
+              onClick={() => downloadText(datedFileName('players', 'csv'), playersToCsv(players, teams))}
+            >
+              Export CSV
             </button>
             <button className="button primary" onClick={() => setEditing('new')}>
               + Player

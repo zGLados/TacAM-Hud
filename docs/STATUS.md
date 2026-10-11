@@ -1,6 +1,6 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.2.0** (saved and smooth camera paths, versioning with changelog and beta channel). Versioning since v0.2.0: semantic versions, `CHANGELOG.md`, betas as GitHub pre-releases (beta channel not tried yet – the first beta tests it).
+Hand-over state for the next session. Latest release: **v0.3.0** (CSV export, fixed saving of camera paths in the desktop app, GitHub buttons, code signing prepared). Versioning since v0.2.0: semantic versions, `CHANGELOG.md`, betas as GitHub pre-releases (beta channel not tried yet – the first beta tests it).
 
 ## Open tasks
 
@@ -15,7 +15,7 @@ Hand-over state for the next session. Latest release: **v0.2.0** (saved and smoo
 - Every page should be able to **export and import** its data as a file, e.g. to move to another PC, share a setup or keep a backup before a broadcast.
 - **Most important:** players and teams (incl. logos / avatars), the HUD settings together with the current HUD (theme, sponsors, logo, HUD elements, imported HUD and its panel values) and the camera data (saved views and paths per map).
 - Then the rest: matches / veto, integrations (OBS, signals, shortcuts, Stream Deck key), scene content, camera console commands.
-- Ideas: one JSON (or zip with the uploads) per area plus "export everything"; import with a preview and "merge / replace", matched by id or SteamID / team name so nothing is duplicated; never export secrets (PIN, GSI token, action key) unless asked. Players / teams already have CSV import – keep it, the new export is the full format.
+- Ideas: one JSON (or zip with the uploads) per area plus "export everything"; import with a preview and "merge / replace", matched by id or SteamID / team name so nothing is duplicated; never export secrets (PIN, GSI token, action key) unless asked. Players / teams have CSV import and (since v0.3.0) CSV export – keep them; the full export (with logos, avatars, coach flag) is the next step.
 
 ### Camera control (owner tested 2026-10-11)
 
@@ -24,7 +24,7 @@ Hand-over state for the next session. Latest release: **v0.2.0** (saved and smoo
 - **Fixed after the owner's test (v0.1.18):** jumping to a saved view tilted the camera sideways – `mirv_input angles` takes pitch yaw roll (HLAE's usage text says otherwise). Black screen after loading another demo: TacAM now ends HLAE camera/path when GSI reports a new map. If it stays black, the console command `mirv_input end; mirv_campath enabled 0` or *Back to game view* should help – owner to confirm.
 - **Free camera on demo / map load (v0.1.18):** TacAM ends camera/path and enters `mirv_input camera` from the current game view (toggle on the Camera page, default on), plus a key overview. Owner's report "picture shrinks to a white dot after a disconnect" = HLAE FOV growing to 180° (Page Down / Numpad 1 or wheel seen as held) – Home resets it; entering the free camera fresh resets it too.
 - **Console commands on demo / map load and back in the menu – released in v0.1.19** (Camera page, last card; defaults `cl_draw_only_deathnotices 1/0`, `engine_no_focus_sleep 0/60`). Tested against a fake console. Open question: CS2 kill feed or TacAM kill feed in the stream (both visible = duplicate).
-- **Saved camera paths – v0.2.0** (owner's test: paths smoother ✓, player hidden / back ✓; saving did nothing in the desktop app → fixed, `window.prompt` unsupported in Electron, not released yet): name per map, ▶ one click, Edit/Update, action `camera-path-<id>` for Stream Deck / shortcuts / signals.
+- **Saved camera paths – v0.2.0** (owner's test: paths smoother ✓, player hidden / back ✓; saving did nothing in the desktop app → fixed in v0.3.0, `window.prompt` unsupported in Electron): name per map, ▶ one click, Edit/Update, action `camera-path-<id>` for Stream Deck / shortcuts / signals.
 - **Camera page in tabs, camera mode, CS2 auto director – v0.1.19** (owner's wishes): tabs *Players & director* / *Views & paths* / *Setup*; during free camera / view / path the HUD shows no focused player; button + action for `spec_autodirector`. Owner confirmed: `spec_autodirector 1` works in a demo via the console. Owner's v0.1.19 test showed the player during a path: the OBS / overlay HUD still ran the v0.1.18 code (not reloaded after the update) – reproduced the path locally, works with a fresh HUD. Fix (v0.2.0): the HUD reloads itself when the server ships a new HUD build, but only unseen (HUD hidden or 5 s without game data – owner: viewers must not see a reload); *Stay on the last view* now defaults to off (owner expected the camera to go back to the player). Smoother paths (owner's report): spline through the views, even speed, soft start/stop, speed hint. Owner to test again after the next release. Kill feed: owner uses the CS2 one (TacAM kill feed stays off by default).
 - **Later: own auto observer (#17)** – smarter than CS2's auto director – on the same console bridge (switch to the player in the duel / with the bomb / last alive, with a minimum dwell time, manual takeover pauses it).
 - Other ideas: Stream Deck / shortcut actions per saved view, signals → camera (e.g. round start → overview path).
@@ -45,7 +45,7 @@ Hand-over state for the next session. Latest release: **v0.2.0** (saved and smoo
 
 ## Releases
 
-- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.2.0).
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.3.0).
 - Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 → 0.1.7 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies
