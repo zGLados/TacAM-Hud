@@ -6,7 +6,7 @@ Hand-over state for the next session. Latest release: **v0.3.0** (CSV export, fi
 
 ### Website hud.tac.am
 
-- `website/` (static, see `website/README.md`) created 2026-10-11; the owner hosts it. Once it is online: link it in the README header and set it as the GitHub repo homepage; SignPath's code signing policy mention is already in the footer.
+- `website/` (static, see `website/README.md`) is **online at https://hud.tac.am** since 2026-10-11 (hosted by the owner, HTTPS, http redirects). Repo homepage and README link set. When screenshots change, update `website/images` too and tell the owner to re-upload.
 
 ### Code signing (SignPath Foundation) – prepared, waiting for the owner
 

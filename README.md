@@ -15,7 +15,7 @@ Live HUD with statistics, broadcast scenes and overlays · web-based director ·
 [![License](https://img.shields.io/github/license/zGLados/TacAM-Hud?color=555)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows%20·%20Linux%20(server)-555)
 
-[**Download**](https://github.com/zGLados/TacAM-Hud/releases/latest) · [Report a bug](https://github.com/zGLados/TacAM-Hud/issues/new/choose) · [Code signing policy](#code-signing-policy) · [Features](#features) · [Screenshots](#screenshots) · [Getting started](#getting-started) · [Camera control](#camera-control-hlae) · [Docs](#documentation)
+[**Download**](https://github.com/zGLados/TacAM-Hud/releases/latest) · [Website](https://hud.tac.am) · [Report a bug](https://github.com/zGLados/TacAM-Hud/issues/new/choose) · [Code signing policy](#code-signing-policy) · [Features](#features) · [Screenshots](#screenshots) · [Getting started](#getting-started) · [Camera control](#camera-control-hlae) · [Docs](#documentation)
 
 <img src="docs/images/hud-live.webp" alt="TacAM HUD during a round" width="100%">
 
