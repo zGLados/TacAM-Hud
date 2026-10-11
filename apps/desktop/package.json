@@ -1,7 +1,7 @@
 {
   "name": "@tacam/desktop",
   "productName": "TacAM HUD",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "TacAM HUD manager – CS2 broadcast HUD",
   "author": "TacAM",

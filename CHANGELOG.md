@@ -2,7 +2,7 @@
 
 All notable changes to TacAM HUD. Versions follow [semantic versioning](https://semver.org/): new features raise the minor version (0.**2**.0), fixes the patch version (0.2.**1**); 1.0.0 comes once TacAM has carried a real broadcast. Betas (`-beta.N`) are test builds before a release – see [docs/development.md](docs/development.md#versions-and-releases).
 
-## Unreleased
+## [0.4.0] – 2026-10-11
 
 ### Added
 - **Export and import on every page** (Teams, Players, Matches, Theme, HUDs, Camera, Integrations) and **Settings → Backup & transfer** for everything at once: one zip with readable JSON and the images (logos, avatars, sponsors), imported HUDs with their settings and optionally the background videos. The import shows what would change and lets you choose the areas and *merge* (add and update – teams by name, players by SteamID) or *replace*. Passwords, the LAN PIN and Stream Deck keys are never exported.
@@ -103,6 +103,7 @@ Camera control is complete: players, CS2 auto director, saved views and saved, s
 ## [0.1.0] – 2026-10-10
 - First release: broadcast HUD, live statistics, scenes, director, manager, Windows app.
 
+[0.4.0]: https://github.com/zGLados/TacAM-Hud/releases/tag/v0.4.0
 [0.3.0]: https://github.com/zGLados/TacAM-Hud/releases/tag/v0.3.0
 [0.2.0]: https://github.com/zGLados/TacAM-Hud/releases/tag/v0.2.0
 [0.1.19]: https://github.com/zGLados/TacAM-Hud/releases/tag/v0.1.19

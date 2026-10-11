@@ -1,6 +1,6 @@
 # Project status
 
-Hand-over state for the next session. Latest release: **v0.3.0** (CSV export, fixed saving of camera paths in the desktop app, GitHub buttons, code signing prepared). Versioning since v0.2.0: semantic versions, `CHANGELOG.md`, betas as GitHub pre-releases (beta channel not tried yet – the first beta tests it).
+Hand-over state for the next session. Latest release: **v0.4.0** (export / import of settings as a zip on every page, Settings → Backup & transfer; community files and Discussions). Before: v0.3.0 (CSV export, fixed saving of camera paths in the desktop app, GitHub buttons, code signing prepared). Versioning since v0.2.0: semantic versions, `CHANGELOG.md`, betas as GitHub pre-releases (beta channel not tried yet – the first beta tests it).
 
 ## Open tasks
 
@@ -17,9 +17,9 @@ Hand-over state for the next session. Latest release: **v0.3.0** (CSV export, fi
 - Owner: 2FA on GitHub is on; **applied at signpath.org on 2026-10-11** (category Gaming, individual maintainer, GitHub Actions; v0.2.0 release notes mention the code signing policy as required for the download page). Waiting for SignPath's answer by email – possibly they ask for more reputation (young repo), then re-apply with community links.
 - After the approval: follow the setup steps (2FA on SignPath, project/policy/artifact configuration, API token, GitHub variable + secret). First signed release = check signature, update from an unsigned version, SmartScreen.
 
-### Export / import of settings – built, not released yet (owner's wish, 2026-10-11)
+### Export / import of settings – released in v0.4.0 (owner's wish, 2026-10-11)
 
-- **Done (unreleased, next minor version):** `apps/server/src/transfer.ts` + `components/Transfer.tsx`. One zip per export (manifest + JSON per section + uploads + imported HUD folders); Export / Import in the header of Teams, Players, Matches, Theme, HUDs, Camera, Integrations; *Settings → Backup & transfer* for any combination (videos optional). Import = preview (dry run) → choose sections → merge or replace. Secrets never exported. Details: `docs/features.md` → Export / import.
+- **Done (v0.4.0):** `apps/server/src/transfer.ts` + `components/Transfer.tsx`. One zip per export (manifest + JSON per section + uploads + imported HUD folders); Export / Import in the header of Teams, Players, Matches, Theme, HUDs, Camera, Integrations; *Settings → Backup & transfer* for any combination (videos optional). Import = preview (dry run) → choose sections → merge or replace. Secrets never exported. Details: `docs/features.md` → Export / import.
 - Tested: 10 unit tests (`transfer.test.ts`: round trip to an empty install, merge by name / SteamID, replace, upload name clash, invalid entries, imported HUDs, secrets); end to end in the browser with two local servers (export download → import on the Teams page and in Settings).
 - **Owner to test in the desktop app (Windows):** save dialog for the zip, import on a second PC (or after a fresh install), large exports with background videos / imported HUDs.
 - Kept: CSV import / export for players and teams (Excel editing). Possible later: coach flag in the CSV.
@@ -52,7 +52,7 @@ Hand-over state for the next session. Latest release: **v0.3.0** (CSV export, fi
 
 ## Releases
 
-- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.3.0; update to v0.3.0 tested by the owner).
+- `.github/workflows/release.yml` builds the Windows installer for every published release (verified v0.1.0–v0.4.0; update to v0.3.0 tested by the owner).
 - Since v0.1.4 the release also carries `latest.yml` + `.blockmap`; the installed app offers updates itself. The updates 0.1.4 → 0.1.5 → 0.1.6 → 0.1.7 were verified on Windows (prompt, silent install, restart, data in `%APPDATA%\TacAM HUD` kept).
 
 ## Environment / dependencies
