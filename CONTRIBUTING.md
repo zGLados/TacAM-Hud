@@ -12,10 +12,10 @@ By taking part you agree to the [Code of Conduct](CODE_OF_CONDUCT.md): be kind, 
 | **Suggest or discuss an idea** | [Discussions → Ideas](https://github.com/zGLados/TacAM-Hud/discussions/categories/ideas). Upvote the ideas you want; well-defined ones become issues. |
 | **Ask a question** | [Discussions → Q&A](https://github.com/zGLados/TacAM-Hud/discussions/categories/q-a) – your answer helps the next person too. |
 | **Show your broadcast** | [Discussions → Show and tell](https://github.com/zGLados/TacAM-Hud/discussions/categories/show-and-tell): a link to your stream or VOD, a screenshot, your theme. Showcases may appear on [hud.tac.am](https://hud.tac.am). |
-| **Test** | Try a release with your setup (OBS, Stream Deck, GOTV, an imported HUD) and tell us what worked and what didn't. Issues labeled [`help wanted`](https://github.com/zGLados/TacAM-Hud/labels/help%20wanted) often need exactly that. |
+| **Test** | Try a release with your setup (OBS, Stream Deck, GOTV, an imported HUD) and tell us what worked and what didn't. Post it in [Discussions](https://github.com/zGLados/TacAM-Hud/discussions) – also "everything works". |
 | **Write guides** | Setup guides, videos or tips for tournaments and LANs – in `docs/` or linked from a discussion. |
 | **Translate** | The website, the docs – later the app. |
-| **Write code** | Start with an issue labeled [`good first issue`](https://github.com/zGLados/TacAM-Hud/labels/good%20first%20issue) – see below. |
+| **Write code** | Pick something from the [roadmap](https://hud.tac.am/#roadmap) or an open issue, or fix what bugs you – see below. |
 
 ## Contributing code
 

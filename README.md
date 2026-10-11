@@ -174,7 +174,7 @@ TacAM HUD is free and made for the community – no paid tier, no donations. **E
 
 - **Bugs:** [open an issue](https://github.com/zGLados/TacAM-Hud/issues/new/choose) – the bug report form asks for everything needed (version, what you did, screenshots, CS2 console output). In the app: *TacAM HUD → Report a problem on GitHub…* or the *Report issue* button at the bottom of the sidebar (fills in your version); the *GitHub* button next to it opens the project.
 - **Ideas and questions:** [Discussions](https://github.com/zGLados/TacAM-Hud/discussions) (*Ideas*, *Q&A*); show your broadcast or theme in *Show and tell*.
-- **Testing, guides, translations, code:** see [CONTRIBUTING.md](CONTRIBUTING.md) and the issues labeled [`good first issue`](https://github.com/zGLados/TacAM-Hud/labels/good%20first%20issue) and [`help wanted`](https://github.com/zGLados/TacAM-Hud/labels/help%20wanted).
+- **Testing, guides, translations, code:** see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
