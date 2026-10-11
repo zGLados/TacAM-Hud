@@ -13,6 +13,7 @@ import type {
   StatsSnapshot,
   TeamProfile,
   Theme,
+  CameraPath,
   CameraShot,
   CameraState,
   ObsSettings,
@@ -79,6 +80,7 @@ export interface CameraStatus {
   /** Map being played (GSI), shots are filtered by it. */
   map: string | null;
   shots: CameraShot[];
+  paths: CameraPath[];
   freeCameraOnMapLoad: boolean;
   mapLoadCommands: string;
   menuCommands: string;
@@ -196,6 +198,10 @@ export const api = {
     release: () => request<void>('POST', '/camera-control/release'),
     spectate: (steamid: string) => request<void>('POST', '/camera-control/spectate', { steamid }),
     free: () => request<void>('POST', '/camera-control/free'),
+    savePath: (path: Omit<CameraPath, 'id' | 'map'>) => request<CameraPath>('POST', '/camera-control/paths', path),
+    updatePath: (id: string, patch: Partial<Omit<CameraPath, 'id' | 'map'>>) => request<CameraPath>('PUT', `/camera-control/paths/${id}`, patch),
+    removePath: (id: string) => request<void>('DELETE', `/camera-control/paths/${id}`),
+    playPath: (id: string) => request<void>('POST', `/camera-control/paths/${id}/play`),
     autoDirector: (on: boolean) => request<CameraState>('POST', '/camera-control/auto-director', { on }),
     options: (o: Partial<Pick<CameraStatus, 'freeCameraOnMapLoad' | 'mapLoadCommands' | 'menuCommands'>>) =>
       request<Pick<CameraStatus, 'freeCameraOnMapLoad' | 'mapLoadCommands' | 'menuCommands'>>('PUT', '/camera-control/options', o),

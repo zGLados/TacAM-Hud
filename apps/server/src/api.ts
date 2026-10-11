@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
-import { HUD_OVERLAYS, SCENE_IDS, SIGNAL_EVENTS, THEME_COLOR_KEYS, normalizeMapName, type CameraShot, type HudBootstrap } from '@tacam/shared';
+import { HUD_OVERLAYS, SCENE_IDS, SIGNAL_EVENTS, THEME_COLOR_KEYS, normalizeMapName, type CameraPath, type CameraShot, type HudBootstrap } from '@tacam/shared';
 import type { Store } from './store.js';
 import type { LiveHub } from './live.js';
 import type { HudServer } from './io.js';
@@ -16,7 +16,7 @@ import { isAccelerator, triggerStatus, TriggerError, validActionKey, type Trigge
 import { captainVetoRoutes } from './captainVeto.js';
 import { diagnoseConsole, GameLaunchError, launchCs2, withNetconPort, type GameConsole } from './game.js';
 import { HlaeError, installHlae, installedHlae, latestHlae } from './hlae.js';
-import { CameraError, hlaeActive, readView, type CameraControl } from './camera.js';
+import { CameraError, hlaeActive, pathViews, readView, type CameraControl } from './camera.js';
 import { matchzyConfig } from './matchzy.js';
 import { buildHudConfig, emitHudAction, emitHudConfig, emitHudPanelAction, emitKeybindAction, emitRefresh, type PanelSection } from './lhm.js';
 import { getHud, hudFile, HudImportError, importHudZip, listHuds, removeHud } from './huds.js';
@@ -483,7 +483,7 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
   };
   api.get('/camera-control', (_req, res) => {
     const status = gameConsole.status();
-    res.json({ connected: status.connected, error: status.error, map: live.last ? normalizeMapName(live.last.map.name) : null, shots: shots(), ...cameraOptions(), camera: cameraControl.state });
+    res.json({ connected: status.connected, error: status.error, map: live.last ? normalizeMapName(live.last.map.name) : null, shots: shots(), paths: store.doc('settings').cameraPaths, ...cameraOptions(), camera: cameraControl.state });
   });
   const commandText = z
     .string()
@@ -540,6 +540,44 @@ export function createApi({ store, live, io, actions, obs, signals, gameConsole,
       const views = shotIds.map((id) => shots().find((s) => s.id === id)).filter((s): s is CameraShot => !!s);
       if (views.length < 2) return res.status(400).json({ error: 'Select at least two views' });
       await cameraControl.playPath(views, duration, hold);
+      res.json({ ok: true });
+    })
+  );
+  const paths = () => store.doc('settings').cameraPaths;
+  const savePaths = (cameraPaths: CameraPath[]) => store.setDoc('settings', { ...store.doc('settings'), cameraPaths }).cameraPaths;
+  const pathSchema = z.object({ name: str.min(1).max(60), shotIds: z.array(str).min(2).max(20), duration: z.number().min(0.5).max(120), hold: z.boolean() });
+  api.post(
+    '/camera-control/paths',
+    h((req, res) => {
+      const body = pathSchema.parse(req.body);
+      const first = shots().find((s) => s.id === body.shotIds[0]);
+      if (!body.shotIds.every((id) => shots().some((s) => s.id === id))) return res.status(400).json({ error: 'Unknown view in the path' });
+      const saved: CameraPath = { id: randomUUID(), map: first!.map, ...body };
+      savePaths([...paths(), saved]);
+      res.status(201).json(saved);
+    })
+  );
+  api.put(
+    '/camera-control/paths/:id',
+    h((req, res) => {
+      const patch = pathSchema.partial().parse(req.body);
+      const existing = paths().find((p) => p.id === req.params.id);
+      if (!existing) return res.status(404).json({ error: 'not found' });
+      const updated = { ...existing, ...patch };
+      savePaths(paths().map((p) => (p.id === existing.id ? updated : p)));
+      res.json(updated);
+    })
+  );
+  api.delete('/camera-control/paths/:id', (req, res) => {
+    savePaths(paths().filter((p) => p.id !== req.params.id));
+    res.status(204).end();
+  });
+  api.post(
+    '/camera-control/paths/:id/play',
+    camera(async (req, res) => {
+      const saved = paths().find((p) => p.id === req.params.id);
+      if (!saved) return res.status(404).json({ error: 'not found' });
+      await cameraControl.playPath(pathViews(saved, shots()), saved.duration, saved.hold);
       res.json({ ok: true });
     })
   );

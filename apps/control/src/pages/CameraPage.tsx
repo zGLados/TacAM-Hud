@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Navigate, useParams } from 'react-router-dom';
-import { prettyMapName, type CameraMode, type CameraShot, type LivePlayerSummary } from '@tacam/shared';
+import { prettyMapName, type CameraMode, type CameraPath, type CameraShot, type LivePlayerSummary } from '@tacam/shared';
 import { api, useLive, type CameraStatus } from '../api';
 import { Card, ConfirmButton, Field, PageHeader, Toggle, useRun } from '../components/ui';
 
@@ -107,6 +107,8 @@ export function CameraPage() {
   const [duration, setDuration] = useState(5);
   // Off: after the path CS2 shows the spectated player again (owner's expectation).
   const [hold, setHold] = useState(false);
+  /** Saved path loaded into the editor with “Edit”. */
+  const [editing, setEditing] = useState<CameraPath | null>(null);
 
   const load = () => api.camera.status().then(setStatus).catch(() => {});
   useEffect(() => {
@@ -138,6 +140,28 @@ export function CameraPage() {
   const pathLength = pathViews.slice(1).reduce((sum, v, i) => sum + Math.hypot(v.x - pathViews[i].x, v.y - pathViews[i].y, v.z - pathViews[i].z), 0);
   const speed = pathLength / duration;
   const calmDuration = Math.ceil(pathLength / CALM_SPEED);
+  const savedPaths = status.paths.filter((p) => allMaps || !status.map || p.map === status.map);
+  const savePath = async () => {
+    const pathName = window.prompt('Name of the camera path', `Path ${status.paths.length + 1}`)?.trim();
+    if (!pathName) return;
+    if (await run(() => api.camera.savePath({ name: pathName, shotIds: pathIds, duration, hold }), 'Camera path saved')) load();
+  };
+  const loadPath = (saved: CameraPath) => {
+    setPathIds(saved.shotIds.filter((id) => status.shots.some((s) => s.id === id)));
+    setDuration(saved.duration);
+    setHold(saved.hold);
+    setEditing(saved);
+  };
+  const updatePath = async () => {
+    if (editing && (await run(() => api.camera.updatePath(editing.id, { shotIds: pathIds, duration, hold }), 'Camera path updated'))) {
+      setEditing(null);
+      load();
+    }
+  };
+  const renamePath = async (saved: CameraPath) => {
+    const next = window.prompt('Name of the camera path', saved.name)?.trim();
+    if (next && (await run(() => api.camera.updatePath(saved.id, { name: next })))) load();
+  };
   const togglePath = (id: string) => setPathIds(pathIds.includes(id) ? pathIds.filter((x) => x !== id) : [...pathIds, id]);
   const move = async (shot: CameraShot, delta: number) => {
     const list = [...status.shots];
@@ -297,7 +321,22 @@ export function CameraPage() {
               <button className="button primary" disabled={pathIds.length < 2} onClick={() => run(() => api.camera.path(pathIds, duration, hold), 'Camera path started')}>
                 Play path ({pathIds.length} views)
               </button>
-              <button className="button ghost" disabled={!pathIds.length} onClick={() => setPathIds([])}>
+              {editing && status.paths.some((p) => p.id === editing.id) && (
+                <button className="button" disabled={pathIds.length < 2} onClick={updatePath}>
+                  Update “{editing.name}”
+                </button>
+              )}
+              <button className="button" disabled={pathIds.length < 2} onClick={savePath} title="Keep this path for the broadcast (one click, Stream Deck, signals)">
+                {editing ? 'Save as new path' : 'Save path'}
+              </button>
+              <button
+                className="button ghost"
+                disabled={!pathIds.length}
+                onClick={() => {
+                  setPathIds([]);
+                  setEditing(null);
+                }}
+              >
                 Clear selection
               </button>
             </div>
@@ -316,6 +355,45 @@ export function CameraPage() {
                 )}
               </p>
             )}
+          </Card>
+
+          <Card title={`Saved paths${status.map && !allMaps ? ` · ${prettyMapName(status.map)}` : ''}`}>
+            {savedPaths.length ? (
+              <div className="camera_paths">
+                {savedPaths.map((saved) => {
+                  const present = saved.shotIds.filter((id) => status.shots.some((s) => s.id === id)).length;
+                  return (
+                    <div key={saved.id} className="camera_path">
+                      <button className="button primary camera_go" disabled={present < 2} onClick={() => run(() => api.camera.playPath(saved.id)).then(load)}>
+                        ▶ {saved.name}
+                      </button>
+                      <div className={`small ${present < saved.shotIds.length ? 'camera_speed is-fast' : 'muted'}`}>
+                        {allMaps && `${prettyMapName(saved.map)} · `}
+                        {present < saved.shotIds.length ? `${saved.shotIds.length - present} of ${saved.shotIds.length} views deleted` : `${saved.shotIds.length} views`} · {saved.duration} s
+                        {saved.hold ? ' · stays' : ''}
+                      </div>
+                      <div className="row">
+                        <button className="button small ghost" onClick={() => loadPath(saved)} title="Load into the editor above (change views, duration, then save again)">
+                          Edit
+                        </button>
+                        <button className="icon_button" aria-label="Rename" onClick={() => renamePath(saved)}>
+                          ✎
+                        </button>
+                        <ConfirmButton className="small danger" onConfirm={() => run(() => api.camera.removePath(saved.id), 'Camera path deleted').then(load)}>
+                          ×
+                        </ConfirmButton>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="muted">No saved paths for this map yet – choose views with “+ Path” and press “Save path”.</p>
+            )}
+            <p className="muted small">
+              Every saved path is also an action (<em>Camera path: …</em>) for the Stream Deck / Companion, keyboard shortcuts and signals – e.g. an overview flight at
+              round start.
+            </p>
           </Card>
         </>
       )}

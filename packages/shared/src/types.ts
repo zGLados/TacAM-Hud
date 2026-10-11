@@ -186,6 +186,17 @@ export interface CameraShot {
   fov: number;
 }
 
+/** A saved camera path: views (by id, in order) flown in `duration` seconds. */
+export interface CameraPath {
+  id: string;
+  name: string;
+  map: string;
+  shotIds: string[];
+  duration: number;
+  /** Stay on the last view afterwards (otherwise back to the spectated player). */
+  hold: boolean;
+}
+
 /** Game events that can fire signals (apps/server/src/signals.ts). */
 export const SIGNAL_EVENTS = [
   'roundStart',

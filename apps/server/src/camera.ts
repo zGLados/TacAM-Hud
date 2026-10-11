@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { CameraShot, CameraState } from '@tacam/shared';
+import type { CameraPath, CameraShot, CameraState } from '@tacam/shared';
 import type { GameConsole } from './game.js';
 
 /**
@@ -280,5 +280,12 @@ export class CameraControl {
     await this.console.sendAll(on ? [...releaseCommands, 'spec_autodirector 1'] : ['spec_autodirector 0']);
     this.set({ mode: 'game', autoDirector: on });
   }
+}
+
+/** The views of a saved path; views deleted since then are skipped. */
+export function pathViews(path: CameraPath, shots: CameraShot[]) {
+  const views = path.shotIds.map((id) => shots.find((s) => s.id === id)).filter((s): s is CameraShot => !!s);
+  if (views.length < 2) throw new CameraError(`Path "${path.name}" needs at least two views – some were deleted`);
+  return views;
 }
 

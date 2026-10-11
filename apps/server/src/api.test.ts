@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { DEFAULT_THEME } from '@tacam/shared';
+import { pathViews } from './camera.js';
 import { createTacamServer, type TacamServer } from './app.js';
 
 const port = 41000 + Math.floor(Math.random() * 1000);
@@ -448,6 +449,25 @@ describe('API', () => {
 
     expect((await fetch(`${base}/huds/${hud.dir}`, { method: 'DELETE' })).status).toBe(204);
     expect((await fetch(`http://127.0.0.1:${port}/huds/${hud.dir}/`)).status).toBe(404);
+  });
+
+  it('saves camera paths as Stream Deck actions and skips deleted views', async () => {
+    const shot = (id: string, x: number) => ({ id, name: id, map: 'de_mirage', x, y: 0, z: 0, pitch: 0, yaw: 0, roll: 0, fov: 90 });
+    server.store.setDoc('settings', { ...server.store.doc('settings'), cameraShots: [shot('a', 0), shot('b', 100), shot('c', 200)] });
+    const res = await fetch(`${base}/camera-control/paths`, json('POST', { name: 'Overview', shotIds: ['a', 'b', 'c'], duration: 6, hold: false }));
+    expect(res.status).toBe(201);
+    const saved = await res.json();
+    expect(saved).toMatchObject({ map: 'de_mirage', shotIds: ['a', 'b', 'c'] });
+    const actions = await (await fetch(`${base}/actions`)).json();
+    expect(actions.find((a: { id: string }) => a.id === `camera-path-${saved.id}`)?.label).toBe('Camera path: Overview (mirage)');
+    expect((await fetch(`${base}/camera-control/paths`, json('POST', { name: 'x', shotIds: ['a', 'nope'], duration: 6, hold: false }))).status).toBe(400);
+
+    server.store.setDoc('settings', { ...server.store.doc('settings'), cameraShots: [shot('a', 0)] });
+    expect(() => pathViews(saved, server.store.doc('settings').cameraShots)).toThrow('at least two views');
+    expect((await fetch(`${base}/camera-control/paths/${saved.id}`, { method: 'DELETE' })).status).toBe(204);
+    const after = await (await fetch(`${base}/actions`)).json();
+    expect(after.some((a: { id: string }) => a.id.startsWith('camera-path-'))).toBe(false);
+    server.store.setDoc('settings', { ...server.store.doc('settings'), cameraShots: [] });
   });
 
   it('refuses to spectate players that are not in the game', async () => {

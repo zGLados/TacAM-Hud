@@ -1104,12 +1104,14 @@ input.grow {
 }
 
 /* camera page */
-.camera_shots {
+.camera_shots,
+.camera_paths {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 10px;
 }
-.camera_shot {
+.camera_shot,
+.camera_path {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1117,6 +1119,9 @@ input.grow {
   background: var(--bg-elevated);
   border: 2px solid var(--border);
   border-radius: var(--radius);
+}
+.camera_paths {
+  margin-bottom: 10px;
 }
 .camera_shot.is-in-path {
   border-color: var(--primary);

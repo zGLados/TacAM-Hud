@@ -2,7 +2,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { SCENE_IDS, SCENE_LABELS, type HudAction, type HudConfig } from '@tacam/shared';
 import type { HudServer } from './io.js';
 import { emitHudAction, emitRefresh } from './lhm.js';
-import type { CameraControl } from './camera.js';
+import { pathViews, type CameraControl } from './camera.js';
 import type { LiveHub } from './live.js';
 import type { Store } from './store.js';
 
@@ -75,7 +75,7 @@ export function createActions(store: Store, live: LiveHub, io: HudServer, camera
     },
   ];
 
-  return [
+  const list: TriggerAction[] = [
     ...sceneActions,
     ...cameraActions,
     {
@@ -167,6 +167,28 @@ export function createActions(store: Store, live: LiveHub, io: HudServer, camera
       },
     },
   ];
+  // Saved camera paths are actions too (camera-path-<id>). The list is shared by reference
+  // (trigger URLs, shortcuts, signals), so it is updated in place when paths change.
+  const syncPathActions = () => {
+    for (let i = list.length - 1; i >= 0; i--) if (list[i].id.startsWith('camera-path-')) list.splice(i, 1);
+    for (const path of store.doc('settings').cameraPaths) {
+      list.push({
+        id: `camera-path-${path.id}`,
+        group: 'Camera',
+        label: `Camera path: ${path.name} (${path.map.replace(/^de_/, '')})`,
+        run: () => {
+          const current = store.doc('settings').cameraPaths.find((p) => p.id === path.id);
+          if (!current) throw new TriggerError(404, 'Camera path deleted');
+          const views = pathViews(current, store.doc('settings').cameraShots);
+          toCamera((camera) => camera.playPath(views, current.duration, current.hold))();
+        },
+      });
+    }
+  };
+  syncPathActions();
+  store.on('change', (name: string) => name === 'settings' && syncPathActions());
+  return list;
+
 }
 
 /** State for Companion feedback: scene, overlay and every action with an on/off state. */

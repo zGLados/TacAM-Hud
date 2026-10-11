@@ -13,6 +13,7 @@ import {
   type SceneState,
   type TeamProfile,
   type Theme,
+  type CameraPath,
   type CameraShot,
   type ObsSettings,
   type SignalRule,
@@ -39,6 +40,8 @@ export interface Settings {
   hlaePath: string;
   /** Saved camera views (HLAE), see camera.ts. */
   cameraShots: CameraShot[];
+  /** Saved camera paths for the broadcast (also Stream Deck actions camera-path-<id>). */
+  cameraPaths: CameraPath[];
   /** Enter the HLAE free camera when a map / demo is loaded (else: back to the game view). */
   freeCameraOnMapLoad: boolean;
   /** Console commands (one per line) when a map / demo is loaded and when CS2 is back in the main menu. */
@@ -86,6 +89,7 @@ const defaults = (): Database => ({
     launchMode: process.platform === 'win32' ? 'tools' : 'normal',
     hlaePath: '',
     cameraShots: [],
+    cameraPaths: [],
     freeCameraOnMapLoad: true,
     mapLoadCommands: '// only the kill feed of the CS2 HUD; keep rendering when tabbed out\ncl_draw_only_deathnotices 1\nengine_no_focus_sleep 0',
     menuCommands: 'cl_draw_only_deathnotices 0\nengine_no_focus_sleep 60',
