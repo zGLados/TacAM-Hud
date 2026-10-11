@@ -5,11 +5,11 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 ## Structure
 
 - `packages/shared`: domain types, `StatsTracker`, `inferKills`, format helpers. Built to `dist/`; **after changes run `npm run build -w @tacam/shared`**, otherwise server/apps see stale types.
-- `apps/server`: Express 4 + Socket.io; `app.ts` (server factory), `live.ts` (GSI pipeline, team assignment, scene automation), `api.ts` (REST + zod), `store.ts` (JSON DB), `auth.ts` (LAN PIN), `demo.ts` (simulated match), `gsiInstall.ts`.
+- `apps/server`: Express 4 + Socket.io; `app.ts` (server factory), `live.ts` (GSI pipeline, team assignment, scene automation, game events), `api.ts` (REST + zod), `store.ts` (JSON DB), `auth.ts` (LAN PIN), `demo.ts` (simulated match), `gsiInstall.ts`, `actions.ts`/`signals.ts`/`obs.ts` (integrations), `huds.ts`/`lhm.ts` (imported HUDs), `game.ts`/`hlae.ts`/`camera.ts` (start CS2, console, HLAE camera). Module table: `docs/architecture.md`.
 - `apps/hud`: React overlay; state in `state/store.ts` (useSyncExternalStore), components in `components/`, scenes in `scenes/`, one CSS file per component in `styles/`.
-- `apps/control`: React control panel (react-router 6), pages in `pages/`, building blocks in `components/ui.tsx`.
+- `apps/control`: React control panel (react-router 7), pages in `pages/`, building blocks in `components/ui.tsx`; `veto.html` is a second entry (captain veto page, no login).
 - `apps/desktop`: Electron main (`src/main.ts`), bundled to CJS with esbuild.
-- `.github/workflows/release.yml`: builds the Windows installer when a GitHub release is published.
+- `.github/workflows/release.yml`: builds the Windows installer (+ `latest.yml` for the in-app updater) when a GitHub release is published; tests run on Windows there.
 - Docs: `README.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state.**
 
 ## Commands
@@ -19,6 +19,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 ## Conventions
 
 - **Documentation and code comments are English.** Comments are sparse and explain the why. UI texts are English as well (control panel, desktop app, API error messages, HUD).
+- **Keep the docs current with every change** (owner's request): update `README.md` (feature list, screenshots when the UI changes visibly), `docs/features.md`, `docs/api.md`, `docs/architecture.md`, this file and `docs/STATUS.md` in the same commit as the code – not later.
 - Node ≥ 22.12 + npm ≥ 11 (npm 10 crashes on Vitest's peer deps). Locally Node 22 lives in `~/.local/node22` (`export PATH=~/.local/node22/bin:$PATH`); the system Node is 18 and too old. New packages with install scripts must be approved in `allowScripts` (`npm install-scripts approve <pkg>`).
 - HUD CSS: BEM in kebab-case, `data-side`/`data-align`/`data-state`, states `is-*`; no IDs; colors only via `--color-*` variables (see `docs/hud-styling.md`). New elements get their own file in `styles/` + an import in `styles/index.css`.
 - Theme colors = `THEME_COLOR_KEYS` in `shared/types.ts`; the HUD sets `--color-<key>`. Add new keys to the control panel as well (`ThemePage` labels).
