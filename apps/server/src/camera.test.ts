@@ -60,17 +60,42 @@ describe('camera (HLAE)', () => {
     ]);
   });
 
-  it('builds a campath with at least four keyframes and HLAE angle attributes', () => {
+  const pathPoints = (xml: string) =>
+    [...xml.matchAll(/<p t="([-\d.]+)" x="([-\d.]+)" y="([-\d.]+)" z="([-\d.]+)" fov="([-\d.]+)" rx="([-\d.]+)" ry="([-\d.]+)" rz="([-\d.]+)"/g)].map((m) => {
+      const [t, x, y, z, fov, roll, pitch, yaw] = m.slice(1).map(Number);
+      return { t, x, y, z, fov, roll, pitch, yaw };
+    });
+
+  it('builds a dense, smooth campath with HLAE angle attributes', () => {
     const a = { x: 0, y: 0, z: 0, pitch: 0, yaw: 170, roll: 0, fov: 90 };
     const b = { x: 100, y: 0, z: 50, pitch: 20, yaw: -170, roll: 0, fov: 70 };
     const xml = campathXml([a, b], 6, true);
-    const points = [...xml.matchAll(/<p t="([\d.]+)" x="([-\d.]+)"[^>]*rz="([-\d.]+)"/g)];
-    expect(points.map((p) => Number(p[1]))).toEqual([0, 2, 4, 6]);
+    const points = pathPoints(xml);
+    expect(points).toHaveLength(6 * 20 + 1);
+    expect(points[0]).toMatchObject({ t: 0, x: 0, z: 0, yaw: 170, pitch: 0, fov: 90 });
+    expect(points.at(-1)).toMatchObject({ t: 6, x: 100, z: 50, pitch: 20, fov: 70 });
     expect(xml).toContain('hold=""');
-    // yaw 170 → -170 goes the short way over 180 (not back through 0)
-    expect(Number(points[1][3])).toBeCloseTo(176.667, 2);
-    expect(Number(points[2][3])).toBeCloseTo(183.333, 2);
     expect(xml).toContain('rx="0" ry="0" rz="170"');
+    // yaw 170 → -170 goes the short way over 180 (to 190), not back through 0
+    expect(points.at(-1)!.yaw).toBeCloseTo(190, 3);
+    expect(points[60].yaw).toBeGreaterThan(175);
+    // soft start: the first step is much shorter than a step in the middle
+    expect(points[1].x - points[0].x).toBeLessThan((points[61].x - points[60].x) / 10);
+  });
+
+  it('moves at an even speed through views at uneven distances', () => {
+    const view = (x: number) => ({ x, y: 0, z: 0, pitch: 0, yaw: 0, roll: 0, fov: 90 });
+    const points = pathPoints(campathXml([view(0), view(100), view(1100)], 10, false));
+    const speedAround = (x: number) => {
+      const i = points.findIndex((p) => p.x >= x);
+      const speed = (points[i + 1].x - points[i].x) / (points[i + 1].t - points[i].t);
+      return speed / Math.sin((Math.PI * points[i].t) / 10); // take out the soft start / stop
+    };
+    // without arc-length timing the short first segment would be ten times slower
+    expect(speedAround(600) / speedAround(80)).toBeCloseTo(1, 1);
+    // the path never runs backwards or beyond the last view
+    expect(points.every((p, i) => i === 0 || p.x >= points[i - 1].x - 1e-6)).toBe(true);
+    expect(Math.max(...points.map((p) => p.x))).toBeLessThanOrEqual(1100);
   });
 
   it('writes the path file and plays it from now', async () => {

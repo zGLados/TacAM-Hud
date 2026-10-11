@@ -62,43 +62,90 @@ export function goToCommands(view: View) {
 /** Back to the normal spectator view. */
 export const releaseCommands = ['mirv_campath enabled 0', 'mirv_input end'];
 
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-/** Angle interpolation along the shorter way round. */
-const lerpAngle = (a: number, b: number, t: number) => a + ((((b - a) % 360) + 540) % 360 - 180) * t;
+type Vec = number[]; // x, y, z, pitch, yaw, roll, fov
+const toVec = (v: View): Vec => [v.x, v.y, v.z, v.pitch, v.yaw, v.roll, v.fov];
+const toView = ([x, y, z, pitch, yaw, roll, fov]: Vec): View => ({ x, y, z, pitch, yaw, roll, fov });
+const mix = (a: Vec, b: Vec, wa: number, wb: number) => a.map((value, i) => value * wa + b[i] * wb);
+const distance = (a: Vec, b: Vec) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+/** A degree of turning counts like this many units of travel, so pans get time too. */
+const UNITS_PER_DEGREE = 5;
+const effort = (a: Vec, b: Vec) => distance(a, b) + UNITS_PER_DEGREE * (Math.abs(a[3] - b[3]) + Math.abs(a[4] - b[4]) + Math.abs(a[5] - b[5]));
+/** Keyframes per second: dense enough that HLAE's own spline only bridges tiny steps. */
+const KEYS_PER_SECOND = 20;
 
-function between(a: View, b: View, t: number): View {
-  return {
-    x: lerp(a.x, b.x, t),
-    y: lerp(a.y, b.y, t),
-    z: lerp(a.z, b.z, t),
-    pitch: lerpAngle(a.pitch, b.pitch, t),
-    yaw: lerpAngle(a.yaw, b.yaw, t),
-    roll: lerpAngle(a.roll, b.roll, t),
-    fov: lerp(a.fov, b.fov, t),
-  };
+/** Angles as a continuous sequence (each step the shorter way round), so the spline never spins. */
+function unwrapAngles(views: View[]): Vec[] {
+  const vecs = views.map(toVec);
+  for (let i = 1; i < vecs.length; i++) {
+    for (const k of [3, 4, 5]) vecs[i][k] = vecs[i - 1][k] + ((((vecs[i][k] - vecs[i - 1][k]) % 360) + 540) % 360) - 180;
+  }
+  return vecs;
+}
+
+/**
+ * Centripetal Catmull-Rom (Barry-Goldman) between p1 and p2 at u ∈ [0, 1]: passes through
+ * every view without overshooting or looping when the distances between views differ a lot.
+ */
+function catmullRom(p0: Vec, p1: Vec, p2: Vec, p3: Vec, u: number): Vec {
+  const knot = (a: Vec, b: Vec) => Math.max(Math.sqrt(distance(a, b)), 1e-3);
+  const t0 = 0;
+  const t1 = t0 + knot(p0, p1);
+  const t2 = t1 + knot(p1, p2);
+  const t3 = t2 + knot(p2, p3);
+  const t = t1 + u * (t2 - t1);
+  const lerpAt = (a: Vec, b: Vec, ta: number, tb: number) => mix(a, b, (tb - t) / (tb - ta), (t - ta) / (tb - ta));
+  const a1 = lerpAt(p0, p1, t0, t1);
+  const a2 = lerpAt(p1, p2, t1, t2);
+  const a3 = lerpAt(p2, p3, t2, t3);
+  return lerpAt(lerpAt(a1, a2, t0, t2), lerpAt(a2, a3, t1, t3), t1, t2);
 }
 
 /**
  * Campath XML through the given views in `duration` seconds, starting at time 0
- * (made "now" with `mirv_campath offset current`). HLAE needs at least four
- * keyframes, so short paths get points on the straight line in between.
+ * (made "now" with `mirv_campath offset current`). TacAM samples the curve itself:
+ * a smooth spline through all views, time spread by distance and turning (even
+ * speed instead of the same time per view) and a soft start and stop.
  */
 export function campathXml(views: View[], duration: number, hold: boolean) {
   if (views.length < 2) throw new CameraError('A camera path needs at least two views');
-  // Two views: thirds keep the speed even; otherwise split the longest segment until there are four keys.
-  const base = views.length === 2 ? [views[0], between(views[0], views[1], 1 / 3), between(views[0], views[1], 2 / 3), views[1]] : views;
-  const keys = base.map((view, i) => ({ t: (duration * i) / (base.length - 1), view }));
-  while (keys.length < 4) {
-    let longest = 0;
-    for (let i = 1; i < keys.length - 1; i++) if (keys[i + 1].t - keys[i].t > keys[longest + 1].t - keys[longest].t) longest = i;
-    const a = keys[longest];
-    const b = keys[longest + 1];
-    keys.splice(longest + 1, 0, { t: (a.t + b.t) / 2, view: between(a.view, b.view, 0.5) });
+  const vecs = unwrapAngles(views);
+  // Mirrored end points give the first and last segment a natural tangent.
+  const padded = [mix(vecs[0], vecs[1], 2, -1), ...vecs, mix(vecs.at(-1)!, vecs.at(-2)!, 2, -1)];
+  const at = (segment: number, u: number) => catmullRom(padded[segment], padded[segment + 1], padded[segment + 2], padded[segment + 3], u);
+
+  // Arc-length table over all segments.
+  const STEPS = 64;
+  const table: { s: number; segment: number; u: number }[] = [{ s: 0, segment: 0, u: 0 }];
+  let total = 0;
+  for (let segment = 0; segment < vecs.length - 1; segment++) {
+    let previous = at(segment, 0);
+    for (let step = 1; step <= STEPS; step++) {
+      const u = step / STEPS;
+      const point = at(segment, u);
+      // Identical views: still move through them evenly instead of dividing by zero.
+      total += Math.max(effort(previous, point), 1e-6);
+      table.push({ s: total, segment, u });
+      previous = point;
+    }
   }
-  const points = keys
-    .map(({ t, view: v }) => `    <p t="${fmt(t)}" x="${fmt(v.x)}" y="${fmt(v.y)}" z="${fmt(v.z)}" fov="${fmt(v.fov)}" rx="${fmt(v.roll)}" ry="${fmt(v.pitch)}" rz="${fmt(v.yaw)}"/>`)
-    .join('\n');
-  return `<?xml version="1.0" encoding="utf-8"?>\n<campath${hold ? ' hold=""' : ''}>\n  <points>\n${points}\n  </points>\n</campath>\n`;
+  const locate = (s: number) => {
+    let i = table.findIndex((entry) => entry.s >= s);
+    if (i <= 0) return { segment: 0, u: 0 };
+    const [a, b] = [table[i - 1], table[i]];
+    const f = (s - a.s) / (b.s - a.s);
+    return b.segment === a.segment ? { segment: a.segment, u: a.u + (b.u - a.u) * f } : { segment: b.segment, u: b.u * f };
+  };
+
+  const count = Math.max(8, Math.ceil(duration * KEYS_PER_SECOND));
+  const points: string[] = [];
+  for (let k = 0; k <= count; k++) {
+    const progress = k / count;
+    const eased = (1 - Math.cos(Math.PI * progress)) / 2; // soft start and stop
+    const { segment, u } = k === count ? { segment: vecs.length - 2, u: 1 } : locate(eased * total);
+    const v = toView(at(segment, u));
+    points.push(`    <p t="${fmt(progress * duration)}" x="${fmt(v.x)}" y="${fmt(v.y)}" z="${fmt(v.z)}" fov="${fmt(v.fov)}" rx="${fmt(v.roll)}" ry="${fmt(v.pitch)}" rz="${fmt(v.yaw)}"/>`);
+  }
+  return `<?xml version="1.0" encoding="utf-8"?>\n<campath${hold ? ' hold=""' : ''}>\n  <points>\n${points.join('\n')}\n  </points>\n</campath>\n`;
 }
 
 /** Writes the path file and returns the console commands that play it from now. */

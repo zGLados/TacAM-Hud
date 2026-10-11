@@ -113,12 +113,22 @@ async function bootstrap() {
  */
 const scriptUrls = (doc: Document) =>
   [...doc.querySelectorAll<HTMLScriptElement>('script[type="module"][src]')].map((s) => new URL(s.getAttribute('src')!, window.location.href).pathname).sort().join(' ');
+// Viewers must not see the reload: wait until the HUD is hidden or no game data
+// came in for a while (map change, main menu, CS2 not started yet).
+let lastUpdateAt = 0;
+let reloadTimer: ReturnType<typeof setInterval> | null = null;
+const reloadUnseen = () => {
+  if (reloadTimer) return;
+  reloadTimer = setInterval(() => {
+    if (!state.config.visibility.hud || Date.now() - lastUpdateAt > 5000) window.location.reload();
+  }, 1000);
+};
 async function reloadIfOutdated() {
   try {
     const res = await fetch(window.location.pathname, { cache: 'no-store' });
     if (!res.ok) return;
     const served = scriptUrls(new DOMParser().parseFromString(await res.text(), 'text/html'));
-    if (served && served !== scriptUrls(document)) window.location.reload();
+    if (served && served !== scriptUrls(document)) reloadUnseen();
   } catch {
     // server restarting – the next reconnect checks again
   }
@@ -139,6 +149,7 @@ socket.on('update', ({ raw, teams, demo, flip, rules }) => {
   GSI.overtimeMR = rules.overtimeMR;
   GSI.teams.left = teams.left;
   GSI.teams.right = teams.right;
+  lastUpdateAt = Date.now();
   const game = GSI.digest(raw as CSGORaw);
   if (game) set({ game, demo, flip });
 });

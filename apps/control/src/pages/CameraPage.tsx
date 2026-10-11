@@ -10,6 +10,10 @@ const TABS = [
   { id: 'setup', label: 'Setup' },
 ] as const;
 
+/** Units per second: above this a path looks rushed / choppy at stream frame rates; CALM is the suggestion. */
+const FAST_SPEED = 450;
+const CALM_SPEED = 300;
+
 const MODE_LABEL: Record<CameraMode, string> = { game: 'game view', free: 'free camera', view: 'saved view', path: 'camera path' };
 
 /**
@@ -129,6 +133,11 @@ export function CameraPage() {
       load();
     }
   };
+  // Straight-line length of the selected path: the speed hint helps choosing a calm duration.
+  const pathViews = pathIds.map((id) => status.shots.find((s) => s.id === id)).filter((s): s is CameraShot => !!s);
+  const pathLength = pathViews.slice(1).reduce((sum, v, i) => sum + Math.hypot(v.x - pathViews[i].x, v.y - pathViews[i].y, v.z - pathViews[i].z), 0);
+  const speed = pathLength / duration;
+  const calmDuration = Math.ceil(pathLength / CALM_SPEED);
   const togglePath = (id: string) => setPathIds(pathIds.includes(id) ? pathIds.filter((x) => x !== id) : [...pathIds, id]);
   const move = async (shot: CameraShot, delta: number) => {
     const list = [...status.shots];
@@ -277,8 +286,8 @@ export function CameraPage() {
 
           <Card title="Camera path">
             <p className="muted small">
-              Choose views with “+ Path” in the order the camera should fly through them (at least two). The path starts right away and runs over the given
-              duration.
+              Choose views with “+ Path” in the order the camera should fly through them (at least two). TacAM lays a smooth curve through them with an even
+              speed and a soft start and stop; the path starts right away and runs over the given duration.
             </p>
             <div className="row wrap">
               <Field label="Duration (seconds)">
@@ -292,6 +301,21 @@ export function CameraPage() {
                 Clear selection
               </button>
             </div>
+            {pathViews.length >= 2 && (
+              <p className={`small ${speed > FAST_SPEED ? 'camera_speed is-fast' : 'muted'}`}>
+                ≈ {Math.round(speed)} units/s on average (a player runs 250).
+                {speed > FAST_SPEED && (
+                  <>
+                    {' '}
+                    Fast flights look choppy in the stream –{' '}
+                    <button className="link_button" onClick={() => setDuration(calmDuration)}>
+                      use {calmDuration} s
+                    </button>{' '}
+                    for a calm flight.
+                  </>
+                )}
+              </p>
+            )}
           </Card>
         </>
       )}
