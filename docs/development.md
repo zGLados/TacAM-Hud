@@ -31,17 +31,17 @@ Requires **Node ≥ 22.12** and **npm ≥ 11** (`.nvmrc`, `engines`, `packageMan
 
 ## Visual regression (HUD)
 
-Local only, not part of the repo (the helper scripts live in the git-ignored `.ref/`):
+With the helpers in [`tools/screenshots/`](../tools/screenshots/README.md) (setup and scripts there):
 
-1. Start a test server with the demo and save three GSI states from `GET /api/live/raw` as JSON fixtures (freezetime, early and late live state of the same round).
-2. Replay the fixtures by POSTing them to the GSI port (with the token from `db.json`) and take screenshots of the HUD, overlays and all scenes with Playwright (`playwright-core` + an installed headless shell).
-3. Compare before/after pixel by pixel (PIL `ImageChops.difference`, threshold 24).
+1. The recorded GSI states in `tools/screenshots/fixtures/` (freezetime, early and late live state of one round; `record-fixtures.cjs` records new ones from the demo).
+2. `shots-fixtures.cjs` replays them to the GSI port (with the token from `db.json`) and takes screenshots of the HUD, scenes and control pages with Playwright.
+3. `diff.py out-before out` compares before/after pixel by pixel (PIL `ImageChops.difference`, threshold 24).
 
 Note: `google-chrome --headless --screenshot` with `--virtual-time-budget` hangs with open socket connections and counts the window bar into the height; Playwright is more reliable.
 
 ## README screenshots
 
-`docs/images/*.webp` are taken with Playwright from the demo match (HUD 1920×1080 on a gray background, control panel 1600×1000), then converted to WebP (quality 85). The capture scripts are local helpers in `.ref/pw/`: `readme_shots.cjs` (live HUD, starting soon, veto, control live/theme from recorded fixtures) and `readme_v2_shots.cjs` (runs the demo past halftime, ~12 min: freezetime, halftime, match end, the three overlays, stats, director, Integrations → Signals with example rules and the captain veto page at phone size; restores signals and the current match afterwards). `scene-upcoming`/`scene-playerToWatch` come from `new_scenes.cjs`; `control-camera` (`camera_check.cjs`, against a fake HLAE console), `control-huds` (`huds_check.cjs`, with the LHM default HUD imported) and `hud-win-probability` (`prediction_check.cjs`, cropped) from their test scripts. The project logo at the top of the README (`docs/images/tacam-logo.png`) is the TacAM logo, cropped from `apps/hud/public/defaults/brand-logo.png`; sponsor logos may appear in the screenshots. Retake them after visible UI changes.
+`docs/images/*.webp` are taken with Playwright from the demo match (HUD 1920×1080 on a gray background, control panel 1600×1000) by the scripts in `tools/screenshots/` (`shots-fixtures.cjs`, `shots-demo.cjs`, `shots-scenes.cjs`) and converted with `to-webp.py` (WebP quality 85, also refreshes `website/images`). `control-camera` (against a fake HLAE console), `control-huds` (with the LHM default HUD imported) and `hud-win-probability` (cropped) were taken by hand from their feature checks. The project logo at the top of the README (`docs/images/tacam-logo.png`) is the TacAM logo, cropped from `apps/hud/public/defaults/brand-logo.png`; sponsor logos may appear in the screenshots. Retake them after visible UI changes.
 
 ## CI
 

@@ -14,3 +14,6 @@ coverage/
 
 # personal Claude Code settings (e.g. plugins enabled only for one developer)
 .claude/settings.local.json
+
+# Obsidian vault settings when the repo is opened as a vault
+.obsidian/

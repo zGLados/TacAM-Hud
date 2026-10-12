@@ -4,6 +4,10 @@ Hand-over state for the next session. Latest release: **v0.4.0** (export / impor
 
 ## Open tasks
 
+### Knowledge base (2026-10-12)
+
+- `docs/knowledge.md` = the project's long-term memory (owner's wish: continue on another PC with the same knowledge). Dev helpers for screenshots moved from the local `.ref/` into `tools/screenshots/`. The owner installs Obsidian for personal notes; idea: open the repo (or `docs/`) as an Obsidian vault so both use the same files – `.obsidian/` is git-ignored.
+
 ### Website hud.tac.am and community
 
 - `website/` (static, see `website/README.md`) is **online at https://hud.tac.am** since 2026-10-11 (hosted by the owner, HTTPS, http redirects). Repo homepage and README link set. When screenshots change, update `website/images` too and tell the owner to re-upload.

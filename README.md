@@ -160,6 +160,7 @@ Defaults below; every action (scenes, overlays, HUD elements, team swaps) can ge
 | [docs/development.md](docs/development.md) | Workflow, tests, visual regression, releases |
 | [docs/lhm-roadmap.md](docs/lhm-roadmap.md) | Feature plan based on LHM.gg |
 | [docs/STATUS.md](docs/STATUS.md) | Current state and open tasks |
+| [docs/knowledge.md](docs/knowledge.md) | Project knowledge: working agreements, decisions and why, lessons learned, setup on another PC |
 | [CHANGELOG.md](CHANGELOG.md) | What changed in each version |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to help: bugs, ideas, testing, guides, code |
 

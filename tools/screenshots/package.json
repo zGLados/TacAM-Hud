@@ -1,0 +1,8 @@
+{
+  "name": "tacam-screenshots",
+  "private": true,
+  "description": "Dev helper: README/website screenshots and HUD visual regression (not part of the npm workspaces)",
+  "devDependencies": {
+    "playwright-core": "1.63.0"
+  }
+}

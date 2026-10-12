@@ -13,7 +13,8 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 - `.github/workflows/release.yml`: builds the Windows installer (+ `latest.yml` for the in-app updater) when a GitHub release is published; tests run on Windows there. Signs it via SignPath once configured (`docs/development.md` → Code signing; `apps/desktop/scripts/refresh-update-info.mjs` fixes the update hashes after signing).
 - `website/`: static project page for hud.tac.am (hosted by the owner; images are copies of `docs/images`; keep the *Roadmap* section in sync with releases).
 - Community: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, GitHub Discussions; no prepared starter issues (owner's decision) – the labels `good first issue` / `help wanted` exist for later.
-- Docs: `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state.**
+- `tools/screenshots/`: Playwright scripts + GSI fixtures for README/website screenshots and visual before/after checks (own `package.json`, not a workspace).
+- Docs: `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state, then `docs/knowledge.md`** (working agreements with the owner, decisions and their reasons, hard-won CS2/HLAE facts, external services, setup on another PC). Add new decisions and lessons there.
 
 ## Commands
 
