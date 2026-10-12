@@ -33,7 +33,7 @@ By taking part you agree to the [Code of Conduct](CODE_OF_CONDUCT.md): be kind, 
    npm run typecheck
    npm test
    ```
-   CI runs both on Linux and Windows for every pull request.
+   CI runs both on Linux and Windows for every pull request, and GitHub Copilot reviews it automatically – treat its comments as suggestions; a maintainer has the final word.
 4. **Keep the docs current in the same pull request:** README feature list, `docs/features.md`, `docs/api.md` and `docs/architecture.md` where your change touches them; screenshots when the UI changes visibly. Add a line under *Unreleased* in `CHANGELOG.md` for anything users notice.
 
 ### Conventions

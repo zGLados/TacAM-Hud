@@ -47,6 +47,10 @@ Note: `google-chrome --headless --screenshot` with `--virtual-time-budget` hangs
 
 `.github/workflows/ci.yml` runs typecheck, tests and build on every push to `main` and every pull request, on Linux and Windows (some behavior differs per platform, e.g. console hints). The README shows its status (badge *CI*) next to the status of the last release build (*Release build*).
 
+## Pull requests and code review
+
+A repository ruleset (*Copilot code review*, on `main`) asks GitHub Copilot to review every pull request automatically and again after new pushes; it does not block direct pushes. Bigger features are developed on a branch (`feat/<topic>`) and merged through a pull request after CI and the Copilot review; small fixes and docs go straight to `main`. Pull requests from contributors always go through CI and the review.
+
 ## Versions and releases
 
 **Version numbers** follow semantic versioning: a release with new features raises the minor version (`0.2.0` → `0.3.0`), a release with only fixes the patch version (`0.2.0` → `0.2.1`). `1.0.0` comes once TacAM has carried a real broadcast. Test builds are betas: `0.3.0-beta.1`, `-beta.2`, … before `0.3.0`.

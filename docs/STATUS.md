@@ -4,6 +4,10 @@ Hand-over state for the next session. Latest release: **v0.4.0** (export / impor
 
 ## Open tasks
 
+### Code review (2026-10-12)
+
+- Ruleset *Copilot code review* on `main` (id 24939282): Copilot reviews every pull request automatically (also after new pushes). Bigger features now go through a branch + pull request, small fixes and docs straight to `main` (see `docs/development.md` → Pull requests and code review). Not yet seen in action – the first pull request shows whether Copilot is available on the owner's plan.
+
 ### Continuing on another PC (2026-10-12)
 
 - Dev helpers for screenshots moved from the local `.ref/` into `tools/screenshots/` (see its README). Private project knowledge is kept by the owner outside the repo (owner's decision).
