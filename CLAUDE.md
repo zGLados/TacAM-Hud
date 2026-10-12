@@ -14,7 +14,7 @@ CS2 broadcast HUD + manager (TacAM design). npm workspaces monorepo, TypeScript 
 - `website/`: static project page for hud.tac.am (hosted by the owner; images are copies of `docs/images`; keep the *Roadmap* section in sync with releases).
 - Community: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, GitHub Discussions; no prepared starter issues (owner's decision) – the labels `good first issue` / `help wanted` exist for later.
 - `tools/screenshots/`: Playwright scripts + GSI fixtures for README/website screenshots and visual before/after checks (own `package.json`, not a workspace).
-- Docs: `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state, then `docs/knowledge.md`** (working agreements with the owner, decisions and their reasons, hard-won CS2/HLAE facts, external services, setup on another PC). Add new decisions and lessons there.
+- Docs: `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `docs/*.md`. **Read `docs/STATUS.md` first for open tasks and the hand-over state.** The owner keeps private project knowledge (working agreements, decisions and their reasons, lessons learned) outside the repo – see the personal Claude Code instructions; never copy it into the repo.
 
 ## Commands
 

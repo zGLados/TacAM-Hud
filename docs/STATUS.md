@@ -4,9 +4,9 @@ Hand-over state for the next session. Latest release: **v0.4.0** (export / impor
 
 ## Open tasks
 
-### Knowledge base (2026-10-12)
+### Continuing on another PC (2026-10-12)
 
-- `docs/knowledge.md` = the project's long-term memory (owner's wish: continue on another PC with the same knowledge). Dev helpers for screenshots moved from the local `.ref/` into `tools/screenshots/`. The owner installs Obsidian for personal notes; idea: open the repo (or `docs/`) as an Obsidian vault so both use the same files – `.obsidian/` is git-ignored.
+- Dev helpers for screenshots moved from the local `.ref/` into `tools/screenshots/` (see its README). Private project knowledge is kept by the owner outside the repo (owner's decision).
 
 ### Website hud.tac.am and community
 
